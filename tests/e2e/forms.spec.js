@@ -4,21 +4,27 @@ import AxeBuilder from '@axe-core/playwright';
 // ---- Turnstile stub ---------------------------------------------------------
 // Never talk to Cloudflare in tests. The stub issues a fresh fake token on
 // render and on every reset, like the real widget with the test site key.
+// Tokens arrive asynchronously, so the controller's wait path is exercised.
+// With window.__tsMode === 'error' every challenge fails (error-callback).
 const TURNSTILE_STUB = `
 window.__ts = { renders: 0, resets: 0, sitekeys: [] };
 window.turnstile = (function () {
   var n = 0, widgets = {};
   function issue(id) {
     var w = widgets[id]; if (!w) return;
-    n += 1; w.token = 'fake-token-' + n;
-    setTimeout(function () { if (widgets[id] && w.cb) w.cb(w.token); }, 20);
+    setTimeout(function () {
+      if (!widgets[id]) return;
+      if (window.__tsMode === 'error') { if (w.err) w.err('300030'); return; }
+      n += 1; w.token = 'fake-token-' + n;
+      if (w.cb) w.cb(w.token);
+    }, 30);
   }
   return {
     render: function (el, opts) {
       var box = typeof el === 'string' ? document.querySelector(el) : el;
       var id = 'w' + (window.__ts.renders += 1);
       window.__ts.sitekeys.push(opts.sitekey);
-      widgets[id] = { cb: opts.callback, token: '' };
+      widgets[id] = { cb: opts.callback, err: opts['error-callback'], token: '' };
       var p = document.createElement('p'); p.textContent = 'Verification stub';
       box.appendChild(p);
       issue(id);
@@ -34,11 +40,14 @@ const UPLOAD_URL = 'https://storage.example.test/upload/sign/lead-uploads/abc?to
 const LOGO_PATH = '0f8fad5b-d9cb-469f-a165-70867728950e-logo.png';
 
 // calls: ordered list of { kind, body } for every /api/* and upload request.
-async function setup(page, { lead, upload, put } = {}) {
+// turnstile: 'ok' (stub), 'error' (stub whose challenges always fail),
+// 'abort' (api.js never loads).
+async function setup(page, { lead, upload, put, turnstile = 'ok' } = {}) {
   const calls = [];
   await page.route('https://challenges.cloudflare.com/**', (route) => {
-    if (route.request().url().includes('/turnstile/v0/api.js')) {
-      return route.fulfill({ contentType: 'application/javascript', body: TURNSTILE_STUB });
+    if (turnstile !== 'abort' && route.request().url().includes('/turnstile/v0/api.js')) {
+      const mode = turnstile === 'error' ? "window.__tsMode = 'error';" : '';
+      return route.fulfill({ contentType: 'application/javascript', body: mode + TURNSTILE_STUB });
     }
     return route.abort();
   });
@@ -112,9 +121,11 @@ async function fillProject(page) {
 }
 
 // Presses Tab until the active element matches `selector` (keyboard only).
+const tabKey = (page) => (page.context().browser().browserType().name() === 'webkit' ? 'Alt+Tab' : 'Tab');
+
 async function tabTo(page, selector, max = 60) {
   for (let i = 0; i < max; i++) {
-    await page.keyboard.press('Tab');
+    await page.keyboard.press(tabKey(page));
     if (await page.evaluate((s) => document.activeElement && document.activeElement.matches(s), selector)) return;
   }
   throw new Error(`Tab never reached ${selector}`);
@@ -316,12 +327,49 @@ test.describe('Start a Project', () => {
     await fillProject(page);
     await submit(page).click();
     await expect(page.locator('[data-form-status]')).toContainText('Please complete the verification and try again');
+    await expect(page.locator('[data-form-status] a[href^="mailto:"]')).toBeVisible();
     await expect.poll(() => page.evaluate(() => window.__ts.resets)).toBeGreaterThan(0);
     await expect(page.getByLabel('Your name')).toHaveValue('Ada Lovelace');
     await page.waitForTimeout(100);
     await submit(page).click();
     await expect.poll(() => calls.length).toBe(2);
     expect(calls[1].body.turnstile).not.toBe(calls[0].body.turnstile);
+  });
+
+  test('Turnstile script blocked: mailto fallback, nothing sent, data kept', async ({ page }) => {
+    const calls = await setup(page, { turnstile: 'abort' });
+    await ready(page, '/start');
+    await fillProject(page);
+    await submit(page).click();
+    const status = page.locator('[data-form-status]');
+    await expect(status).toContainText(/spam check could not load/i);
+    await expect(status.locator('a[href^="mailto:amanorsac@gmail.com?subject=Project%20inquiry"]')).toBeVisible();
+    expect(calls).toEqual([]);
+    await expect(submit(page)).toBeEnabled();
+    await expect(page.getByLabel('Your name')).toHaveValue('Ada Lovelace');
+    await back(page).click();
+    await back(page).click();
+    await expect(page.getByLabel('Organization name')).toHaveValue('Grace Chapel');
+  });
+
+  test('Turnstile erroring every time: mailto fallback instead of a dead end', async ({ page }) => {
+    const calls = await setup(page, { turnstile: 'error' });
+    await ready(page, '/start');
+    await fillProject(page);
+    await submit(page).click();
+    const status = page.locator('[data-form-status]');
+    await expect(status.locator('a[href^="mailto:amanorsac@gmail.com"]')).toBeVisible();
+    await expect(status).toContainText(/spam check/i);
+    expect(calls).toEqual([]);
+    await expect(page.getByRole('textbox', { name: 'Email' })).toHaveValue('ada@example.com');
+  });
+
+  test('the status live region is always rendered', async ({ page }) => {
+    await setup(page);
+    await ready(page, '/start');
+    const status = page.locator('[data-form-status]');
+    await expect(status).toHaveAttribute('aria-live', 'polite');
+    expect(await status.evaluate((el) => el.hidden || getComputedStyle(el).display === 'none')).toBe(false);
   });
 
   test('a reload keeps the draft; success clears it', async ({ page }) => {
@@ -393,8 +441,7 @@ test.describe('Start a Project', () => {
     expect(sw).toBeLessThanOrEqual(iw);
   });
 
-  test('can be completed with the keyboard alone', async ({ page, browserName }) => {
-    test.skip(browserName === 'webkit', "WebKit's Tab skips buttons and links (Safari preference)");
+  test('can be completed with the keyboard alone', async ({ page }) => {
     const calls = await setup(page);
     await ready(page, '/start');
     await tabTo(page, 'input[name="org_type"]');
@@ -416,7 +463,7 @@ test.describe('Start a Project', () => {
     await expect(progress(page)).toHaveText(/Step 5 of 5/);
     await tabTo(page, 'input[name="name"]');
     await page.keyboard.type('Ada');
-    await page.keyboard.press('Tab');
+    await page.keyboard.press(tabKey(page));
     await page.keyboard.type('ada@example.com');
     await tabTo(page, '[data-submit]');
     await page.keyboard.press('Enter');
@@ -522,10 +569,70 @@ test.describe('Free Mockup', () => {
     expect(calls).toEqual([]);
   });
 
-  test('a failed upload shows the fallback and keeps the logo; retry works', async ({ page }) => {
+  async function expectLogoNote(page) {
+    const status = page.locator('[data-form-status]');
+    await expect(status).toContainText("Your request was sent, but the logo didn't upload.");
+    await expect(status.getByRole('link', { name: 'email it to us' })).toHaveAttribute('href', /^mailto:amanorsac@gmail\.com\?subject=/);
+    await expect(status.getByRole('link', { name: 'Continue' })).toHaveAttribute('href', '/thanks?kind=mockup');
+    await expect(send(page)).toBeDisabled();
+  }
+
+  test('a failed PUT still sends the lead (without logo_path) and says so', async ({ page }) => {
+    const calls = await setup(page, { put: (route) => route.fulfill({ status: 500, body: 'no' }) });
+    await ready(page, '/mockup');
+    await fillMockup(page);
+    await logoInput(page).setInputFiles({ name: 'logo.png', mimeType: 'image/png', buffer: Buffer.alloc(100) });
+    await send(page).click();
+    await expectLogoNote(page);
+    expect(calls.map((c) => c.kind)).toEqual(['upload-url', 'put', 'lead']);
+    expect(calls[2].body.logo_path).toBeUndefined();
+    expect(calls[2].body.org_name).toBe('Grace Chapel');
+    expect(calls[2].body.turnstile).not.toBe(calls[0].body.turnstile);
+    await send(page).click({ force: true });
+    await page.waitForTimeout(200);
+    expect(calls.filter((c) => c.kind === 'lead')).toHaveLength(1);
+    await page.getByRole('link', { name: 'Continue' }).click();
+    await page.waitForURL(/\/thanks\?kind=mockup$/);
+  });
+
+  test('an upload-url 500 or network error still sends the lead', async ({ page }) => {
+    let mode = 500;
+    const calls = await setup(page, {
+      upload: (route) => (mode === 500 ? json(500, { ok: false, error: 'server' })(route) : route.abort()),
+    });
+    await ready(page, '/mockup');
+    await fillMockup(page);
+    await logoInput(page).setInputFiles({ name: 'logo.png', mimeType: 'image/png', buffer: Buffer.alloc(100) });
+    await send(page).click();
+    await expectLogoNote(page);
+    expect(calls.map((c) => c.kind)).toEqual(['upload-url', 'lead']);
+    expect(calls[1].body.logo_path).toBeUndefined();
+    expect(calls[1].body.turnstile).not.toBe(calls[0].body.turnstile);
+
+    mode = 'abort';
+    await page.reload();
+    await expect(page.locator('form[data-form]')).toHaveAttribute('data-ready', 'true');
+    await fillMockup(page);
+    await logoInput(page).setInputFiles({ name: 'logo.png', mimeType: 'image/png', buffer: Buffer.alloc(100) });
+    await send(page).click();
+    await expectLogoNote(page);
+  });
+
+  test('upload-url validation errors (400) stay on the logo field; nothing is sent', async ({ page }) => {
+    const calls = await setup(page, { upload: json(400, { ok: false, errors: { size: 'The file must be 5MB or smaller.' } }) });
+    await ready(page, '/mockup');
+    await fillMockup(page);
+    await logoInput(page).setInputFiles({ name: 'logo.png', mimeType: 'image/png', buffer: Buffer.alloc(100) });
+    await send(page).click();
+    await expect(page.locator('#err-logo')).toHaveText('The file must be 5MB or smaller.');
+    expect(calls.map((c) => c.kind)).toEqual(['upload-url']);
+    await expect(page.getByLabel('Your name')).toHaveValue('Ada Lovelace');
+  });
+
+  test('a failed /api/lead after a good upload keeps the logo; retry does not re-upload', async ({ page }) => {
     let fail = true;
     const calls = await setup(page, {
-      put: (route) => (fail ? route.fulfill({ status: 500, body: 'no' }) : route.fulfill({ status: 200, body: '{}' })),
+      lead: (route) => (fail ? json(500, { ok: false, error: 'server' })(route) : json(200, { ok: true })(route)),
     });
     await ready(page, '/mockup');
     await fillMockup(page);
@@ -537,7 +644,8 @@ test.describe('Free Mockup', () => {
     fail = false;
     await send(page).click();
     await page.waitForURL(/\/thanks/);
-    expect(calls.map((c) => c.kind)).toEqual(['upload-url', 'put', 'upload-url', 'put', 'lead']);
+    expect(calls.map((c) => c.kind)).toEqual(['upload-url', 'put', 'lead', 'lead']);
+    expect(calls[3].body.logo_path).toBe(LOGO_PATH);
   });
 
   test('no serious axe violations, with errors and a logo preview', async ({ page }) => {
@@ -562,8 +670,7 @@ test.describe('Free Mockup', () => {
     expect(sw).toBeLessThanOrEqual(iw);
   });
 
-  test('can be completed with the keyboard alone', async ({ page, browserName }) => {
-    test.skip(browserName === 'webkit', "WebKit's Tab skips buttons and links (Safari preference)");
+  test('can be completed with the keyboard alone', async ({ page }) => {
     const calls = await setup(page);
     await ready(page, '/mockup');
     await tabTo(page, 'input[name="org_name"]');
@@ -574,7 +681,7 @@ test.describe('Free Mockup', () => {
     await page.keyboard.press('ArrowRight'); // "Classic"
     await tabTo(page, 'input[name="name"]');
     await page.keyboard.type('Ada');
-    await page.keyboard.press('Tab');
+    await page.keyboard.press(tabKey(page));
     await page.keyboard.type('ada@example.com');
     await tabTo(page, '[data-submit]');
     await page.keyboard.press('Enter');

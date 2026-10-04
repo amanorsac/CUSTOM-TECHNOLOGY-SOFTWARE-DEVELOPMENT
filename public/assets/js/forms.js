@@ -29,8 +29,11 @@ const MSG = {
   captcha: 'Please complete the verification and try again.',
   check: 'Please check the highlighted fields.',
   noTurnstile: 'The spam check could not load, so we cannot send this form right now.',
+  noToken: 'We could not complete the spam check, so your details were not sent.',
   failed: 'Sorry, something went wrong and your details were not sent.',
+  logoFailed: "Your request was sent, but the logo didn't upload.",
 };
+const TOKEN_WAIT = 30000;
 
 function storage() {
   try { return window.sessionStorage; } catch { return null; }
@@ -47,6 +50,7 @@ function init(form) {
   const DRAFT_KEY = `ctsd-draft-${kind}`;
   let current = 0;
   let busy = false;
+  let sent = false; // stored, and the page stays to show the logo note
   let designSlug = '';
   let uploaded = null; // { file, path } once a logo PUT has succeeded
 
@@ -132,12 +136,21 @@ function init(form) {
   }
 
   function say(html, tone = 'error') {
+    // The live region stays rendered (empty when unused) so it is announced reliably.
     status.innerHTML = html ? `<p class="form-status__msg form-status__msg--${tone}">${html}</p>` : '';
-    status.hidden = !html;
+  }
+
+  const mailHref = () => fallbackHref(form.dataset.fallback, form.dataset.fallbackSubject || 'Project inquiry', collect());
+
+  function captchaMessage() {
+    const href = mailHref();
+    say(esc(MSG.captcha) + (href
+      ? ` If it keeps failing, <a href="${esc(href)}">email us your details</a> instead. Your answers are still here.`
+      : ' Your answers are still here.'));
   }
 
   function fallbackMessage(text) {
-    const href = fallbackHref(form.dataset.fallback, form.dataset.fallbackSubject || 'Project inquiry', collect());
+    const href = mailHref();
     const link = href
       ? ` Your answers are still here. Please try again in a moment, or <a href="${esc(href)}">email us your details</a> instead.`
       : ' Your answers are still here. Please try again in a moment.';
@@ -207,12 +220,17 @@ function init(form) {
   }
 
   // ---- Turnstile -------------------------------------------------------------------------
+  // The page's <script data-turnstile-script> has inline onload/onerror attributes
+  // that set window.ctsdTurnstile = 'loaded' | 'failed' at parse time, so a load
+  // error that happens before this module runs is not missed.
   const turnstileWidget = (() => {
     const box = form.querySelector('[data-turnstile]');
     const script = document.querySelector('script[data-turnstile-script]');
     let id = null;
     let token = '';
-    let failed = false;
+    let issued = false; // a token was issued since the last reset (so it may be spent)
+    let errored = false; // the last challenge failed; don't make the visitor wait for nothing
+    let failed = !script || window.ctsdTurnstile === 'failed';
     let wanted = kind !== 'project';
     let waiters = [];
 
@@ -220,40 +238,61 @@ function init(form) {
 
     function renderWidget() {
       if (id !== null || !wanted || !window.turnstile || !box) return;
-      id = window.turnstile.render(box, {
-        sitekey: box.dataset.sitekey,
-        theme: 'light',
-        size: 'flexible',
-        appearance: 'interaction-only',
-        callback: (t) => { token = t; settle(); },
-        'expired-callback': () => { token = ''; },
-        'error-callback': () => { token = ''; settle(); },
-      });
+      try {
+        id = window.turnstile.render(box, {
+          sitekey: box.dataset.sitekey,
+          theme: 'light',
+          size: 'flexible',
+          appearance: 'interaction-only',
+          callback: (t) => { token = t; issued = true; errored = false; settle(); },
+          'expired-callback': () => { token = ''; }, // refreshes itself (refresh-expired: auto)
+          // Persistent errors (e.g. a wrong site key) must not leave the visitor waiting.
+          'error-callback': () => { token = ''; errored = true; settle(); },
+          // An interactive challenge was shown but not solved in time: offer it again.
+          'timeout-callback': () => {
+            token = ''; issued = false; settle();
+            try { window.turnstile.reset(id); } catch { /* ignore */ }
+          },
+        });
+      } catch {
+        failed = true; settle();
+      }
     }
 
     if (window.turnstile) renderWidget();
-    else if (script) {
+    else if (!failed) {
       script.addEventListener('load', renderWidget);
       script.addEventListener('error', () => { failed = true; settle(); });
-    } else failed = true;
+    }
 
     return {
-      ensure() { wanted = true; renderWidget(); },
-      available() { return !failed && !!(window.turnstile || script); },
-      // Resolves with a token, or '' if none arrives in time.
-      token(ms = 15000) {
+      ensure() {
+        wanted = true;
+        if (window.ctsdTurnstile === 'failed' && !window.turnstile) failed = true;
+        renderWidget();
+      },
+      available() { return !failed; },
+      // Resolves with a token, or '' if none arrives in time or the widget errors.
+      token(ms = TOKEN_WAIT) {
         this.ensure();
         if (!token && id !== null && window.turnstile) token = window.turnstile.getResponse(id) || '';
-        if (token || !this.available()) return Promise.resolve(token);
+        if (token || failed || errored) return Promise.resolve(token);
         return new Promise((resolve) => {
-          const timer = setTimeout(() => { waiters = waiters.filter((w) => w !== done); resolve(token); }, ms);
+          const timer = setTimeout(() => {
+            waiters = waiters.filter((w) => w !== done);
+            if (!window.turnstile) failed = true; // the script never arrived
+            resolve(token);
+          }, ms);
           function done() { clearTimeout(timer); resolve(token); }
           waiters.push(done);
         });
       },
-      // Tokens are single-use: drop the old one and ask for a fresh one.
+      // Tokens are single-use: once one was issued (and possibly spent), ask for a
+      // fresh one. Never reset a challenge that has not produced a token yet; that
+      // would wipe an interactive check the visitor may be solving.
       reset() {
-        token = '';
+        if (!issued) return;
+        token = ''; issued = false;
         if (id !== null && window.turnstile) { try { window.turnstile.reset(id); } catch { /* ignore */ } }
       },
     };
@@ -281,7 +320,7 @@ function init(form) {
   function handleFailure(res, fieldMap) {
     turnstileWidget.reset();
     if (res.status === 403 && res.data && res.data.error === 'captcha') {
-      say(esc(MSG.captcha));
+      captchaMessage();
       return;
     }
     if (res.status === 400 && res.data && res.data.errors) {
@@ -317,9 +356,13 @@ function init(form) {
   async function uploadLogo(file, type) {
     if (uploaded && uploaded.file === file) return { ok: true, path: uploaded.path };
     const tok = await turnstileWidget.token();
-    if (!tok) return { ok: false, res: { status: 403, data: { error: 'captcha' } } };
+    if (!tok) return { ok: false, noToken: true };
     const res = await postJson('/api/upload-url', { filename: file.name, type, size: file.size, turnstile: tok });
-    if (res.status !== 200 || !res.data || !res.data.ok || !res.data.uploadUrl) return { ok: false, res };
+    if (res.status !== 200 || !res.data || !res.data.ok || !res.data.uploadUrl) {
+      // 400 (type/size) and 403 (captcha) are the visitor's to fix; anything else is ours.
+      const fixable = (res.status === 400 && !!res.data && !!res.data.errors) || res.status === 403;
+      return { ok: false, res, fixable };
+    }
     // The upload-url call used the token, so the lead call needs a fresh one.
     turnstileWidget.reset();
     try {
@@ -335,7 +378,7 @@ function init(form) {
   }
 
   async function send() {
-    if (busy) return;
+    if (busy || sent) return;
     const data = collect();
     const result = validateLead(data);
     if (!result.ok) {
@@ -358,6 +401,7 @@ function init(form) {
     setBusy(true);
     say('Sending…', 'info');
     let leaving = false;
+    let logoFailed = false;
     try {
       const payload = { ...result.value };
       if (Array.isArray(payload.needs) && !payload.needs.length) delete payload.needs;
@@ -368,23 +412,36 @@ function init(form) {
         const check = checkLogo(file);
         if (!check.ok) { setFieldError('logo', check.error); say(esc(MSG.check)); focusField('logo'); return; }
         const up = await uploadLogo(file, check.type);
-        if (!up.ok) {
+        if (up.ok) payload.logo_path = up.path;
+        else if (up.noToken) { noTokenMessage(); return; }
+        else if (up.fixable) {
           handleFailure(up.res, (errs) => ({ logo: errs.type || errs.size || errs.logo }));
           return;
+        } else {
+          // The logo is optional: a storage problem must not lose the request.
+          logoFailed = true;
+          turnstileWidget.reset();
         }
-        payload.logo_path = up.path;
       }
 
       const tok = await turnstileWidget.token();
-      if (!tok) {
-        if (turnstileWidget.available()) handleFailure({ status: 403, data: { error: 'captcha' } });
-        else fallbackMessage(MSG.noTurnstile);
-        return;
-      }
+      if (!tok) { noTokenMessage(); return; }
       const hp = form.querySelector('[name="website_hp"]');
       const res = await postJson('/api/lead', { ...payload, turnstile: tok, website_hp: hp ? hp.value : '' });
       if (res.status === 200 && res.data && res.data.ok) {
         clearDraft();
+        if (logoFailed) {
+          // Stay on the page so the visitor can read the note and use the email link.
+          sent = true;
+          const href = fallbackHref(form.dataset.fallback, 'Logo for my mockup request',
+            { org_name: payload.org_name, name: payload.name, email: payload.email });
+          say(`${esc(MSG.logoFailed)}${href ? ` You can <a href="${esc(href)}">email it to us</a>.` : ''} `
+            + `<a class="form-status__next" href="/thanks?kind=${kind}">Continue</a>`, 'info');
+          const msg = status.querySelector('.form-status__msg');
+          msg.tabIndex = -1;
+          msg.focus();
+          return;
+        }
         say('Sent. Taking you to the next page…', 'info');
         leaving = true; // stay busy: the page is leaving
         window.location.assign(`/thanks?kind=${kind}`);
@@ -395,7 +452,12 @@ function init(form) {
       handleFailure({ status: 0, data: null });
     } finally {
       if (!leaving) setBusy(false);
+      if (sent) btnSubmit.disabled = true;
     }
+  }
+
+  function noTokenMessage() {
+    fallbackMessage(turnstileWidget.available() ? MSG.noToken : MSG.noTurnstile);
   }
 
   // ---- Wiring ------------------------------------------------------------------------------
@@ -506,6 +568,11 @@ function init(form) {
     current = resume;
   }
   render(false);
+  // Back from /thanks through the bfcache restores the page as it was left: busy.
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted && !sent) { setBusy(false); say(''); }
+  });
+
   loadDesign().finally(() => { form.dataset.ready = 'true'; });
 }
 

@@ -151,7 +151,7 @@
             <input type="text" id="website_hp" name="website_hp" tabindex="-1" autocomplete="off">
           </div>
 
-          <div class="form-status" data-form-status role="status" aria-live="polite" hidden></div>
+          <div class="form-status" data-form-status role="status" aria-live="polite"></div>
 
           <div class="fx__actions">
             <button type="button" class="btn btn--ghost" data-back hidden><span class="arrow arrow--back" aria-hidden="true">←</span> Back</button>
@@ -167,6 +167,6 @@
 <div id="site-footer"></div>
 <script type="module" src="/assets/js/shell.js"></script>
 <script type="module" src="/assets/js/forms.js"></script>
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer data-turnstile-script></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer data-turnstile-script onload="window.ctsdTurnstile='loaded'" onerror="window.ctsdTurnstile='failed'"></script>
 </body>
 </html>

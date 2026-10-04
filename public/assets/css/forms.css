@@ -303,7 +303,11 @@
 .file__remove:hover { border-color: var(--deep-brown); }
 
 /* ---- Status, honeypot, turnstile, actions ------------------------------------- */
-.form-status[hidden] { display: none; }
+/* Always rendered so the live region is announced; out of the layout while empty. */
+.form-status:empty {
+  position: absolute; width: 1px; height: 1px;
+  margin: -1px; overflow: hidden; clip: rect(0 0 0 0);
+}
 .form-status__msg {
   padding: 14px 16px;
   border-radius: 12px;
@@ -316,6 +320,9 @@
 }
 .form-status__msg--error a { color: #7A2E1A; font-weight: 600; }
 .form-status__msg--info { background: var(--cream); color: var(--deep-brown); }
+.form-status__msg--info a { color: var(--deep-brown); font-weight: 600; }
+.form-status__msg:focus { outline: none; }
+.form-status__msg:focus-visible { outline: 3px solid var(--deep-brown-900); outline-offset: 3px; }
 
 .hp {
   position: absolute !important;
