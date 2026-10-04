@@ -67,15 +67,41 @@ tablist.addEventListener('keydown', (e) => {
   select(tabs[(next + tabs.length) % tabs.length].dataset.cat, { focus: true });
 });
 
+const errorBox = document.querySelector('[data-shop-error]');
+const retry = document.querySelector('[data-shop-retry]');
+
+// A failed load: drop the CLS space reservation and show a visible error
+// (the status line is visually hidden on small screens).
+function showFailure(failed) {
+  grid.classList.toggle('is-failed', failed);
+  errorBox.hidden = !failed;
+}
+
+retry.addEventListener('click', () => {
+  retry.disabled = true;
+  init().finally(() => {
+    retry.disabled = false;
+    // Success hides the button; keep keyboard focus somewhere sensible.
+    if (errorBox.hidden) {
+      const tab = tablist.querySelector('[aria-selected="true"]');
+      if (tab) tab.focus();
+    }
+  });
+});
+
 async function init() {
   try {
     const res = await fetch('/data/designs.json');
     if (!res.ok) throw new Error(String(res.status));
-    designs = await res.json();
+    const data = await res.json();
+    if (!Array.isArray(data)) throw new Error('bad data');
+    designs = data;
   } catch {
-    status.textContent = 'Designs could not be loaded. Please refresh the page.';
+    status.textContent = '';
+    showFailure(true);
     return;
   }
+  showFailure(false);
   const cat = normalizeCategory(new URLSearchParams(location.search).get('cat'));
   renderTabs(cat);
   renderGrid(cat);

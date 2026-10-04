@@ -98,6 +98,29 @@ test.describe('live admin demo', () => {
     await expect(page.locator('[data-event-list]')).not.toContainText('Choir Night');
   });
 
+  test('switching org hides a pending Undo, so it cannot restore into the wrong org', async ({ page }) => {
+    await open(page, '#/events');
+    const list = page.locator('[data-event-list]');
+    await page.getByRole('button', { name: 'Add event' }).click();
+    const dialog = page.getByRole('dialog');
+    await dialog.getByLabel('Title').fill('Undo Probe');
+    await dialog.getByLabel('Date').fill('2026-10-12');
+    await dialog.getByRole('button', { name: 'Save event' }).click();
+    await expect(list).toContainText('Undo Probe');
+
+    await page.getByRole('button', { name: 'Delete Undo Probe' }).click();
+    const undo = page.locator('[data-toast]').getByRole('button', { name: 'Undo' });
+    await expect(undo).toBeVisible();
+
+    await page.getByLabel('Organization').selectOption('school');
+    await expect(page.locator('[data-org-name]')).toHaveText('Oakridge Academy');
+    await expect(undo).toHaveCount(0);
+    await expect(list).not.toContainText('Undo Probe');
+
+    await page.getByLabel('Organization').selectOption('church');
+    await expect(list).not.toContainText('Undo Probe');
+  });
+
   test('event dialog closes on Escape and returns focus', async ({ page }) => {
     await open(page, '#/events');
     const add = page.getByRole('button', { name: 'Add event' });

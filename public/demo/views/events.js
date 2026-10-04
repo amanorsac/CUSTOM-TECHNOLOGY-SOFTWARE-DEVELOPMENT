@@ -124,7 +124,12 @@ export function mount(el, { store, data, announce, toast }) {
       if (!ev) return;
       store.dispatch({ type: 'event/delete', id: ev.id });
       el.querySelector('[data-add]').focus();
-      toast(`“${ev.title}” deleted`, { label: 'Undo', run: () => store.dispatch({ type: 'event/add', event: ev }) });
+      // Undo restores into the org it was deleted from, never another one.
+      const org = store.getState().org;
+      toast(`“${ev.title}” deleted`, {
+        label: 'Undo',
+        run: () => { if (store.getState().org === org) store.dispatch({ type: 'event/add', event: ev }); },
+      });
     }
   });
 

@@ -46,7 +46,12 @@
         <p class="shop-status" data-shop-status role="status" aria-live="polite"></p>
       </div>
 
-      <div id="design-panel" role="tabpanel" aria-labelledby="tab-all" class="shop-panel">
+      <div id="design-panel" role="tabpanel" aria-label="Designs" class="shop-panel">
+        <noscript><p class="shop-message">The design list needs JavaScript. You can still <a href="/start">tell us what you need</a> and we will reply personally.</p></noscript>
+        <div class="shop-message shop-message--error" data-shop-error role="alert" hidden>
+          <p>Designs could not be loaded. Check your connection and try again, or refresh the page.</p>
+          <button type="button" class="btn btn--primary" data-shop-retry>Try again</button>
+        </div>
         <ul class="shop-grid" data-design-grid></ul>
       </div>
     </div>

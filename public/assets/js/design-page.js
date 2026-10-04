@@ -231,25 +231,51 @@ function fill(design, designs) {
   retone();
 }
 
-function notFound() {
-  document.title = 'Design not found | CTSD';
+// Not found (unknown slug) and load failure share one layout; only the words differ.
+function message({ title, heading, lead, action }) {
+  document.title = `${title} | CTSD`;
   root.innerHTML = `<section class="d-hero d-missing section--wood" aria-labelledby="d-missing">
   <div class="container d-missing__inner">
     <p class="eyebrow">Explore Designs</p>
-    <h1 id="d-missing">Design not found</h1>
-    <p class="lead">We could not find that concept. It may have been renamed or retired.</p>
-    <div class="d-hero__actions"><a class="btn btn--primary" href="/designs">Browse all designs <span class="arrow" aria-hidden="true">→</span></a></div>
+    <h1 id="d-missing">${heading}</h1>
+    <p class="lead">${lead}</p>
+    <div class="d-hero__actions">${action}</div>
   </div>
 </section>`;
 }
 
+function notFound() {
+  message({
+    title: 'Design not found',
+    heading: 'Design not found',
+    lead: 'We could not find that concept. It may have been renamed or retired.',
+    action: '<a class="btn btn--primary" href="/designs">Browse all designs <span class="arrow" aria-hidden="true">→</span></a>',
+  });
+}
+
+function loadFailed() {
+  message({
+    title: 'Design unavailable',
+    heading: 'We couldn&#39;t load this design. Please refresh.',
+    lead: 'Something went wrong while loading the design details. Check your connection, then refresh the page.',
+    action: '<button type="button" class="btn btn--primary" data-reload>Refresh the page</button>',
+  });
+  root.querySelector('[data-reload]').addEventListener('click', () => location.reload());
+}
+
 async function init() {
   const slug = main.dataset.slug || new URLSearchParams(location.search).get('id') || '';
-  let designs = [];
+  let designs;
   try {
     const res = await fetch('/data/designs.json');
-    if (res.ok) designs = await res.json();
-  } catch { /* falls through to not found */ }
+    if (!res.ok) throw new Error(String(res.status));
+    designs = await res.json();
+    if (!Array.isArray(designs)) throw new Error('bad data');
+  } catch {
+    // A load failure is not an unknown slug: say so, and suggest a refresh.
+    loadFailed();
+    return;
+  }
   const design = slug ? findDesign(designs, slug) : null;
   if (!design) { notFound(); return; }
   fill(design, designs);

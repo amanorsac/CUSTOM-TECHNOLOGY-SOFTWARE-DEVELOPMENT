@@ -26,6 +26,10 @@ test('crawl: every internal link resolves, every img has valid alt, no broken as
     seen.add(path);
     const res = await page.goto(path);
     const status = res.status();
+    // The design grid is rendered by JS: wait for it, or its links are missed.
+    if (new URL(path, origin).pathname === '/designs') {
+      await page.locator('.design-card').first().waitFor();
+    }
     if (EXPECTED_404.includes(new URL(path, origin).pathname)) {
       expect(status, path).toBe(404);
     } else if (status < 200 || status >= 300) {
@@ -55,5 +59,10 @@ test('crawl: every internal link resolves, every img has valid alt, no broken as
   }
 
   expect(seen.size).toBeGreaterThan(20);
+  // Every design page was reached by following links.
+  const designs = await (await page.request.get('/data/designs.json')).json();
+  expect(designs).toHaveLength(12);
+  const missed = designs.map((d) => `/designs/${d.slug}`).filter((p) => !seen.has(p));
+  expect(missed).toEqual([]);
   expect(problems).toEqual([]);
 });

@@ -101,6 +101,61 @@ test.describe('Explore Designs shop', () => {
   }
 });
 
+test.describe('Explore Designs: load failure and no-JS', () => {
+  test('tabpanel label always points at an element that exists', async ({ page }) => {
+    await page.goto('/designs');
+    await expect(cards(page)).toHaveCount(12);
+    const dangling = () => page.evaluate(() => {
+      const p = document.getElementById('design-panel');
+      const ids = (p.getAttribute('aria-labelledby') || '').split(/\s+/).filter(Boolean);
+      return ids.filter((id) => !document.getElementById(id));
+    });
+    expect(await dangling()).toEqual([]);
+    await page.getByRole('tab', { name: 'Church' }).click();
+    expect(await dangling()).toEqual([]);
+  });
+
+  test('fetch failure at 375px: visible error, no reserved blank space, retry recovers', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 800 });
+    let fail = true;
+    await page.route('**/data/designs.json', (route) => (fail ? route.abort() : route.continue()));
+    await page.goto('/designs');
+    const error = page.locator('[data-shop-error]');
+    await expect(error).toBeVisible();
+    await expect(error).toContainText('Designs could not be loaded');
+    await expect(error).toContainText(/try again|refresh/i);
+    const retry = page.getByRole('button', { name: 'Try again' });
+    await expect(retry).toBeVisible();
+    await expect(retry).toBeInViewport();
+    const grid = page.locator('[data-design-grid]');
+    await expect(grid).toHaveClass(/is-failed/);
+    expect((await grid.boundingBox()).height).toBeLessThan(10);
+    // No dangling aria-labelledby when the tabs never rendered.
+    const labelledby = await page.locator('#design-panel').getAttribute('aria-labelledby');
+    if (labelledby) expect(await page.locator(`#${labelledby}`).count()).toBe(1);
+    expect(await seriousAxe(page)).toEqual([]);
+
+    fail = false;
+    await retry.click();
+    await expect(cards(page)).toHaveCount(12);
+    await expect(error).toBeHidden();
+    await expect(grid).not.toHaveClass(/is-failed/);
+  });
+});
+
+test.describe('Explore Designs without JavaScript', () => {
+  test.use({ javaScriptEnabled: false });
+  test('shows a noscript line linking to /start, without a huge blank grid', async ({ page }) => {
+    await page.goto('/designs');
+    const link = page.locator('#design-panel a[href="/start"]');
+    await expect(link).toBeVisible();
+    expect((await page.locator('[data-design-grid]').boundingBox()).height).toBeLessThan(10);
+    // No tabs exist without JS, so the panel must not be labelled by one.
+    const labelledby = await page.locator('#design-panel').getAttribute('aria-labelledby');
+    if (labelledby) expect(await page.locator(`#${labelledby}`).count()).toBe(1);
+  });
+});
+
 test.describe('Design page', () => {
   test('/designs/modern-church shows the design', async ({ page }) => {
     await page.goto('/designs/modern-church');
@@ -179,6 +234,20 @@ test.describe('Design page', () => {
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Design not found');
     await expect(page.getByRole('link', { name: /Explore Designs|Browse all designs/ }).last()).toHaveAttribute('href', '/designs');
     await expect(page.locator('main a[href="/designs"]')).toHaveCount(1);
+  });
+
+  test('designs.json failing to load shows a refresh message, not "Design not found"', async ({ page }) => {
+    await page.route('**/data/designs.json', (route) => route.fulfill({ status: 500, body: 'boom' }));
+    const res = await page.goto('/designs/modern-church');
+    expect(res.status()).toBe(200);
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText("We couldn't load this design. Please refresh.");
+    await expect(page.getByText('Design not found')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Refresh the page' })).toBeVisible();
+
+    await page.unroute('**/data/designs.json');
+    await page.route('**/data/designs.json', (route) => route.abort());
+    await page.reload();
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText("We couldn't load this design. Please refresh.");
   });
 
   test('/design.html with no id shows "Design not found"', async ({ page }) => {

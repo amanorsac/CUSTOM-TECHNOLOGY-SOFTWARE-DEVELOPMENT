@@ -41,6 +41,8 @@ function toast(message, action) {
   toastTimer = setTimeout(hideToast, action ? 7000 : 4000);
 }
 function hideToast() { toastEl.classList.remove('is-on'); toastTimer = setTimeout(() => { toastEl.innerHTML = ''; }, 250); }
+// Immediate removal, no fade: a stale Undo must never be clickable.
+function clearToast() { clearTimeout(toastTimer); toastEl.classList.remove('is-on'); toastEl.innerHTML = ''; }
 
 function renderShell() {
   const d = data();
@@ -77,6 +79,8 @@ function mount(focus) {
 
 store.subscribe((state, action) => {
   if (action.type === 'org/switch' || action.type === 'reset') {
+    // Any pending Undo belongs to the previous org's data.
+    clearToast();
     mount(false);
     return;
   }
