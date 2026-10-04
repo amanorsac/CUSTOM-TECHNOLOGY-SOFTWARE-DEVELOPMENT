@@ -35,6 +35,19 @@ export function homeJsonLd(origin) {
   ];
 }
 
+// Headers for every HTML response. CSP is frame-ancestors only (no clickjacking);
+// a script-src would break the forms' inline onload/onerror handlers.
+export const SECURITY_HEADERS = {
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Content-Security-Policy': "frame-ancestors 'none'",
+};
+
+export function setSecurityHeaders(headers) {
+  for (const [k, v] of Object.entries(SECURITY_HEADERS)) headers.set(k, v);
+  return headers;
+}
+
 const ABSOLUTIZE = [
   ['link[rel="canonical"]', 'href'],
   ['meta[property="og:url"]', 'content'],
@@ -68,5 +81,6 @@ export function absolutizeHtml(res, url, { home = false } = {}) {
   const headers = new Headers(out.headers);
   headers.delete('content-length');
   headers.delete('etag');
+  setSecurityHeaders(headers);
   return new Response(out.body, { status: out.status, statusText: out.statusText, headers });
 }

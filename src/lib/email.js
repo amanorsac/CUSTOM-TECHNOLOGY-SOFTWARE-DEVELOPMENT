@@ -2,6 +2,7 @@
 // Every interpolated value in HTML goes through escapeHtml; subjects lose
 // CR/LF; the text versions contain no HTML.
 
+export const TIMEOUT_MS = 8000;
 const RESEND_URL = 'https://api.resend.com/emails';
 export const DEFAULT_FROM = 'CTSD Leads <onboarding@resend.dev>';
 
@@ -87,7 +88,7 @@ export function visitorEmail(lead) {
 }
 
 // Sends one email. Never throws; returns true on a 2xx from Resend and logs
-// anything else (status only, never the API key).
+// anything else (status and error name only, never the API key or body).
 export async function sendEmail(env, { from, to, reply_to, subject, html, text }, label = 'email') {
   if (!env.RESEND_API_KEY) {
     console.error(`[lead] ${label} not sent: RESEND_API_KEY is not set`);
@@ -98,10 +99,16 @@ export async function sendEmail(env, { from, to, reply_to, subject, html, text }
       method: 'POST',
       headers: { 'content-type': 'application/json', Authorization: 'Bearer ' + env.RESEND_API_KEY },
       body: JSON.stringify({ from, to: [to], reply_to, subject: cleanSubject(subject), html, text }),
+      signal: AbortSignal.timeout(TIMEOUT_MS),
     });
     if (!res.ok) {
-      const detail = (await res.text().catch(() => '')).slice(0, 300);
-      console.error(`[lead] ${label} failed: Resend ${res.status} ${detail}`);
+      // Only the Resend error name: its message can quote the recipient address.
+      let name = '';
+      try {
+        const data = await res.json();
+        if (data && typeof data.name === 'string') name = data.name.replace(/[^\w.-]/g, '').slice(0, 60);
+      } catch { /* not JSON */ }
+      console.error(`[lead] ${label} failed: Resend ${res.status}${name ? ` ${name}` : ''}`);
       return false;
     }
     return true;

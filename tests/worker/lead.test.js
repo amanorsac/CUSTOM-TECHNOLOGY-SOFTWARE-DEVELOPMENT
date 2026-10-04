@@ -41,7 +41,7 @@ beforeEach(() => {
   vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init = {}) => {
     const req = new Request(input, init);
     const body = await req.text();
-    const call = { url: req.url, method: req.method, headers: req.headers, body };
+    const call = { url: req.url, method: req.method, headers: req.headers, body, signal: init.signal };
     calls.push(call);
     // Last registered handler wins, so tests can override defaults.
     for (let i = handlers.length - 1; i >= 0; i--) {
@@ -157,10 +157,13 @@ describe('POST /api/lead', () => {
   });
 
   it('non-empty honeypot: 200 {ok:true} with no Turnstile, Supabase or Resend calls', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const res = await post('/api/lead', lead({ website_hp: 'http://spam.example' }));
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true });
     expect(calls).toHaveLength(0);
+    // Logged, without any visitor data.
+    expect(warn.mock.calls).toEqual([['[lead] honeypot hit']]);
   });
 
   it('Turnstile success:false → 403 captcha, nothing stored or sent', async () => {
@@ -172,11 +175,67 @@ describe('POST /api/lead', () => {
     expect(resendCalls()).toHaveLength(0);
   });
 
-  it('missing TURNSTILE_SECRET → 403 captcha without calling siteverify', async () => {
+  it('missing TURNSTILE_SECRET → 500 server (a setup error, not captcha), logged by name', async () => {
+    const err = vi.spyOn(console, 'error').mockImplementation(() => {});
     const res = await post('/api/lead', lead(), { TURNSTILE_SECRET: '' });
-    expect(res.status).toBe(403);
-    expect(await res.json()).toEqual({ ok: false, error: 'captcha' });
+    expect(res.status).toBe(500);
+    expect(await res.json()).toEqual({ ok: false, error: 'server' });
+    expect(err.mock.calls.flat().join(' ')).toContain('TURNSTILE_SECRET');
     expect(calls).toHaveLength(0);
+  });
+
+  it('every outbound fetch carries an abort signal (8s timeout)', async () => {
+    await post('/api/lead', lead());
+    expect(calls.length).toBe(4); // siteverify, insert, owner email, visitor email
+    for (const c of calls) expect(c.signal, c.url).toBeInstanceOf(AbortSignal);
+  });
+
+  it('responds as soon as the row is inserted; emails run in ctx.waitUntil', async () => {
+    let release;
+    const gate = new Promise((r) => { release = r; });
+    route((u) => u === 'https://api.resend.com/emails', async () => { await gate; return jsonRes({ id: 'e1' }); });
+    const pending = [];
+    const ctx = { waitUntil: (p) => pending.push(p), passThroughOnException() {} };
+    const req = new Request('https://ctsd.example/api/lead', {
+      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(lead()),
+    });
+    const res = await Promise.race([
+      worker.fetch(req, makeEnv(), ctx),
+      new Promise((_, rej) => setTimeout(() => rej(new Error('response waited for Resend')), 1000)),
+    ]);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true });
+    expect(pending).toHaveLength(1);
+    release();
+    await Promise.all(pending);
+    expect(resendCalls()).toHaveLength(2);
+  });
+
+  it('Supabase failure logs status + PostgREST code/message, never the raw body', async () => {
+    const err = vi.spyOn(console, 'error').mockImplementation(() => {});
+    route((u) => u === `${SB}/rest/v1/leads`, () => jsonRes({
+      code: '23514', message: 'new row violates check constraint "leads_kind_check"',
+      details: 'Failing row contains (ada@example.com, Zebra-message-42).', hint: null,
+    }, 400));
+    expect((await post('/api/lead', lead())).status).toBe(500);
+    const logged = err.mock.calls.flat().join(' ');
+    expect(logged).toContain('400');
+    expect(logged).toContain('23514');
+    expect(logged).toContain('leads_kind_check');
+    expect(logged).not.toContain('ada@example.com');
+    expect(logged).not.toContain('Zebra-message-42');
+  });
+
+  it('Resend failure logs status + error name only, never the body', async () => {
+    const err = vi.spyOn(console, 'error').mockImplementation(() => {});
+    route((u) => u === 'https://api.resend.com/emails', () => jsonRes({
+      statusCode: 422, name: 'validation_error', message: 'Invalid to field: ada@example.com',
+    }, 422));
+    expect((await post('/api/lead', lead())).status).toBe(200);
+    const logged = err.mock.calls.flat().join(' ');
+    expect(logged).toContain('422');
+    expect(logged).toContain('validation_error');
+    expect(logged).not.toContain('ada@example.com');
   });
 
   it('missing turnstile token → 403 captcha', async () => {
@@ -377,6 +436,26 @@ describe('POST /api/upload-url', () => {
     expect(res.status).toBe(403);
     expect(await res.json()).toEqual({ ok: false, error: 'captcha' });
     expect(supabaseCalls()).toHaveLength(0);
+  });
+
+  it('missing TURNSTILE_SECRET → 500 server, logged by name, nothing signed', async () => {
+    const err = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const res = await post('/api/upload-url', up(), { TURNSTILE_SECRET: '' });
+    expect(res.status).toBe(500);
+    expect(await res.json()).toEqual({ ok: false, error: 'server' });
+    expect(err.mock.calls.flat().join(' ')).toContain('TURNSTILE_SECRET');
+    expect(calls).toHaveLength(0);
+  });
+
+  it('sign request carries an abort signal; a failure logs no raw body', async () => {
+    const err = vi.spyOn(console, 'error').mockImplementation(() => {});
+    route((u) => u.startsWith(`${SB}/storage/`), () => jsonRes({ statusCode: '403', error: 'Unauthorized', message: 'invalid signature', raw: 'SECRET-BODY' }, 403));
+    expect((await post('/api/upload-url', up())).status).toBe(500);
+    for (const c of calls) expect(c.signal, c.url).toBeInstanceOf(AbortSignal);
+    const logged = err.mock.calls.flat().join(' ');
+    expect(logged).toContain('403');
+    expect(logged).toContain('Unauthorized');
+    expect(logged).not.toContain('SECRET-BODY');
   });
 
   it('Supabase sign failure → 500 server', async () => {

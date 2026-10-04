@@ -20,18 +20,25 @@ export const LIMITS = {
 
 // No whitespace, commas, quotes, angle brackets or semicolons anywhere, so the
 // address can never expand into several recipients or headers downstream.
-const EMAIL_RE = /^[^\s@<>()[\]",;:\\]+@[^\s@<>()[\]",;:\\]+\.[^\s@<>()[\]",;:\\.]{2,}$/;
+// The local part cannot start with a dot; the domain is dot-separated,
+// non-empty labels (no "..", no leading or trailing dot) ending in a 2+ char TLD.
+const EMAIL_RE = /^[^\s@<>()[\]",;:\\.][^\s@<>()[\]",;:\\]*@(?:[^\s@<>()[\]",;:\\.]+\.)+[^\s@<>()[\]",;:\\.]{2,}$/;
 const SLUG_RE = /^[a-z0-9-]{1,60}$/;
 const LOGO_RE = /^[0-9a-f-]{36}-[a-zA-Z0-9._-]{1,100}$/;
 const URL_RE = /^https?:\/\/\S+$/i;
 
 const INVALID = Symbol('invalid');
 
-// Trimmed string, '' for missing, INVALID for any non-string value.
+// C0 control characters (and DEL) except tab, LF and CR. NUL in particular is
+// rejected by Postgres text columns and would turn a lead into a 500.
+const CONTROL_RE = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g;
+
+// Trimmed string with control characters removed, '' for missing, INVALID for
+// any non-string value.
 function str(v) {
   if (v === undefined || v === null) return '';
   if (typeof v !== 'string') return INVALID;
-  return v.trim();
+  return v.replace(CONTROL_RE, '').trim();
 }
 
 export function validateLead(input) {

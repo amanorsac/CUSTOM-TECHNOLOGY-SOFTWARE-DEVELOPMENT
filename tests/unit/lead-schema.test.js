@@ -176,4 +176,34 @@ describe('validateLead', () => {
     expect(r.ok).toBe(true);
     expect(Object.keys(r.value).sort()).toEqual(['email', 'kind', 'name', 'needs', 'org_type']);
   });
+
+  it('strips NUL and other C0 control characters, keeping tab, LF and CR', () => {
+    const r = validateLead({
+      ...project(),
+      name: 'Ada\u0000 Love\u0007lace\u001b',
+      message: 'line1\r\nline2\tend\u0000\u0008\u000b\u007f',
+      org_name: '\u0000\u0001',
+    });
+    expect(r.ok).toBe(true);
+    expect(r.value.name).toBe('Ada Lovelace');
+    expect(r.value.message).toBe('line1\r\nline2\tend');
+    expect('org_name' in r.value).toBe(false);
+    expect(JSON.stringify(r.value)).not.toMatch(/\u000[0-8bcef]|\u001|\u007f/);
+  });
+
+  it('a name made only of control characters is treated as missing', () => {
+    expect(validateLead({ ...project(), name: '\u0000\u0002' }).errors.name).toBeTruthy();
+  });
+
+  it.each(['a@gmail..com', 'a@.gmail.com', 'a@gmail.com.', '.a@gmail.com', 'a@sub..example.org'])(
+    'rejects malformed dots in email %j', (email) => {
+      expect(validateLead({ ...project(), email }).errors.email).toBeTruthy();
+    },
+  );
+
+  it.each(['a.b@gmail.com', 'first.last+tag@mail.example.co.uk', 'x@a.io', "o'neil@example.com"])(
+    'still accepts normal email %j', (email) => {
+      expect(validateLead({ ...project(), email }).ok).toBe(true);
+    },
+  );
 });

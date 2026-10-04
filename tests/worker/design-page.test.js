@@ -94,3 +94,28 @@ describe('GET /designs/<slug>', () => {
     }
   });
 });
+
+describe('security headers on HTML responses', () => {
+  const expectHeaders = (res) => {
+    expect(res.headers.get('x-content-type-options')).toBe('nosniff');
+    expect(res.headers.get('referrer-policy')).toBe('strict-origin-when-cross-origin');
+    expect(res.headers.get('content-security-policy')).toBe("frame-ancestors 'none'");
+  };
+
+  it('design route (known and unknown slug) sends them', async () => {
+    for (const path of ['/designs/modern-church', '/designs/nope']) {
+      const res = await get(path);
+      expectHeaders(res);
+      await res.arrayBuffer();
+    }
+  });
+
+  it('static HTML pages (home, start, 404) send them via the absolutize pass', async () => {
+    for (const path of ['/', '/start', '/no-such-page']) {
+      const res = await get(path);
+      expect(res.headers.get('content-type')).toContain('text/html');
+      expectHeaders(res);
+      await res.arrayBuffer();
+    }
+  });
+});

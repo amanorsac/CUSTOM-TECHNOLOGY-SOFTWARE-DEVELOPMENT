@@ -10,6 +10,20 @@ export function missingSupabaseConfig(env) {
   return ['SUPABASE_URL', 'SUPABASE_SERVICE_KEY'].filter((k) => !env[k]);
 }
 
+export const TIMEOUT_MS = 8000;
+
+// Short, PII-free description of a Supabase error response: the status plus
+// the PostgREST/Storage `code` (or `error`) and `message`. Never the raw body,
+// whose `details`/`hint` can echo the visitor's row.
+export async function errorSummary(res) {
+  let data = null;
+  try { data = await res.json(); } catch { data = null; }
+  const pick = (v) => (typeof v === 'string' || typeof v === 'number' ? String(v).slice(0, 160) : '');
+  const code = data && typeof data === 'object' ? pick(data.code) || pick(data.error) : '';
+  const message = data && typeof data === 'object' ? pick(data.message) : '';
+  return [`Supabase ${res.status}`, code, message].filter(Boolean).join(' ');
+}
+
 function headers(env, extra = {}) {
   return {
     apikey: env.SUPABASE_SERVICE_KEY,
@@ -25,10 +39,10 @@ export async function insertLead(env, row) {
       method: 'POST',
       headers: headers(env, { 'content-type': 'application/json', Prefer: 'return=minimal' }),
       body: JSON.stringify(row),
+      signal: AbortSignal.timeout(TIMEOUT_MS),
     });
     if (!res.ok) {
-      const detail = (await res.text().catch(() => '')).slice(0, 300);
-      console.error(`[lead] insert failed: Supabase ${res.status} ${detail}`);
+      console.error(`[lead] insert failed: ${await errorSummary(res)}`);
       return false;
     }
     return true;
@@ -46,10 +60,10 @@ export async function signUpload(env, path) {
       method: 'POST',
       headers: headers(env, { 'content-type': 'application/json' }),
       body: '{}',
+      signal: AbortSignal.timeout(TIMEOUT_MS),
     });
     if (!res.ok) {
-      const detail = (await res.text().catch(() => '')).slice(0, 300);
-      console.error(`[upload-url] sign failed: Supabase ${res.status} ${detail}`);
+      console.error(`[upload-url] sign failed: ${await errorSummary(res)}`);
       return null;
     }
     const data = await res.json();

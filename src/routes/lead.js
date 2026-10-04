@@ -62,8 +62,14 @@ async function bodyOrError(request) {
   return { body };
 }
 
+// Every secret/var the endpoints need. A gap is a server setup problem, so it
+// is a 500 (never a misleading 403 captcha) and the log names what is missing.
+export function missingConfig(env) {
+  return [...(env.TURNSTILE_SECRET ? [] : ['TURNSTILE_SECRET']), ...missingSupabaseConfig(env)];
+}
+
 function serverConfigError(env, label) {
-  const missing = missingSupabaseConfig(env);
+  const missing = missingConfig(env);
   if (!missing.length) return null;
   console.error(`[${label}] missing config: ${missing.join(', ')}`);
   return json({ ok: false, error: 'server' }, 500);
@@ -74,12 +80,24 @@ function honeypotFilled(v) {
   return String(v).trim() !== '';
 }
 
-async function handleLead(request, env) {
+// Runs after the response when the runtime allows it; otherwise awaited.
+async function background(ctx, promise) {
+  if (ctx && typeof ctx.waitUntil === 'function') ctx.waitUntil(promise);
+  else await promise;
+}
+
+async function handleLead(request, env, ctx) {
   const { body, error } = await bodyOrError(request);
   if (error) return error;
 
-  // Bots fill the hidden field: pretend success, do nothing.
-  if (honeypotFilled(body.website_hp)) return json({ ok: true });
+  // Bots fill the hidden field: pretend success, do nothing. No PII logged.
+  if (honeypotFilled(body.website_hp)) {
+    console.warn('[lead] honeypot hit');
+    return json({ ok: true });
+  }
+
+  const configError = serverConfigError(env, 'lead');
+  if (configError) return configError;
 
   if (!(await verifyTurnstile(env, body.turnstile, request))) {
     return json({ ok: false, error: 'captcha' }, 403);
@@ -89,12 +107,10 @@ async function handleLead(request, env) {
   if (!result.ok) return json({ ok: false, errors: result.errors }, 400);
   const lead = result.value;
 
-  const configError = serverConfigError(env, 'lead');
-  if (configError) return configError;
-
   if (!(await insertLead(env, lead))) return json({ ok: false, error: 'server' }, 500);
 
-  // The lead is saved; email problems are logged but never fail the request.
+  // The lead is saved; email problems are logged but never fail the request,
+  // and the visitor does not wait for Resend.
   const owner = ownerEmail(lead);
   const sends = [sendEmail(env, {
     from: env.MAIL_FROM || DEFAULT_FROM,
@@ -111,7 +127,7 @@ async function handleLead(request, env) {
       ...visitorEmail(lead),
     }, 'visitor email'));
   }
-  await Promise.all(sends);
+  await background(ctx, Promise.allSettled(sends));
 
   return json({ ok: true });
 }
@@ -133,6 +149,9 @@ async function handleUploadUrl(request, env) {
   const { body, error } = await bodyOrError(request);
   if (error) return error;
 
+  const configError = serverConfigError(env, 'upload-url');
+  if (configError) return configError;
+
   if (!(await verifyTurnstile(env, body.turnstile, request))) {
     return json({ ok: false, error: 'captcha' }, 403);
   }
@@ -143,9 +162,6 @@ async function handleUploadUrl(request, env) {
     errors.size = 'The file must be 5MB or smaller.';
   }
   if (Object.keys(errors).length) return json({ ok: false, errors }, 400);
-
-  const configError = serverConfigError(env, 'upload-url');
-  if (configError) return configError;
 
   const path = `${crypto.randomUUID()}-${safeFilename(body.filename)}`;
   const uploadUrl = await signUpload(env, path);
@@ -159,7 +175,7 @@ const isApiPath = (url) => url.pathname === LEAD_PATH || url.pathname === UPLOAD
 export const leadRoute = {
   method: 'POST',
   test: (url) => url.pathname === LEAD_PATH,
-  handle: (request, env) => handleLead(request, env),
+  handle: (request, env, ctx) => handleLead(request, env, ctx),
 };
 
 export const uploadUrlRoute = {

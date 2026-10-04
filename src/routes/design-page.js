@@ -3,7 +3,7 @@
 // Unknown slug -> 404 with the same template (the client shows "Design not
 //                found"), robots noindex kept.
 
-import { jsonLdTag } from '../lib/seo.js';
+import { jsonLdTag, setSecurityHeaders } from '../lib/seo.js';
 
 const PATH = /^\/designs\/([^/]+)\/?$/;
 
@@ -44,6 +44,7 @@ function rewrite(res, design, url) {
   headers.set('content-type', 'text/html; charset=utf-8');
   headers.delete('content-length');
   headers.delete('etag');
+  setSecurityHeaders(headers);
 
   const abs = (path) => new URL(`/${String(path).replace(/^\/+/, '')}`, url.origin).href;
   const placeholder = abs('images/designs/_placeholder.webp');
