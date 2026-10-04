@@ -84,3 +84,24 @@ export function fallbackImg(o) {
   img.src = stage === 2 ? PLACEHOLDER : src;
   return img;
 }
+
+/**
+ * Arm an <img> that is already in the HTML (for example the LCP hero image,
+ * which must not wait for JS). The browser may have finished, or failed,
+ * before this module runs, so the current state is checked first.
+ * On success it gets .is-loaded; on failure it is removed so the CSS
+ * composition underneath shows, and onFail is called.
+ * @param {HTMLImageElement} img
+ * @param {{ onLoad?: (img: HTMLImageElement) => void, onFail?: (img: HTMLImageElement) => void }} [o]
+ */
+export function armStaticImg(img, o = {}) {
+  if (!img) return;
+  const ok = () => { img.classList.add('is-loaded'); if (o.onLoad) o.onLoad(img); };
+  const fail = () => { img.remove(); if (o.onFail) o.onFail(img); };
+  if (img.complete) {
+    if (img.naturalWidth > 0) ok(); else fail();
+    return;
+  }
+  img.addEventListener('load', ok, { once: true });
+  img.addEventListener('error', fail, { once: true });
+}

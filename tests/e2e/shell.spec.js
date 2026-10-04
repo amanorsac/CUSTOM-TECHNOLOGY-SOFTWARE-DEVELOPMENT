@@ -6,7 +6,13 @@ const INDUSTRIES = ['Business', 'Church', 'Education', 'Nonprofit'];
 
 function collectErrors(page) {
   const errors = [];
-  page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+  page.on('console', (m) => {
+    if (m.type() !== 'error') return;
+    // Generated images (hero, admin, covers) may not exist yet; the page falls
+    // back to CSS compositions, so their 404s are expected (Ruling A).
+    if (/Failed to load resource/.test(m.text()) && /\/images\//.test(m.location().url || '')) return;
+    errors.push(m.text());
+  });
   page.on('pageerror', (e) => errors.push(String(e)));
   return errors;
 }
@@ -55,6 +61,8 @@ for (const width of [375, 1280]) {
     });
 
     test('axe finds no serious or critical violations', async ({ page }) => {
+      // Reduced motion: no reveal fade in progress while axe measures contrast.
+      await page.emulateMedia({ reducedMotion: 'reduce' });
       await page.goto('/');
       await page.waitForLoadState('networkidle');
       const { violations } = await new AxeBuilder({ page }).analyze();
