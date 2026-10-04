@@ -175,12 +175,20 @@ describe('POST /api/lead', () => {
     expect(resendCalls()).toHaveLength(0);
   });
 
-  it('missing TURNSTILE_SECRET → 500 server (a setup error, not captcha), logged by name', async () => {
+  it('missing TURNSTILE_SECRET → verification skipped, 200, no siteverify call', async () => {
+    const res = await post('/api/lead', lead({ turnstile: '' }), { TURNSTILE_SECRET: '' });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true });
+    expect(turnstileCalls()).toHaveLength(0);
+    expect(supabaseCalls().length).toBeGreaterThan(0);
+  });
+
+  it('missing SUPABASE_URL still → 500 server, logged by name', async () => {
     const err = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const res = await post('/api/lead', lead(), { TURNSTILE_SECRET: '' });
+    const res = await post('/api/lead', lead(), { SUPABASE_URL: '' });
     expect(res.status).toBe(500);
     expect(await res.json()).toEqual({ ok: false, error: 'server' });
-    expect(err.mock.calls.flat().join(' ')).toContain('TURNSTILE_SECRET');
+    expect(err.mock.calls.flat().join(' ')).toContain('SUPABASE_URL');
     expect(calls).toHaveLength(0);
   });
 
@@ -438,12 +446,18 @@ describe('POST /api/upload-url', () => {
     expect(supabaseCalls()).toHaveLength(0);
   });
 
-  it('missing TURNSTILE_SECRET → 500 server, logged by name, nothing signed', async () => {
+  it('missing TURNSTILE_SECRET → verification skipped, 200, no siteverify call', async () => {
+    const res = await post('/api/upload-url', up({ turnstile: undefined }), { TURNSTILE_SECRET: '' });
+    expect(res.status).toBe(200);
+    expect((await res.json()).ok).toBe(true);
+    expect(turnstileCalls()).toHaveLength(0);
+  });
+
+  it('missing SUPABASE_SERVICE_KEY still → 500 server, nothing signed', async () => {
     const err = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const res = await post('/api/upload-url', up(), { TURNSTILE_SECRET: '' });
+    const res = await post('/api/upload-url', up(), { SUPABASE_SERVICE_KEY: '' });
     expect(res.status).toBe(500);
-    expect(await res.json()).toEqual({ ok: false, error: 'server' });
-    expect(err.mock.calls.flat().join(' ')).toContain('TURNSTILE_SECRET');
+    expect(err.mock.calls.flat().join(' ')).toContain('SUPABASE_SERVICE_KEY');
     expect(calls).toHaveLength(0);
   });
 

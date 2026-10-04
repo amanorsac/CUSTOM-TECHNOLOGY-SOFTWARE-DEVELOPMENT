@@ -36,14 +36,27 @@ window.turnstile = (function () {
   };
 })();`;
 
+const TEST_SITEKEY = '1x00000000000000000000AA';
 const UPLOAD_URL = 'https://storage.example.test/upload/sign/lead-uploads/abc?token=t';
 const LOGO_PATH = '0f8fad5b-d9cb-469f-a165-70867728950e-logo.png';
 
 // calls: ordered list of { kind, body } for every /api/* and upload request.
 // turnstile: 'ok' (stub), 'error' (stub whose challenges always fail),
-// 'abort' (api.js never loads).
+// 'abort' (api.js never loads), 'off' (empty site key, no rewrite).
+// turnstile: 'off' leaves the pages' empty data-sitekey alone (Turnstile disabled);
+// every other mode rewrites the HTML to carry a site key, i.e. Turnstile enabled.
 async function setup(page, { lead, upload, put, turnstile = 'ok' } = {}) {
   const calls = [];
+  if (turnstile !== 'off') {
+    await page.route('**/*', async (route) => {
+      if (route.request().resourceType() !== 'document') return route.fallback();
+      const res = await route.fetch();
+      const type = res.headers()['content-type'] || '';
+      if (!type.includes('text/html')) return route.fulfill({ response: res });
+      const body = (await res.text()).replace('data-sitekey=""', `data-sitekey="${TEST_SITEKEY}"`);
+      return route.fulfill({ response: res, body });
+    });
+  }
   await page.route('https://challenges.cloudflare.com/**', (route) => {
     if (turnstile !== 'abort' && route.request().url().includes('/turnstile/v0/api.js')) {
       const mode = turnstile === 'error' ? "window.__tsMode = 'error';" : '';
@@ -687,5 +700,45 @@ test.describe('Free Mockup', () => {
     await page.keyboard.press('Enter');
     await page.waitForURL(/\/thanks(\.html)?\?kind=mockup$/);
     expect(calls[0].body).toMatchObject({ org_name: 'Grace Chapel', org_type: 'business', style: 'classic', name: 'Ada' });
+  });
+});
+
+test.describe('Turnstile off (empty data-sitekey)', () => {
+  const challenges = (page) => {
+    const hits = [];
+    page.on('request', (r) => { if (r.url().includes('challenges.cloudflare.com')) hits.push(r.url()); });
+    return hits;
+  };
+
+  test('Start a Project submits with no Turnstile script, widget or request', async ({ page }) => {
+    const calls = await setup(page, { turnstile: 'off' });
+    const hits = challenges(page);
+    await ready(page, '/start');
+    await fillProject(page);
+    await submit(page).click();
+    await page.waitForURL(/\/thanks(\.html)?\?kind=project$/);
+    expect(calls.map((c) => c.kind)).toEqual(['lead']);
+    expect(calls[0].body.turnstile).toBe('');
+    expect(hits).toEqual([]);
+  });
+
+  test('Free Mockup with a logo runs upload-url, PUT, lead with no Turnstile', async ({ page }) => {
+    const calls = await setup(page, { turnstile: 'off' });
+    const hits = challenges(page);
+    await ready(page, '/mockup');
+    await expect(page.locator('script[data-turnstile-script]')).toHaveCount(0);
+    await expect(page.locator('[data-turnstile]')).toBeEmpty();
+    await page.getByLabel('Organization name').fill('Grace Chapel');
+    await page.getByRole('radio', { name: 'Church', exact: true }).check();
+    await page.getByRole('radio', { name: 'Classic', exact: true }).check();
+    await page.getByLabel('Your name').fill('Ada Lovelace');
+    await page.getByRole('textbox', { name: 'Email' }).fill('ada@example.com');
+    await page.locator('input[type="file"][name="logo"]').setInputFiles({ name: 'logo.png', mimeType: 'image/png', buffer: Buffer.alloc(2048) });
+    await page.getByRole('button', { name: 'Get a free mockup' }).click();
+    await page.waitForURL(/\/thanks(\.html)?\?kind=mockup$/);
+    expect(calls.map((c) => c.kind)).toEqual(['upload-url', 'put', 'lead']);
+    expect(calls[0].body.turnstile).toBe('');
+    expect(calls[2].body.logo_path).toBe(LOGO_PATH);
+    expect(hits).toEqual([]);
   });
 });

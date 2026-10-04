@@ -53,21 +53,22 @@ Do these in order, one at a time. Part A must be finished before anything is pus
    3. Recommended: open **Domains** and verify a domain you own (for example amanorsac.studio, or the new CTSD domain once you have it). Resend shows you DNS records to add; wait until it says **Verified**.
    - Why step 3 matters: until you set `MAIL_FROM` (step 4), lead emails are sent from Resend's shared test address, `onboarding@resend.dev`. That address can only deliver to the Resend account owner's own inbox (amanorsac@gmail.com). So you will still get every new lead by email, but **visitors get no confirmation email**. To send visitors their "we received your request" email, you need a verified domain and `MAIL_FROM`.
 
-3. **Set up Turnstile (the spam check on the forms).**
+3. **Optional: set up Turnstile (the spam check on the forms).** You can launch without it. The forms still have a hidden spam trap, and Turnstile stays off while the site key is empty (the default). To turn it on, you need **both** keys; it switches on only when both are set.
    1. In the Cloudflare dashboard, open **Turnstile** and click **Add widget**.
    2. Under hostnames, add the Worker's address, `custom-technology-software-development.<your-account>.workers.dev`, and your own domain too if you already have one.
    3. Cloudflare shows two keys. Each goes in one place only:
-      - **Site key** (public): open `public/start.html` and `public/mockup.html`, find `data-sitekey="1x00000000000000000000AA"`, and replace the test value with your site key in both files. These two files are the only place the site key lives; `wrangler.jsonc` has no site-key setting.
-      - **Secret key** (private): keep it for step 5. Never put it in any file.
+      - **Site key** (public): open `public/start.html` and `public/mockup.html`, find `data-sitekey=""`, and paste your site key between the quotes in both files. These two files are the only place the site key lives; `wrangler.jsonc` has no site-key setting.
+      - **Secret key** (private): store it as the `TURNSTILE_SECRET` Worker secret in step 5. Never put it in any file.
+   4. Set only one of the two and it will not work properly: a site key without the secret means visitors get a check that the server ignores; a secret without the site key makes the server reject every form. Set both, or neither.
 
 4. **Fill in `wrangler.jsonc`.**
    - Set `SUPABASE_URL` to the Project URL from step 1, for example `"https://abcdefgh.supabase.co"`.
    - If you verified a domain in step 2, set `MAIL_FROM` to a sender on that domain, for example `"CTSD <hello@amanorsac.studio>"`. Leave it as `""` only if you accept that visitors will get no confirmation email.
 
-5. **Store the three secret keys in Cloudflare.** In a terminal, inside the project folder, run `npx wrangler login` once, then run each line below. Paste the matching value when it asks. If it asks whether to create the Worker, answer yes.
+5. **Store the secret keys in Cloudflare** (two required, plus the optional Turnstile one). In a terminal, inside the project folder, run `npx wrangler login` once, then run each line below. Paste the matching value when it asks. If it asks whether to create the Worker, answer yes.
    - `npx wrangler secret put SUPABASE_SERVICE_KEY` (the service_role key from step 1)
    - `npx wrangler secret put RESEND_API_KEY` (the API key from step 2)
-   - `npx wrangler secret put TURNSTILE_SECRET` (the secret key from step 3)
+   - Only if you set up Turnstile in step 3: `npx wrangler secret put TURNSTILE_SECRET` (the secret key from step 3)
 
 6. **Optional: analytics.** Paste your Cloudflare Web Analytics token into `CF_BEACON_TOKEN` in `public/assets/js/shell.js`.
 
@@ -89,7 +90,7 @@ Do these in order, one at a time. Part A must be finished before anything is pus
 
 11. **Attach your domain.**
     1. Choose a domain and attach it to the Worker in the Cloudflare dashboard (Worker → **Settings → Domains & Routes → Add → Custom domain**).
-    2. In **Turnstile**, add the new domain to the widget's hostnames.
+    2. If you enabled Turnstile, in **Turnstile** add the new domain to the widget's hostnames.
     3. Turn off the duplicate `workers.dev` address, so it does not compete with your domain in search results: add the line `"workers_dev": false,` to `wrangler.jsonc` (under the `"compatibility_date"` line), then commit and push. After that, only your domain serves the site.
     4. Repeat step 9 once on the new domain.
 

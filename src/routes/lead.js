@@ -62,10 +62,10 @@ async function bodyOrError(request) {
   return { body };
 }
 
-// Every secret/var the endpoints need. A gap is a server setup problem, so it
+// Every secret/var the endpoints need (TURNSTILE_SECRET is optional: unset = no captcha). A gap is a server setup problem, so it
 // is a 500 (never a misleading 403 captcha) and the log names what is missing.
 export function missingConfig(env) {
-  return [...(env.TURNSTILE_SECRET ? [] : ['TURNSTILE_SECRET']), ...missingSupabaseConfig(env)];
+  return missingSupabaseConfig(env);
 }
 
 function serverConfigError(env, label) {
@@ -73,6 +73,12 @@ function serverConfigError(env, label) {
   if (!missing.length) return null;
   console.error(`[${label}] missing config: ${missing.join(', ')}`);
   return json({ ok: false, error: 'server' }, 500);
+}
+
+// Turnstile is optional: with no secret, verification is skipped entirely.
+async function captchaOk(env, body, request) {
+  if (!env.TURNSTILE_SECRET) return true;
+  return verifyTurnstile(env, body.turnstile, request);
 }
 
 function honeypotFilled(v) {
@@ -99,7 +105,7 @@ async function handleLead(request, env, ctx) {
   const configError = serverConfigError(env, 'lead');
   if (configError) return configError;
 
-  if (!(await verifyTurnstile(env, body.turnstile, request))) {
+  if (!(await captchaOk(env, body, request))) {
     return json({ ok: false, error: 'captcha' }, 403);
   }
 
@@ -152,7 +158,7 @@ async function handleUploadUrl(request, env) {
   const configError = serverConfigError(env, 'upload-url');
   if (configError) return configError;
 
-  if (!(await verifyTurnstile(env, body.turnstile, request))) {
+  if (!(await captchaOk(env, body, request))) {
     return json({ ok: false, error: 'captcha' }, 403);
   }
 

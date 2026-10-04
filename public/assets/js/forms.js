@@ -220,12 +220,29 @@ function init(form) {
   }
 
   // ---- Turnstile -------------------------------------------------------------------------
-  // The page's <script data-turnstile-script> has inline onload/onerror attributes
-  // that set window.ctsdTurnstile = 'loaded' | 'failed' at parse time, so a load
-  // error that happens before this module runs is not missed.
+  // Optional: only active when the form's [data-turnstile] box has a non-empty
+  // data-sitekey (see the owner comment in start.html / mockup.html).
   const turnstileWidget = (() => {
     const box = form.querySelector('[data-turnstile]');
-    const script = document.querySelector('script[data-turnstile-script]');
+    // An empty data-sitekey means Turnstile is off: no script, no widget, no token.
+    const siteKey = box ? (box.dataset.sitekey || '').trim() : '';
+    if (!siteKey) {
+      return { enabled: false, ensure() {}, available: () => true, token: () => Promise.resolve(''), reset() {} };
+    }
+    // The script is added here (not in the HTML) so it only loads when a key is set.
+    // Listeners are attached synchronously, before the load can finish, and record the
+    // outcome in window.ctsdTurnstile for any other form on the page.
+    let script = document.querySelector('script[data-turnstile-script]');
+    if (!script) {
+      script = document.createElement('script');
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      script.async = true;
+      script.defer = true;
+      script.setAttribute('data-turnstile-script', '');
+      script.addEventListener('load', () => { window.ctsdTurnstile = 'loaded'; });
+      script.addEventListener('error', () => { window.ctsdTurnstile = 'failed'; });
+      document.head.appendChild(script);
+    }
     let id = null;
     let token = '';
     let issued = false; // a token was issued since the last reset (so it may be spent)
@@ -266,6 +283,7 @@ function init(form) {
     }
 
     return {
+      enabled: true,
       ensure() {
         wanted = true;
         if (window.ctsdTurnstile === 'failed' && !window.turnstile) failed = true;
@@ -356,7 +374,7 @@ function init(form) {
   async function uploadLogo(file, type) {
     if (uploaded && uploaded.file === file) return { ok: true, path: uploaded.path };
     const tok = await turnstileWidget.token();
-    if (!tok) return { ok: false, noToken: true };
+    if (turnstileWidget.enabled && !tok) return { ok: false, noToken: true };
     const res = await postJson('/api/upload-url', { filename: file.name, type, size: file.size, turnstile: tok });
     if (res.status !== 200 || !res.data || !res.data.ok || !res.data.uploadUrl) {
       // 400 (type/size) and 403 (captcha) are the visitor's to fix; anything else is ours.
@@ -425,7 +443,7 @@ function init(form) {
       }
 
       const tok = await turnstileWidget.token();
-      if (!tok) { noTokenMessage(); return; }
+      if (turnstileWidget.enabled && !tok) { noTokenMessage(); return; }
       const hp = form.querySelector('[name="website_hp"]');
       const res = await postJson('/api/lead', { ...payload, turnstile: tok, website_hp: hp ? hp.value : '' });
       if (res.status === 200 && res.data && res.data.ok) {
