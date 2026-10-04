@@ -11,7 +11,6 @@
   "vars": {
     "LEAD_EMAIL": "amanorsac@gmail.com",
     "SUPABASE_URL": "",
-    "TURNSTILE_SITE_KEY": "1x00000000000000000000AA",
     "MAIL_FROM": ""
   }
 }
