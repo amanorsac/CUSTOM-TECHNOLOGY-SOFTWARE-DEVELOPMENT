@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Concept Design | CTSD</title>
+<meta name="description" content="A CTSD concept design: website, app, portal and admin built around one organization.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#3E2723">
+<link rel="canonical" href="/designs.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CTSD — Custom Technology &amp; Software Development">
+<meta property="og:title" content="Concept Design | CTSD">
+<meta property="og:description" content="A CTSD concept design: website, app, portal and admin built around one organization.">
+<meta property="og:image" content="/images/designs/_placeholder.webp">
+<meta property="og:url" content="/designs.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Concept Design | CTSD">
+<meta name="twitter:description" content="A CTSD concept design: website, app, portal and admin built around one organization.">
+<meta name="twitter:image" content="/images/designs/_placeholder.webp">
+<link rel="icon" href="/assets/brand/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/fonts/montserrat-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/data/designs.json" as="fetch" crossorigin>
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="/assets/css/site.css">
+<link rel="stylesheet" href="/assets/css/shop.css">
+<link rel="stylesheet" href="/assets/css/design.css">
+</head>
+<body data-page="designs">
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="site-header"></div>
+
+<main id="main" tabindex="-1">
+  <div id="design-root">
+    <section class="d-hero section--wood" aria-labelledby="d-name">
+      <div class="container d-hero__grid">
+        <div class="d-hero__copy">
+          <nav class="d-crumbs" aria-label="Breadcrumb">
+            <ol>
+              <li><a href="/designs.html">Explore Designs</a></li>
+              <li><a data-d="cat-link" href="/designs.html">Concepts</a></li>
+            </ol>
+          </nav>
+          <div class="d-hero__tags">
+            <span class="badge-concept">Concept</span>
+            <span class="eyebrow" data-d="cat"></span>
+          </div>
+          <h1 id="d-name" data-d="name"></h1>
+          <p class="lead" data-d="tagline"></p>
+          <ul class="d-systems" data-d="systems" aria-label="Systems included"></ul>
+          <div class="d-hero__actions">
+            <a class="btn btn--primary" data-d="cta" href="/start.html">Build Something Like This <span class="arrow" aria-hidden="true">→</span></a>
+            <a class="btn btn--ghost" href="/designs.html">Browse all designs</a>
+          </div>
+        </div>
+        <figure class="d-hero__media">
+          <div class="d-hero__frame" data-d="hero"></div>
+          <figcaption class="d-hero__note">Concept design by CTSD. The organization shown is fictional.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="d-sec" data-tone data-section="website" aria-labelledby="sec-website" hidden>
+      <div class="container">
+        <header class="d-sec__head">
+          <p class="eyebrow">Website</p>
+          <h2 id="sec-website">A public site that does the work.</h2>
+          <p class="lead">Desktop screens from the concept, designed for clarity on every page.</p>
+        </header>
+        <div class="d-gallery" data-gallery="browser">
+          <div class="d-track d-track--browser" data-track tabindex="0" role="region" aria-label="Website screens"></div>
+          <div class="d-gallery__ctrl" data-ctrl hidden>
+            <button type="button" class="d-arrow" data-prev aria-label="Previous website screen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6"/></svg></button>
+            <button type="button" class="d-arrow" data-next aria-label="Next website screen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="d-sec" data-tone data-section="app" aria-labelledby="sec-app" hidden>
+      <div class="container">
+        <header class="d-sec__head">
+          <p class="eyebrow">Mobile App</p>
+          <h2 id="sec-app">In their pocket, on iOS and Android.</h2>
+          <p class="lead">Phone screens from the concept app, built once for both platforms.</p>
+        </header>
+        <div class="d-gallery" data-gallery="phone">
+          <div class="d-track d-track--phone" data-track tabindex="0" role="region" aria-label="App screens"></div>
+          <div class="d-gallery__ctrl" data-ctrl hidden>
+            <button type="button" class="d-arrow" data-prev aria-label="Previous app screen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6"/></svg></button>
+            <button type="button" class="d-arrow" data-next aria-label="Next app screen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="d-sec" data-tone data-section="portal" aria-labelledby="sec-portal" hidden>
+      <div class="container d-split">
+        <header class="d-sec__head">
+          <p class="eyebrow">Portal</p>
+          <h2 id="sec-portal" data-d="portal-name">A private place to sign in.</h2>
+          <p class="lead">The people you serve log in to see what is theirs: details, history, documents and requests, in one secure place.</p>
+        </header>
+        <div class="d-stack" data-track></div>
+      </div>
+    </section>
+
+    <section class="d-sec" data-tone data-section="admin" aria-labelledby="sec-admin" hidden>
+      <div class="container d-split">
+        <header class="d-sec__head">
+          <p class="eyebrow">Administration</p>
+          <h2 id="sec-admin">Run everything from one place.</h2>
+          <p class="lead">Your team manages content, people and requests from a single admin shaped around how you already work.</p>
+          <a class="d-link" href="/demo/">Try the live admin demo <span aria-hidden="true">→</span></a>
+        </header>
+        <div class="d-stack" data-track></div>
+      </div>
+    </section>
+
+    <section class="d-sec" data-tone data-section="features" aria-labelledby="sec-features">
+      <div class="container">
+        <header class="d-sec__head d-sec__head--row">
+          <div>
+            <p class="eyebrow">Features</p>
+            <h2 id="sec-features">What is inside.</h2>
+          </div>
+          <p class="lead">Every feature is built for your organization, not bolted on from a template.</p>
+        </header>
+        <ul class="d-features" data-features></ul>
+      </div>
+    </section>
+
+    <section class="d-sec d-sec--tight" data-tone data-section="integrations" aria-labelledby="sec-int">
+      <div class="container d-int">
+        <div>
+          <p class="eyebrow">Integrations</p>
+          <h2 id="sec-int">Connected to the tools you use.</h2>
+        </div>
+        <ul class="d-chips" data-integrations></ul>
+      </div>
+    </section>
+
+    <section class="d-sec" data-tone data-section="related" aria-labelledby="sec-related" hidden>
+      <div class="container">
+        <header class="d-sec__head d-sec__head--row">
+          <div>
+            <p class="eyebrow">Related designs</p>
+            <h2 id="sec-related">More concepts like this.</h2>
+          </div>
+          <a class="d-link" data-d="more-link" href="/designs.html">See all in this category <span aria-hidden="true">→</span></a>
+        </header>
+        <ul class="shop-grid" data-related></ul>
+      </div>
+    </section>
+
+    <section class="d-cta section--wood slats" aria-labelledby="d-cta-title">
+      <div class="container d-cta__inner">
+        <p class="eyebrow">Built around you</p>
+        <h2 id="d-cta-title">Like this concept? We will build yours.</h2>
+        <p class="lead">Tell us how your organization works. We will shape a website, app and system around it, starting from this design or from scratch.</p>
+        <div class="d-hero__actions">
+          <a class="btn btn--primary" data-d="cta" href="/start.html">Build Something Like This <span class="arrow" aria-hidden="true">→</span></a>
+          <a class="btn btn--ghost" href="/mockup.html">Get a free mockup</a>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<div id="site-footer"></div>
+<script type="module" src="/assets/js/shell.js"></script>
+<script type="module" src="/assets/js/design-page.js"></script>
+</body>
+</html>

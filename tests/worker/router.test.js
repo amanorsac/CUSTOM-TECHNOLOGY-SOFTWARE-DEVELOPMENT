@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import worker from '../../src/worker.js';
+import worker, { routes } from '../../src/worker.js';
 
 function makeEnv(body = 'asset-body') {
   const calls = [];
@@ -32,4 +32,35 @@ describe('worker router', () => {
     expect(await res.json()).toEqual({ ok: false, error: 'not_found' });
     expect(env.calls).toHaveLength(0);
   });
+
+  it('dispatches to a registered route, passing url, and skips it on method mismatch', async () => {
+    const seen = [];
+    const route = {
+      method: 'POST',
+      test: (url) => url.pathname === '/api/__probe',
+      handle: async (request, env, ctx, url) => {
+        seen.push({ method: request.method, url });
+        return new Response('probe', { status: 201 });
+      },
+    };
+    routes.unshift(route);
+    try {
+      const env = makeEnv();
+      const hit = await worker.fetch(new Request('https://example.com/api/__probe?x=1', { method: 'POST' }), env, {});
+      expect(hit.status).toBe(201);
+      expect(await hit.text()).toBe('probe');
+      expect(seen).toHaveLength(1);
+      expect(seen[0].url).toBeInstanceOf(URL);
+      expect(seen[0].url.pathname).toBe('/api/__probe');
+      expect(seen[0].url.searchParams.get('x')).toBe('1');
+
+      const miss = await worker.fetch(new Request('https://example.com/api/__probe'), env, {});
+      expect(miss.status).toBe(404);
+      expect(seen).toHaveLength(1);
+      expect(env.calls).toHaveLength(0);
+    } finally {
+      routes.splice(routes.indexOf(route), 1);
+    }
+  });
 });
+

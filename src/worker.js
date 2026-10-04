@@ -1,6 +1,8 @@
 // Route registry. Later tasks push entries here:
 // { method: 'POST', test: (url) => boolean, handle: async (request, env, ctx, url) => Response }
-export const routes = [];
+import { designPageRoute, designPageHeadRoute } from './routes/design-page.js';
+
+export const routes = [designPageRoute, designPageHeadRoute];
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), {
