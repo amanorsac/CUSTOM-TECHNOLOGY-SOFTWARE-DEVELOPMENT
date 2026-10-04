@@ -4,3 +4,7 @@ node_modules/
 .dev.vars
 test-results/
 playwright-report/
+# Raw image exports (Higgsfield PNG/JPG). scripts/make-thumbs.mjs turns them into the WebP files the site serves.
+public/images/**/*.png
+public/images/**/*.jpg
+public/images/**/*.jpeg
