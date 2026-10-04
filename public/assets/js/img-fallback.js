@@ -22,6 +22,7 @@ export const smVariant = (path) => path.replace(/\.webp$/i, '-sm.webp');
  * @param {string} [o.sizes]    sizes attribute; omit for no srcset
  * @param {'placeholder'|'remove'} [o.mode]
  * @param {(img: HTMLImageElement) => void} [o.onRemove]
+ * @param {(img: HTMLImageElement) => void} [o.onLoad]
  * @param {boolean} [o.lazy]
  * @param {string} [o.className]
  * @param {boolean} [o.priority] fetchpriority=high (LCP image)
@@ -42,7 +43,10 @@ export function fallbackImg(o) {
   if (o.width) img.width = o.width;
   if (o.height) img.height = o.height;
 
-  img.addEventListener('load', () => img.classList.add('is-loaded'));
+  img.addEventListener('load', () => {
+    img.classList.add('is-loaded');
+    if (o.onLoad) o.onLoad(img);
+  });
   img.addEventListener('error', () => {
     // It already tried to load, so it is in or near view: retry eagerly, or a
     // lazy retry may wait until it is scrolled back into view.

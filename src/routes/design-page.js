@@ -29,37 +29,58 @@ async function loadDesigns(env, base) {
   }
 }
 
-const setAttr = (name, value) => ({ element: (el) => el.setAttribute(name, value) });
+const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+})[c]);
+const meta = (attr, key, content) => `<meta ${attr}="${key}" content="${esc(content)}">`;
+const remove = { element: (el) => el.remove() };
 
+// Head tags that depend on the request are rebuilt here, always as absolute
+// URLs from the request origin. Text values are HTML-escaped.
 function rewrite(res, design, url) {
   const headers = new Headers(res.headers);
   headers.set('content-type', 'text/html; charset=utf-8');
   headers.delete('content-length');
   headers.delete('etag');
 
+  const abs = (path) => new URL(`/${String(path).replace(/^\/+/, '')}`, url.origin).href;
+  const placeholder = abs('images/designs/_placeholder.webp');
+
   if (!design) {
-    return new Response(res.body, { status: 404, headers });
+    // 404: keep the template's noindex, no canonical/og:url, absolute images.
+    const tags = [meta('property', 'og:image', placeholder), meta('name', 'twitter:image', placeholder)].join('');
+    const rw = new HTMLRewriter()
+      .on('link[rel="canonical"], meta[property="og:url"], meta[property="og:image"], meta[name="twitter:image"]', remove)
+      .on('head', { element: (el) => el.append(tags, { html: true }) });
+    return rw.transform(new Response(res.body, { status: 404, headers }));
   }
 
   const title = `${design.name} — Concept | CTSD`;
   const description = design.tagline || `${design.name}, a CTSD concept design.`;
-  const pageUrl = `${url.origin}/designs/${design.slug}`;
-  const cover = design.images && design.images.cover;
-  const image = cover ? new URL(`/${cover.replace(/^\/+/, '')}`, url.origin).href : `${url.origin}/images/designs/_placeholder.webp`;
+  const pageUrl = abs(`designs/${encodeURIComponent(design.slug)}`);
+  const image = design.images && design.images.cover ? abs(design.images.cover) : placeholder;
+  const tags = [
+    meta('name', 'description', description),
+    `<link rel="canonical" href="${esc(pageUrl)}">`,
+    meta('property', 'og:title', title),
+    meta('property', 'og:description', description),
+    meta('property', 'og:image', image),
+    meta('property', 'og:url', pageUrl),
+    meta('name', 'twitter:title', title),
+    meta('name', 'twitter:description', description),
+    meta('name', 'twitter:image', image),
+  ].join('\n');
 
   const rw = new HTMLRewriter()
     .on('title', { element: (el) => el.setInnerContent(title) })
-    .on('meta[name="description"]', setAttr('content', description))
-    .on('meta[property="og:title"]', setAttr('content', title))
-    .on('meta[property="og:description"]', setAttr('content', description))
-    .on('meta[property="og:image"]', setAttr('content', image))
-    .on('meta[property="og:url"]', setAttr('content', pageUrl))
-    .on('meta[name="twitter:title"]', setAttr('content', title))
-    .on('meta[name="twitter:description"]', setAttr('content', description))
-    .on('meta[name="twitter:image"]', setAttr('content', image))
-    .on('meta[name="robots"]', { element: (el) => el.remove() })
-    .on('link[rel="canonical"]', setAttr('href', pageUrl))
-    .on('main', setAttr('data-slug', design.slug))
+    .on([
+      'meta[name="description"]', 'meta[name="robots"]', 'link[rel="canonical"]',
+      'meta[property="og:title"]', 'meta[property="og:description"]', 'meta[property="og:image"]',
+      'meta[property="og:url"]', 'meta[name="twitter:title"]', 'meta[name="twitter:description"]',
+      'meta[name="twitter:image"]',
+    ].join(', '), remove)
+    .on('head', { element: (el) => el.append(tags, { html: true }) })
+    .on('main', { element: (el) => el.setAttribute('data-slug', design.slug) })
     // Server-render the hero text so crawlers and no-JS visitors see it.
     .on('[data-d="name"]', { element: (el) => el.setInnerContent(design.name) })
     .on('[data-d="tagline"]', { element: (el) => el.setInnerContent(description) });

@@ -107,6 +107,8 @@
 .d-split .d-sec__head { margin-bottom: 0; }
 .d-stack { display: grid; gap: 28px; }
 
+.d-sentinel { height: 1px; margin-top: -1px; }
+
 /* ---- Frames --------------------------------------------------------------- */
 .d-slide { margin: 0; }
 .frame-browser {

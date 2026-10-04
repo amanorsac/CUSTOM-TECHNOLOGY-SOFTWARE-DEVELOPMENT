@@ -66,7 +66,7 @@ for (const width of [375, 1280]) {
       await page.goto('/');
       const footer = page.locator('#site-footer footer');
       await expect(footer.getByRole('link', { name: 'Get a free mockup' })).toBeVisible();
-      await expect(footer.getByRole('link', { name: /privacy/i })).toHaveAttribute('href', '/privacy.html');
+      await expect(footer.getByRole('link', { name: /privacy/i })).toHaveAttribute('href', '/privacy');
       for (const name of INDUSTRIES) await expect(footer.getByRole('link', { name, exact: true })).toBeVisible();
       await expect(footer).toContainText('© ');
       await expect(footer).toContainText('CTSD');

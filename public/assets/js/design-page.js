@@ -110,12 +110,45 @@ function initCarousel(section) {
   return update;
 }
 
+// A gallery section stays hidden until one of its images has actually loaded,
+// so missing files never open and then collapse a section (no layout shift).
+// Probing starts when the section's position comes within ~1200px of view.
+function revealWhenLoaded(section, paths, opts, onReveal) {
+  const sentinel = el('div', 'd-sentinel');
+  sentinel.setAttribute('aria-hidden', 'true');
+  section.before(sentinel);
+  const probe = (i) => {
+    if (i >= paths.length) { sentinel.remove(); return; }
+    fallbackImg({
+      ...opts,
+      path: paths[i],
+      alt: '',
+      mode: 'remove',
+      lazy: false,
+      onRemove: () => probe(i + 1),
+      onLoad: () => { sentinel.remove(); onReveal(); },
+    });
+  };
+  if (!('IntersectionObserver' in window)) { probe(0); return; }
+  const io = new IntersectionObserver((entries) => {
+    if (entries.some((e) => e.isIntersecting)) { io.disconnect(); probe(0); }
+  }, { rootMargin: '1200px 0px' });
+  io.observe(sentinel);
+}
+
 function renderGallery(design, key) {
   const section = $(`[data-section="${key}"]`);
   const track = $('[data-track]', section);
   const paths = design.images[key];
   const phone = key === 'app';
+  const opts = {
+    full: phone ? 1200 : 2400,
+    sizes: phone ? '(min-width: 960px) 280px, 64vw' : '(min-width: 1248px) 1000px, 86vw',
+    width: phone ? 1200 : 2400,
+    height: phone ? 2600 : 1500,
+  };
   let update = () => {};
+  let revealed = false;
 
   const onRemove = () => {
     if (!track.querySelector('[data-slide]')) {
@@ -128,31 +161,27 @@ function renderGallery(design, key) {
 
   paths.forEach((path, i) => {
     const alt = `${design.name} concept — ${SECTION_LABEL[key]} screen${paths.length > 1 ? ` (${i + 1} of ${paths.length})` : ''}`;
-    const img = fallbackImg({
-      path,
-      alt,
-      full: phone ? 1200 : 2400,
-      sizes: phone ? '(min-width: 960px) 280px, 64vw' : '(min-width: 1248px) 1000px, 86vw',
-      mode: 'remove',
-      onRemove,
-      lazy: true,
-      width: phone ? 1200 : 2400,
-      height: phone ? 2600 : 1500,
-    });
+    const img = fallbackImg({ ...opts, path, alt, mode: 'remove', onRemove, lazy: true });
     const slide = el('figure', `d-slide${phone ? ' d-slide--phone' : ''}`);
     slide.dataset.slide = '';
     slide.append(phone ? phoneFrame(img) : browserFrame(img));
     track.append(slide);
   });
-  section.hidden = false;
   update = initCarousel(section);
+  revealWhenLoaded(section, paths, opts, () => {
+    if (revealed || !track.querySelector('[data-slide]')) return;
+    revealed = true;
+    section.hidden = false;
+    retone();
+    update();
+  });
 }
 
 // ---- Page --------------------------------------------------------------------
 function fill(design, designs) {
   const cat = CATEGORY_LABEL[design.category] || design.category;
-  const start = `/start.html?design=${encodeURIComponent(design.slug)}`;
-  const shopCat = `/designs.html?cat=${encodeURIComponent(design.category)}`;
+  const start = `/start?design=${encodeURIComponent(design.slug)}`;
+  const shopCat = `/designs?cat=${encodeURIComponent(design.category)}`;
 
   document.title = `${design.name} — Concept | CTSD`;
   $('[data-d="name"]').textContent = design.name;
@@ -209,7 +238,7 @@ function notFound() {
     <p class="eyebrow">Explore Designs</p>
     <h1 id="d-missing">Design not found</h1>
     <p class="lead">We could not find that concept. It may have been renamed or retired.</p>
-    <div class="d-hero__actions"><a class="btn btn--primary" href="/designs.html">Browse all designs <span class="arrow" aria-hidden="true">→</span></a></div>
+    <div class="d-hero__actions"><a class="btn btn--primary" href="/designs">Browse all designs <span class="arrow" aria-hidden="true">→</span></a></div>
   </div>
 </section>`;
 }

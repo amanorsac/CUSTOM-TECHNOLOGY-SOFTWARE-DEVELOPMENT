@@ -6,37 +6,37 @@
 // ---- Navigation data (single source of truth) -------------------------
 const NAV = [
   { id: 'home', label: 'Home', href: '/' },
-  { id: 'solutions', label: 'Solutions', href: '/solutions.html' },
+  { id: 'solutions', label: 'Solutions', href: '/solutions' },
   {
     id: 'industries',
     label: 'Industries',
     children: [
-      { id: 'business', label: 'Business', href: '/industries/business.html' },
-      { id: 'church', label: 'Church', href: '/industries/church.html' },
-      { id: 'education', label: 'Education', href: '/industries/education.html' },
-      { id: 'nonprofit', label: 'Nonprofit', href: '/industries/nonprofit.html' },
+      { id: 'business', label: 'Business', href: '/industries/business' },
+      { id: 'church', label: 'Church', href: '/industries/church' },
+      { id: 'education', label: 'Education', href: '/industries/education' },
+      { id: 'nonprofit', label: 'Nonprofit', href: '/industries/nonprofit' },
     ],
   },
-  { id: 'designs', label: 'Explore Designs', href: '/designs.html' },
+  { id: 'designs', label: 'Explore Designs', href: '/designs' },
   { id: 'demo', label: 'Live Demo', href: '/demo/' },
-  { id: 'about', label: 'About', href: '/about.html' },
-  { id: 'start', label: 'Start a Project', href: '/start.html', cta: true },
+  { id: 'about', label: 'About', href: '/about' },
+  { id: 'start', label: 'Start a Project', href: '/start', cta: true },
 ];
 
 const SERVICES = [
-  { label: 'Websites', href: '/solutions.html#websites' },
-  { label: 'Mobile Apps', href: '/solutions.html#mobile-apps' },
-  { label: 'CRM Systems', href: '/solutions.html#crm' },
-  { label: 'Client Portals', href: '/solutions.html#portals' },
-  { label: 'Automation', href: '/solutions.html#automation' },
-  { label: 'Integrations', href: '/solutions.html#integrations' },
+  { label: 'Websites', href: '/solutions#websites' },
+  { label: 'Mobile Apps', href: '/solutions#mobile-apps' },
+  { label: 'CRM Systems', href: '/solutions#crm' },
+  { label: 'Client Portals', href: '/solutions#portals' },
+  { label: 'Automation', href: '/solutions#automation' },
+  { label: 'Integrations', href: '/solutions#integrations' },
 ];
 
 const COMPANY = [
-  { label: 'Explore Designs', href: '/designs.html' },
+  { label: 'Explore Designs', href: '/designs' },
   { label: 'Live Demo', href: '/demo/' },
-  { label: 'About', href: '/about.html' },
-  { label: 'Start a Project', href: '/start.html' },
+  { label: 'About', href: '/about' },
+  { label: 'Start a Project', href: '/start' },
 ];
 
 const INDUSTRIES = NAV.find((n) => n.id === 'industries').children;
@@ -87,7 +87,7 @@ function footerHTML() {
       <div class="site-footer__brand">
         <img src="/assets/brand/logo-horizontal-reverse.svg" alt="Custom Technology &amp; Software Development" width="195" height="56" loading="lazy">
         <p class="site-footer__tagline">Technology built around your organization.</p>
-        <a class="btn btn--ghost" href="/mockup.html">Get a free mockup</a>
+        <a class="btn btn--ghost" href="/mockup">Get a free mockup</a>
       </div>
       <nav class="site-footer__cols" aria-label="Footer">
         <div><h2 class="eyebrow">Services</h2><ul>${list(SERVICES)}</ul></div>
@@ -97,7 +97,7 @@ function footerHTML() {
     </div>
     <div class="site-footer__base">
       <p>© ${year} CTSD · Custom Technology &amp; Software Development</p>
-      <p><a href="/privacy.html">Privacy policy</a></p>
+      <p><a href="/privacy">Privacy policy</a></p>
     </div>
   </div>
 </footer>`;
