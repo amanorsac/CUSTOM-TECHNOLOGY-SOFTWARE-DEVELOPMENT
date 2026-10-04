@@ -26,12 +26,12 @@
       <div class="hero__copy">
         <p class="eyebrow">Custom Technology &amp; Software Development</p>
         <h1 id="hero-title">Technology built around your organization.</h1>
-        <p class="lead">Custom websites, mobile applications and business systems designed for the way you work.</p>
+        <p class="lead">Custom websites, mobile applications and business systems designed around the way your organization actually works.</p>
         <div class="hero__actions">
           <a class="btn btn--primary" href="/start">Start Your Project <span class="arrow" aria-hidden="true">→</span></a>
           <a class="btn btn--ghost" href="/designs">Explore What We Build</a>
         </div>
-        <ul class="hero__note" aria-label="Who we build for">
+        <ul class="hero__note" role="list" aria-label="Who we build for">
           <li>Businesses</li><li>Churches</li><li>Schools</li><li>Nonprofits</li>
         </ul>
       </div>
@@ -61,11 +61,22 @@
             </div>
             <div class="dev-laptop__base"></div>
           </div>
-          <div class="dev-card">
-            <div class="dev-card__head"><b>Registrations</b><span>This week</span></div>
-            <div class="dev-card__num">128 <em>+18%</em></div>
-            <div class="dev-card__bars"><i style="--h:.42"></i><i style="--h:.58"></i><i style="--h:.5"></i><i style="--h:.72"></i><i style="--h:.64"></i><i style="--h:.86"></i><i style="--h:1"></i></div>
-            <div class="dev-card__rows"><span><i></i>Family Night</span><span><i></i>Youth Retreat</span></div>
+          <div class="dev-crm">
+            <div class="dev-head"><b>Pipeline</b><span>CRM</span></div>
+            <div class="dev-crm__cols">
+              <span><small>Lead</small><b>12</b><i></i><i></i><i></i></span>
+              <span><small>Proposal</small><b>5</b><i></i><i></i></span>
+              <span><small>Won</small><b>3</b><i class="won"></i></span>
+            </div>
+          </div>
+          <div class="dev-admin">
+            <div class="dev-admin__side"><i class="on"></i><i></i><i></i><i></i></div>
+            <div class="dev-admin__main">
+              <div class="dev-head"><b>Events</b><span class="dev-admin__btn">+ New</span></div>
+              <span class="dev-admin__row"><b>Family Night</b><em class="ok">Published</em></span>
+              <span class="dev-admin__row"><b>Youth Retreat</b><em>Draft</em></span>
+              <span class="dev-admin__row"><b>Volunteer Day</b><em class="ok">Published</em></span>
+            </div>
           </div>
           <div class="dev-phone">
             <div class="m-app">
@@ -89,7 +100,7 @@
             <path fill="#556B2F" d="M200 218C170 222 130 222 96 214C70 208 48 196 30 180C66 176 108 182 146 194C168 201 186 210 200 218Z"/>
           </svg>
         </div>
-        <img class="hero__img" src="/images/site/hero.webp" width="1440" height="1200" fetchpriority="high" decoding="async"
+        <img class="hero__img" src="/images/site/hero.webp" width="1440" height="1200" fetchpriority="high" decoding="async" onerror="this.remove()"
              alt="A laptop, a phone and an admin dashboard showing a custom-built system, set in a wood-panelled office">
       </div>
     </div>
@@ -102,7 +113,7 @@
         <p class="eyebrow">What we build</p>
         <h2 id="strip-title">One partner for the whole system.</h2>
       </div>
-      <ul class="strip__list reveal">
+      <ul class="strip__list reveal" role="list">
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3Z"/></svg>Web Development</li>
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.2"/><path d="M10.5 18.5h3"/></svg>Mobile Apps</li>
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><ellipse cx="12" cy="5.5" rx="7.5" ry="2.8"/><path d="M4.5 5.5v13c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8v-13M4.5 12c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8"/></svg>CRM</li>
@@ -122,7 +133,7 @@
         <h2 id="journey-title">One connected journey, from first visit to coming back.</h2>
         <p class="lead">A website is only the front door. We build the whole path your people take, and connect every step to the tools your team already uses.</p>
       </div>
-      <ol class="journey" data-journey>
+      <ol class="journey" data-journey role="list">
         <li><span class="journey__dot"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></span><h3>Discover</h3><p>They find you on Google or through a friend.</p></li>
         <li><span class="journey__dot"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M8.5 9h7M8.5 12.5h7M8.5 16h4"/></svg></span><h3>Register</h3><p>They sign up for an event, a class or an account.</p></li>
         <li><span class="journey__dot"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4M8 13.5h3"/></svg></span><h3>Book</h3><p>They pick a time that works for them.</p></li>
@@ -155,13 +166,17 @@
       <div class="manage__copy reveal">
         <p class="eyebrow">Easy to manage</p>
         <h2 id="manage-title">Built for your team to manage.</h2>
-        <p class="lead">Every system we build comes with a simple admin dashboard. Your staff can update pages, post events, review registrations and answer messages without calling a developer.</p>
-        <ul class="checks">
-          <li>Edit content in plain language, no code</li>
-          <li>Registrations, bookings and payments in one place</li>
-          <li>Roles and permissions for every staff member</li>
-          <li>Training and a handoff guide for your team</li>
+        <p class="lead">Your custom system includes an administration experience designed specifically for your organization.</p>
+        <ul class="checks" role="list">
+          <li>Update content</li>
+          <li>Manage customers</li>
+          <li>Review bookings</li>
+          <li>Manage products</li>
+          <li>Create events</li>
+          <li>Control users</li>
+          <li>View analytics</li>
         </ul>
+        <p class="manage__close">Handle everyday operations without contacting a developer.</p>
         <div class="manage__actions">
           <a class="btn btn--primary" href="/demo/">Open the live demo <span class="arrow" aria-hidden="true">→</span></a>
           <p class="manage__note">No login needed. Click around freely.</p>
@@ -207,7 +222,7 @@
         <p class="eyebrow">Who we build for</p>
         <h2 id="industries-title">Made for the way your organization works.</h2>
       </div>
-      <ul class="ind-grid">
+      <ul class="ind-grid" role="list">
         <li class="reveal"><a class="ind-card" href="/industries/business">
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="7" width="17" height="12.5" rx="2"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3.5 12.5h17"/></svg>
           <h3>Business</h3>
@@ -239,13 +254,13 @@
         <p class="eyebrow">How we work</p>
         <h2 id="process-title">A clear process, from first call to handoff.</h2>
       </div>
-      <ol class="steps">
-        <li class="reveal"><span class="steps__n" aria-hidden="true">01</span><h3>Discover</h3><p>We learn how your organization works and what it needs to do better.</p></li>
-        <li class="reveal"><span class="steps__n" aria-hidden="true">02</span><h3>Design</h3><p>You see your system before we build it, and we refine it together.</p></li>
-        <li class="reveal"><span class="steps__n" aria-hidden="true">03</span><h3>Build</h3><p>We develop the website, app and admin tools on a solid foundation.</p></li>
-        <li class="reveal"><span class="steps__n" aria-hidden="true">04</span><h3>Test</h3><p>We check every flow on phones, tablets and desktops, accessibility included.</p></li>
-        <li class="reveal"><span class="steps__n" aria-hidden="true">05</span><h3>Launch</h3><p>We go live carefully, with your content moved and your domain connected.</p></li>
-        <li class="reveal"><span class="steps__n" aria-hidden="true">06</span><h3>Handoff</h3><p>Your team gets training, a simple guide and support when you need it.</p></li>
+      <ol class="steps" role="list">
+        <li class="reveal"><span class="steps__n" aria-hidden="true">01</span><h3>Discover</h3><p>We learn how the organization operates.</p></li>
+        <li class="reveal"><span class="steps__n" aria-hidden="true">02</span><h3>Design</h3><p>We design the customer experience and internal system.</p></li>
+        <li class="reveal"><span class="steps__n" aria-hidden="true">03</span><h3>Build</h3><p>Frontend, backend, integrations and infrastructure.</p></li>
+        <li class="reveal"><span class="steps__n" aria-hidden="true">04</span><h3>Test</h3><p>Devices, workflows, security and performance.</p></li>
+        <li class="reveal"><span class="steps__n" aria-hidden="true">05</span><h3>Launch</h3><p>Deployment and production setup.</p></li>
+        <li class="reveal"><span class="steps__n" aria-hidden="true">06</span><h3>Handoff</h3><p>Training and administration access.</p></li>
       </ol>
     </div>
   </section>
@@ -258,7 +273,7 @@
         <h2 id="integrations-title">Works with the tools you already use.</h2>
         <p class="lead">We connect your system to the platforms your team relies on, so information moves on its own.</p>
       </div>
-      <ul class="wall reveal" aria-label="Supported platforms">
+      <ul class="wall reveal" role="list" aria-label="Supported platforms">
         <li>Planning Center</li><li>Stripe</li><li>HubSpot</li><li>Salesforce</li><li>QuickBooks</li><li>Google Workspace</li>
         <li>Microsoft 365</li><li>Mailchimp</li><li>Twilio</li><li>Zapier</li><li>Calendly</li><li>YouTube</li>
       </ul>

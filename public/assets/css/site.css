@@ -46,10 +46,20 @@ a:hover { color: var(--deep-brown); }
 ul { margin: 0; padding: 0; }
 button { font: inherit; color: inherit; }
 
-/* Focus: gold ring with a dark inner ring so it reads on cream and on wood */
+/* Focus (WCAG 1.4.11, 3:1 against the adjacent background):
+   light sections: darkest-wood outer ring (14.5:1 on cream, 15.7:1 on off-white)
+                   with a gold inner ring for the brand accent;
+   wood sections:  gold outer ring (6.6:1 on deep brown, 7.9:1 on #2B1B18,
+                   3.6:1 on wood brown) with a dark inner ring. */
 :focus-visible {
-  outline: 3px solid var(--gold);
+  outline: 3px solid var(--deep-brown-900);
   outline-offset: 3px;
+  box-shadow: 0 0 0 3px var(--gold);
+}
+.section--wood :focus-visible,
+.site-header :focus-visible,
+.site-footer :focus-visible {
+  outline-color: var(--gold);
   box-shadow: 0 0 0 3px var(--deep-brown-900);
 }
 :focus:not(:focus-visible) { outline: none; }

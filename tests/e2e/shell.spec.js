@@ -4,13 +4,17 @@ import AxeBuilder from '@axe-core/playwright';
 const NAV = ['Home', 'Solutions', 'Industries', 'Explore Designs', 'Live Demo', 'About', 'Start a Project'];
 const INDUSTRIES = ['Business', 'Church', 'Education', 'Nonprofit'];
 
+// Generated images that do not exist yet (owner produces them later).
+const PENDING_IMAGES = /^\/images\/(site\/(hero|admin-hero)\.webp|designs\/.+)$/;
+
 function collectErrors(page) {
   const errors = [];
   page.on('console', (m) => {
     if (m.type() !== 'error') return;
     // Generated images (hero, admin, covers) may not exist yet; the page falls
     // back to CSS compositions, so their 404s are expected (Ruling A).
-    if (/Failed to load resource/.test(m.text()) && /\/images\//.test(m.location().url || '')) return;
+    const path = new URL(m.location().url || 'about:blank', 'http://x').pathname;
+    if (/status of 404/.test(m.text()) && PENDING_IMAGES.test(path)) return;
     errors.push(m.text());
   });
   page.on('pageerror', (e) => errors.push(String(e)));

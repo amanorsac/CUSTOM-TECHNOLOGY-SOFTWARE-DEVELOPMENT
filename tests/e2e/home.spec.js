@@ -7,6 +7,11 @@ const JOURNEY = ['Discover', 'Register', 'Book', 'Pay', 'Receive', 'Portal', 'Co
 const PROCESS = ['Discover', 'Design', 'Build', 'Test', 'Launch', 'Handoff'];
 const INTEGRATIONS = ['Planning Center', 'Stripe', 'HubSpot', 'Salesforce', 'QuickBooks', 'Google Workspace',
   'Microsoft 365', 'Mailchimp', 'Twilio', 'Zapier', 'Calendly', 'YouTube'];
+const PROCESS_COPY = ['We learn how the organization operates.', 'We design the customer experience and internal system.',
+  'Frontend, backend, integrations and infrastructure.', 'Devices, workflows, security and performance.',
+  'Deployment and production setup.', 'Training and administration access.'];
+const MANAGE_LIST = ['Update content', 'Manage customers', 'Review bookings', 'Manage products', 'Create events',
+  'Control users', 'View analytics'];
 const INDUSTRIES = ['/industries/business', '/industries/church', '/industries/education', '/industries/nonprofit'];
 
 async function featured(request) {
@@ -28,6 +33,38 @@ test.describe('home page', () => {
     const hero = page.locator('[data-section="hero"]');
     await expect(hero.getByRole('link', { name: 'Start Your Project' })).toHaveAttribute('href', '/start');
     await expect(hero.getByRole('link', { name: 'Explore What We Build' })).toHaveAttribute('href', '/designs');
+    await expect(hero.locator('.lead')).toHaveText(
+      'Custom websites, mobile applications and business systems designed around the way your organization actually works.');
+  });
+
+  test('hero visual shows a website, a phone app, an admin panel and a CRM dashboard', async ({ page }) => {
+    for (const w of [1280, 375]) {
+      await page.setViewportSize({ width: w, height: 900 });
+      await page.goto('/');
+      const stage = page.locator('[data-section="hero"] .stage');
+      for (const part of ['.dev-laptop', '.dev-phone', '.dev-admin', '.dev-crm']) {
+        const el = stage.locator(part);
+        await expect(el).toBeVisible();
+        // fully inside the stage
+        const [s, b] = [await stage.boundingBox(), await el.boundingBox()];
+        expect(b.x).toBeGreaterThanOrEqual(s.x - 1);
+        expect(b.x + b.width).toBeLessThanOrEqual(s.x + s.width + 1);
+        expect(b.y).toBeGreaterThanOrEqual(s.y - 1);
+        expect(b.y + b.height).toBeLessThanOrEqual(s.y + s.height + 1);
+      }
+    }
+  });
+
+  test('hero image is visible without waiting for JS (LCP)', async ({ browser }) => {
+    const ctx = await browser.newContext({ javaScriptEnabled: false });
+    const page = await ctx.newPage();
+    await page.route('**/images/site/hero.webp', (route) =>
+      route.fulfill({ path: 'public/images/designs/_placeholder.webp', contentType: 'image/webp' }));
+    await page.goto('/');
+    const img = page.locator('.hero__img');
+    await expect(img).toBeVisible();
+    expect(await img.evaluate((i) => getComputedStyle(i).opacity)).toBe('1');
+    await ctx.close();
   });
 
   test('hero image is the high-priority image; every other image is lazy', async ({ page, request }) => {
@@ -107,6 +144,10 @@ test.describe('home page', () => {
     const manage = page.locator('[data-section="manage"]');
     await expect(manage.getByRole('heading', { level: 2 })).toHaveText('Built for your team to manage.');
     await expect(manage.getByRole('link', { name: 'Open the live demo' })).toHaveAttribute('href', '/demo/');
+    await expect(manage.locator('.lead')).toHaveText(
+      'Your custom system includes an administration experience designed specifically for your organization.');
+    await expect(manage.getByRole('list').locator('li')).toHaveText(MANAGE_LIST);
+    await expect(manage.locator('.manage__close')).toHaveText('Handle everyday operations without contacting a developer.');
   });
 
   test('four industry cards link to the industry pages', async ({ page }) => {
@@ -118,6 +159,7 @@ test.describe('home page', () => {
   test('process: 6 steps in order', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('[data-section="process"] ol > li h3')).toHaveText(PROCESS);
+    await expect(page.locator('[data-section="process"] ol > li p')).toHaveText(PROCESS_COPY);
   });
 
   test('integrations wall: text wordmarks, no logo images', async ({ page }) => {
@@ -133,6 +175,39 @@ test.describe('home page', () => {
     await expect(cta.getByRole('heading', { level: 2 })).toHaveText('Tell us what your organization needs.');
     await expect(cta.getByRole('link', { name: 'Start a Project' })).toHaveAttribute('href', '/start');
     await expect(cta.getByRole('link', { name: 'Get a free mockup' })).toHaveAttribute('href', '/mockup');
+  });
+
+  test('unstyled lists keep list semantics (role=list)', async ({ page }) => {
+    await page.goto('/');
+    for (const sel of ['ol[data-journey]', '.steps', '.strip__list', '.wall', '.ind-grid', '.checks']) {
+      await expect(page.locator(sel)).toHaveAttribute('role', 'list');
+    }
+  });
+
+  test('focus ring has at least 3:1 contrast against cream and wood sections', async ({ page }) => {
+    await page.goto('/');
+    const lum = (rgb) => {
+      const [r, g, b] = rgb.match(/\d+(\.\d+)?/g).slice(0, 3).map(Number).map((v) => {
+        const c = v / 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+      });
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
+    for (const sel of ['[data-section="industries"] a', '[data-section="integrations"] ~ section a', '[data-section="hero"] a.btn--ghost', '.tile--cream a']) {
+      const link = page.locator(sel).first();
+      await link.scrollIntoViewIfNeeded();
+      // A key press first makes the programmatic focus count as keyboard focus
+      // (WebKit's Tab skips links, so Tab itself is not used here).
+      await page.keyboard.press('Shift');
+      await link.focus();
+      expect(await link.evaluate((el) => el.matches(':focus-visible'))).toBe(true);
+      const { outline, bg } = await link.evaluate((el) => {
+        let n = el.parentElement; let bg = 'rgba(0, 0, 0, 0)';
+        while (n && /rgba\(0, 0, 0, 0\)|transparent/.test(bg)) { bg = getComputedStyle(n).backgroundColor; n = n.parentElement; }
+        return { outline: getComputedStyle(el).outlineColor, bg };
+      });
+      expect(ratio(outline, bg), `${sel}: ${outline} on ${bg}`).toBeGreaterThanOrEqual(3);
+    }
   });
 
   test('no dollar sign anywhere on the page', async ({ page }) => {
