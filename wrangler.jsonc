@@ -10,7 +10,7 @@
   },
   "vars": {
     "LEAD_EMAIL": "amanorsac@gmail.com",
-    "SUPABASE_URL": "",
+    "SUPABASE_URL": "https://bmqvkjgqicmatloztpcz.supabase.co",
     "MAIL_FROM": ""
   },
   // Branch and pull-request previews (Cloudflare Worker Previews).
