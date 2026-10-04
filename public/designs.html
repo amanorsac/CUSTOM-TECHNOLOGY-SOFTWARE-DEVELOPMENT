@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Explore Designs — Concept Websites, Apps &amp; Systems | CTSD</title>
+<meta name="description" content="Browse CTSD concept designs for churches, schools, businesses and software teams: complete websites, apps, portals and admin systems you can build from.">
+<meta name="theme-color" content="#3E2723">
+<link rel="canonical" href="/designs">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CTSD — Custom Technology &amp; Software Development">
+<meta property="og:title" content="Explore Designs | CTSD">
+<meta property="og:description" content="Concept websites, apps, portals and admin systems, designed around real kinds of organizations.">
+<meta property="og:url" content="/designs">
+<meta property="og:image" content="/assets/brand/og-default.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="/assets/brand/og-default.jpg">
+<link rel="icon" href="/assets/brand/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/fonts/montserrat-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/data/designs.json" as="fetch" crossorigin>
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="/assets/css/site.css">
+<link rel="stylesheet" href="/assets/css/shop.css">
+</head>
+<body data-page="designs">
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="site-header"></div>
+
+<main id="main" tabindex="-1">
+  <section class="shop section--cream" aria-labelledby="shop-title">
+    <div class="container">
+      <header class="shop-head">
+        <div class="shop-head__copy">
+          <p class="eyebrow">Explore Designs</p>
+          <h1 id="shop-title">Concept systems, ready to make your own.</h1>
+        </div>
+        <div class="shop-head__aside">
+          <p class="lead">Browse complete concepts: website, app, portal and admin, designed for organizations like yours. Pick one as a starting point and we will build it around how you work.</p>
+          <p class="shop-head__note"><span class="badge-concept">Concept</span> Every design here is a concept by CTSD. The organizations shown are fictional.</p>
+        </div>
+      </header>
+
+      <div class="shop-bar">
+        <div class="shop-tabs" role="tablist" aria-label="Filter designs by category" data-tabs></div>
+        <p class="shop-status" data-shop-status role="status" aria-live="polite"></p>
+      </div>
+
+      <div id="design-panel" role="tabpanel" aria-label="Designs" class="shop-panel">
+        <noscript><p class="shop-message">The design list needs JavaScript. You can still <a href="/start">tell us what you need</a> and we will reply personally.</p></noscript>
+        <div class="shop-message shop-message--error" data-shop-error role="alert" hidden>
+          <p>Designs could not be loaded. Check your connection and try again, or refresh the page.</p>
+          <button type="button" class="btn btn--primary" data-shop-retry>Try again</button>
+        </div>
+        <ul class="shop-grid" data-design-grid></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="shop-cta section--wood slats" aria-labelledby="shop-cta-title">
+    <div class="container shop-cta__inner">
+      <div>
+        <p class="eyebrow">Not seeing your organization?</p>
+        <h2 id="shop-cta-title">Every system we build starts with yours.</h2>
+      </div>
+      <div class="shop-cta__actions">
+        <a class="btn btn--primary" href="/start">Tell Us What You Need <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="btn btn--ghost" href="/mockup">Get a free mockup</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="site-footer"></div>
+<script type="module" src="/assets/js/shell.js"></script>
+<script type="module" src="/assets/js/shop.js"></script>
+</body>
+</html>

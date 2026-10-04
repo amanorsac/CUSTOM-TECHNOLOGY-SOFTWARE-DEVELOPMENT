@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Start a Project | CTSD</title>
+<meta name="description" content="Tell us what your organization needs. Five short steps, then we come back with a clear plan, a timeline and a quote.">
+<meta name="theme-color" content="#3E2723">
+<link rel="canonical" href="/start">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CTSD — Custom Technology &amp; Software Development">
+<meta property="og:title" content="Start a Project | CTSD">
+<meta property="og:description" content="Tell us what your organization needs. Five short steps, then we come back with a clear plan, a timeline and a quote.">
+<meta property="og:url" content="/start">
+<meta property="og:image" content="/assets/brand/og-default.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="/assets/brand/og-default.jpg">
+<link rel="icon" href="/assets/brand/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/fonts/montserrat-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preconnect" href="https://challenges.cloudflare.com">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="/assets/css/site.css">
+<link rel="stylesheet" href="/assets/css/sections.css">
+<link rel="stylesheet" href="/assets/css/pages.css">
+<link rel="stylesheet" href="/assets/css/forms.css">
+</head>
+<body data-page="start">
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="site-header"></div>
+
+<main id="main" tabindex="-1">
+  <section class="fx section--cream" data-section="start" aria-labelledby="hero-title">
+    <div class="container fx__grid">
+      <div class="fx__intro">
+        <p class="eyebrow">Start a Project</p>
+        <h1 id="hero-title">Tell us what you need.</h1>
+        <p class="lead">Five short steps. We will come back with a clear plan, a timeline and a quote.</p>
+        <h2 class="fx__next-title">What happens next</h2>
+        <ol class="fx__next" role="list">
+          <li><span class="fx__num" aria-hidden="true">1</span><span><strong>We review your answers.</strong> Every request is read by a person, not a bot.</span></li>
+          <li><span class="fx__num" aria-hidden="true">2</span><span><strong>We reply.</strong> With a few questions, or a short call if it helps.</span></li>
+          <li><span class="fx__num" aria-hidden="true">3</span><span><strong>You get a plan.</strong> Scope, timeline and a quote. No obligation.</span></li>
+        </ol>
+        <p class="fx__aside">Rather see a design first? <a href="/mockup">Get a free mockup</a></p>
+      </div>
+
+      <div class="fx__card">
+        <noscript><p class="fx__noscript">This form needs JavaScript to send. You can find our contact address on the <a href="/privacy">privacy page</a>.</p></noscript>
+        <form class="fx__form" data-form="project" data-fallback="amanorsac@gmail.com" data-fallback-subject="Project inquiry" novalidate>
+          <p class="design-chip" data-design-chip hidden>
+            <span>Inspired by: <strong data-design-name></strong></span>
+            <button type="button" class="design-chip__remove" data-design-remove aria-label="Remove design reference">
+              <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            </button>
+          </p>
+
+          <div class="progress" data-progress aria-live="polite">
+            <p class="progress__label" data-progress-label>Step 1 of 5 <span class="progress__name">Organization</span></p>
+            <div class="progress__track" aria-hidden="true"><span class="progress__fill" data-progress-fill></span></div>
+          </div>
+
+          <section class="step" data-step="1" aria-labelledby="s1-title">
+            <h2 class="step__title" id="s1-title" tabindex="-1">What kind of organization are you?</h2>
+            <p class="step__hint">Choose one.</p>
+            <fieldset class="choices" data-field="org_type" data-choices="org_type" data-icons aria-labelledby="s1-title">
+            </fieldset>
+            <p class="field__error" id="err-org_type" hidden></p>
+          </section>
+
+          <section class="step" data-step="2" aria-labelledby="s2-title" hidden>
+            <h2 class="step__title" id="s2-title" tabindex="-1">What do you need?</h2>
+            <p class="step__hint">Choose as many as you like.</p>
+            <fieldset class="choices" data-field="needs" data-choices="needs" aria-labelledby="s2-title">
+            </fieldset>
+            <p class="field__error" id="err-needs" hidden></p>
+          </section>
+
+          <section class="step" data-step="3" aria-labelledby="s3-title" hidden>
+            <h2 class="step__title" id="s3-title" tabindex="-1">About your organization</h2>
+            <p class="step__hint">A little context helps us come back with something useful.</p>
+            <div class="fields">
+              <div class="field" data-field="org_name">
+                <label class="field__label" for="org_name">Organization name <span class="field__opt">(optional)</span></label>
+                <input class="input" type="text" id="org_name" name="org_name" autocomplete="organization" maxlength="160">
+                <p class="field__error" id="err-org_name" hidden></p>
+              </div>
+              <div class="field" data-field="website">
+                <label class="field__label" for="website">Current website <span class="field__opt">(optional)</span></label>
+                <input class="input" type="url" id="website" name="website" autocomplete="url" inputmode="url" maxlength="300" placeholder="https://" aria-describedby="website-hint">
+                <p class="field__hint" id="website-hint">The full address, starting with https://</p>
+                <p class="field__error" id="err-website" hidden></p>
+              </div>
+              <div class="field" data-field="tools">
+                <label class="field__label" for="tools">Current tools <span class="field__opt">(optional)</span></label>
+                <input class="input" type="text" id="tools" name="tools" maxlength="500" aria-describedby="tools-hint">
+                <p class="field__hint" id="tools-hint">For example: Planning Center, Mailchimp, QuickBooks</p>
+                <p class="field__error" id="err-tools" hidden></p>
+              </div>
+            </div>
+          </section>
+
+          <section class="step" data-step="4" aria-labelledby="s4-title" hidden>
+            <h2 class="step__title" id="s4-title" tabindex="-1">Timeline and budget</h2>
+            <p class="step__hint">Both are optional. A rough idea helps us plan.</p>
+            <fieldset class="choices choices--legend" data-field="timeline" data-choices="timeline" data-variant="pill">
+              <legend class="field__label">Timeline <span class="field__opt">(optional)</span></legend>
+            </fieldset>
+            <p class="field__error" id="err-timeline" hidden></p>
+            <fieldset class="choices choices--legend" data-field="budget" data-choices="budget" data-variant="pill">
+              <legend class="field__label">Budget range (optional)</legend>
+            </fieldset>
+            <p class="field__error" id="err-budget" hidden></p>
+          </section>
+
+          <section class="step" data-step="5" aria-labelledby="s5-title" hidden>
+            <h2 class="step__title" id="s5-title" tabindex="-1">How can we reach you?</h2>
+            <p class="step__hint">We only use these details to reply about your project.</p>
+            <div class="fields fields--two">
+              <div class="field" data-field="name">
+                <label class="field__label" for="name">Your name</label>
+                <input class="input" type="text" id="name" name="name" autocomplete="name" maxlength="120" aria-required="true">
+                <p class="field__error" id="err-name" hidden></p>
+              </div>
+              <div class="field" data-field="email">
+                <label class="field__label" for="email">Email</label>
+                <input class="input" type="email" id="email" name="email" autocomplete="email" inputmode="email" maxlength="254" aria-required="true">
+                <p class="field__error" id="err-email" hidden></p>
+              </div>
+              <div class="field" data-field="phone">
+                <label class="field__label" for="phone">Phone <span class="field__opt">(optional)</span></label>
+                <input class="input" type="tel" id="phone" name="phone" autocomplete="tel" maxlength="40">
+                <p class="field__error" id="err-phone" hidden></p>
+              </div>
+            </div>
+            <fieldset class="choices choices--legend" data-field="contact_pref" data-choices="contact_pref" data-variant="pill">
+              <legend class="field__label">Preferred contact method <span class="field__opt">(optional)</span></legend>
+            </fieldset>
+            <p class="field__error" id="err-contact_pref" hidden></p>
+            <div class="field" data-field="message">
+              <label class="field__label" for="message">Message <span class="field__opt">(optional)</span></label>
+              <textarea class="input input--area" id="message" name="message" rows="5" maxlength="4000" aria-describedby="message-hint"></textarea>
+              <p class="field__hint" id="message-hint">Anything else we should know: goals, deadlines, what is not working today.</p>
+              <p class="field__error" id="err-message" hidden></p>
+            </div>
+
+            <!-- Cloudflare Turnstile (optional). OWNER: leave data-sitekey empty to run without Turnstile.
+     To enable it, paste the site key here AND set the TURNSTILE_SECRET Worker secret. -->
+            <div class="turnstile" data-turnstile data-sitekey=""></div>
+            <p class="fx__privacy">By sending this form you agree to our <a href="/privacy">privacy policy</a>.</p>
+          </section>
+
+          <div class="hp" aria-hidden="true">
+            <label for="website_hp">Leave this field empty</label>
+            <input type="text" id="website_hp" name="website_hp" tabindex="-1" autocomplete="off">
+          </div>
+
+          <div class="form-status" data-form-status role="status" aria-live="polite"></div>
+
+          <div class="fx__actions">
+            <button type="button" class="btn btn--ghost" data-back hidden><span class="arrow arrow--back" aria-hidden="true">←</span> Back</button>
+            <button type="submit" class="btn btn--primary" data-next>Next <span class="arrow" aria-hidden="true">→</span></button>
+            <button type="submit" class="btn btn--primary" data-submit hidden><span class="spinner" aria-hidden="true"></span>Start Your Project <span class="arrow" aria-hidden="true">→</span></button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="site-footer"></div>
+<script type="module" src="/assets/js/shell.js"></script>
+<script type="module" src="/assets/js/forms.js"></script>
+</body>
+</html>

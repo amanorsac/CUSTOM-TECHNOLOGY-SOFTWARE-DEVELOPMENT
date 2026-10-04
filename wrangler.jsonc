@@ -1,0 +1,26 @@
+{
+  "name": "custom-technology-software-development",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/*", "!/assets/*", "!/images/*", "!/fonts/*", "!/data/*"]
+  },
+  "vars": {
+    "LEAD_EMAIL": "amanorsac@gmail.com",
+    "SUPABASE_URL": "https://bmqvkjgqicmatloztpcz.supabase.co",
+    "MAIL_FROM": ""
+  },
+  // Branch and pull-request previews (Cloudflare Worker Previews).
+  // SUPABASE_URL stays empty so previews never write leads into the
+  // production database; their forms show the email fallback instead.
+  "previews": {
+    "vars": {
+      "LEAD_EMAIL": "amanorsac@gmail.com",
+      "SUPABASE_URL": "",
+      "MAIL_FROM": ""
+    }
+  }
+}

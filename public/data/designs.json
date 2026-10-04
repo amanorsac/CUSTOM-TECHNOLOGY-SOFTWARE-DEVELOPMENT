@@ -1,0 +1,603 @@
+[
+  {
+    "slug": "modern-church",
+    "name": "Modern Church Platform",
+    "category": "church",
+    "tags": [
+      "church",
+      "nonprofit"
+    ],
+    "tagline": "Website, app, giving and member portal in one connected system.",
+    "systems": [
+      "Website",
+      "Mobile App",
+      "Member Portal",
+      "Admin"
+    ],
+    "features": [
+      "Online giving",
+      "Sermon library",
+      "Livestream",
+      "Events and registration",
+      "Small groups",
+      "Prayer requests",
+      "Member directory"
+    ],
+    "integrations": [
+      "Planning Center",
+      "Stripe",
+      "YouTube"
+    ],
+    "images": {
+      "cover": "images/designs/modern-church/cover.webp",
+      "hero": "images/designs/modern-church/hero.webp",
+      "website": [
+        "images/designs/modern-church/web-1.webp",
+        "images/designs/modern-church/web-2.webp",
+        "images/designs/modern-church/web-3.webp"
+      ],
+      "app": [
+        "images/designs/modern-church/app-1.webp",
+        "images/designs/modern-church/app-2.webp",
+        "images/designs/modern-church/app-3.webp"
+      ],
+      "portal": [
+        "images/designs/modern-church/portal-1.webp"
+      ],
+      "admin": [
+        "images/designs/modern-church/admin-1.webp"
+      ]
+    },
+    "featured": true,
+    "concept": true
+  },
+  {
+    "slug": "multi-campus-church",
+    "name": "Multi-Campus Church",
+    "category": "church",
+    "tags": [
+      "church"
+    ],
+    "tagline": "One church family across every campus, with one place to lead them all.",
+    "systems": [
+      "Website",
+      "Mobile App",
+      "Member Portal",
+      "Admin"
+    ],
+    "features": [
+      "Campus pages with service times",
+      "Shared sermon library",
+      "Per-campus events",
+      "Volunteer scheduling",
+      "Online giving by campus",
+      "Pastoral care requests"
+    ],
+    "integrations": [
+      "Planning Center",
+      "Stripe",
+      "Twilio"
+    ],
+    "images": {
+      "cover": "images/designs/multi-campus-church/cover.webp",
+      "hero": "images/designs/multi-campus-church/hero.webp",
+      "website": [
+        "images/designs/multi-campus-church/web-1.webp",
+        "images/designs/multi-campus-church/web-2.webp",
+        "images/designs/multi-campus-church/web-3.webp"
+      ],
+      "app": [
+        "images/designs/multi-campus-church/app-1.webp",
+        "images/designs/multi-campus-church/app-2.webp",
+        "images/designs/multi-campus-church/app-3.webp"
+      ],
+      "portal": [
+        "images/designs/multi-campus-church/portal-1.webp"
+      ],
+      "admin": [
+        "images/designs/multi-campus-church/admin-1.webp"
+      ]
+    },
+    "featured": false,
+    "concept": true
+  },
+  {
+    "slug": "youth-ministry",
+    "name": "Youth Ministry",
+    "category": "church",
+    "tags": [
+      "church"
+    ],
+    "tagline": "A home for students and parents: events, check-in and weekly updates.",
+    "systems": [
+      "Website",
+      "Mobile App",
+      "Parent Portal",
+      "Admin"
+    ],
+    "features": [
+      "Event sign-up",
+      "Parent permission forms",
+      "Student check-in",
+      "Weekly announcements",
+      "Photo galleries",
+      "Small group rosters"
+    ],
+    "integrations": [
+      "Planning Center",
+      "Mailchimp",
+      "Twilio"
+    ],
+    "images": {
+      "cover": "images/designs/youth-ministry/cover.webp",
+      "hero": "images/designs/youth-ministry/hero.webp",
+      "website": [
+        "images/designs/youth-ministry/web-1.webp",
+        "images/designs/youth-ministry/web-2.webp",
+        "images/designs/youth-ministry/web-3.webp"
+      ],
+      "app": [
+        "images/designs/youth-ministry/app-1.webp",
+        "images/designs/youth-ministry/app-2.webp",
+        "images/designs/youth-ministry/app-3.webp"
+      ],
+      "portal": [
+        "images/designs/youth-ministry/portal-1.webp"
+      ],
+      "admin": [
+        "images/designs/youth-ministry/admin-1.webp"
+      ]
+    },
+    "featured": false,
+    "concept": true
+  },
+  {
+    "slug": "private-school",
+    "name": "Private School",
+    "category": "education",
+    "tags": [
+      "education"
+    ],
+    "tagline": "Admissions, parents, and staff on one calm, organized platform.",
+    "systems": [
+      "Website",
+      "Parent Portal",
+      "Student Portal",
+      "Admin"
+    ],
+    "features": [
+      "Online admissions",
+      "Tour booking",
+      "Parent portal",
+      "Tuition payments",
+      "Calendar and announcements",
+      "Staff directory",
+      "Student resources"
+    ],
+    "integrations": [
+      "Stripe",
+      "Google Workspace",
+      "Calendly"
+    ],
+    "images": {
+      "cover": "images/designs/private-school/cover.webp",
+      "hero": "images/designs/private-school/hero.webp",
+      "website": [
+        "images/designs/private-school/web-1.webp",
+        "images/designs/private-school/web-2.webp",
+        "images/designs/private-school/web-3.webp"
+      ],
+      "app": [
+        "images/designs/private-school/app-1.webp",
+        "images/designs/private-school/app-2.webp",
+        "images/designs/private-school/app-3.webp"
+      ],
+      "portal": [
+        "images/designs/private-school/portal-1.webp"
+      ],
+      "admin": [
+        "images/designs/private-school/admin-1.webp"
+      ]
+    },
+    "featured": true,
+    "concept": true
+  },
+  {
+    "slug": "music-school",
+    "name": "Music School",
+    "category": "education",
+    "tags": [
+      "education"
+    ],
+    "tagline": "Lessons, teachers and recitals, scheduled and paid for in one place.",
+    "systems": [
+      "Website",
+      "Student Portal",
+      "Booking",
+      "Admin"
+    ],
+    "features": [
+      "Lesson booking",
+      "Teacher profiles",
+      "Recurring schedules",
+      "Recital sign-ups",
+      "Online payments",
+      "Practice resources"
+    ],
+    "integrations": [
+      "Square",
+      "Google Workspace",
+      "Mailchimp"
+    ],
+    "images": {
+      "cover": "images/designs/music-school/cover.webp",
+      "hero": "images/designs/music-school/hero.webp",
+      "website": [
+        "images/designs/music-school/web-1.webp",
+        "images/designs/music-school/web-2.webp",
+        "images/designs/music-school/web-3.webp"
+      ],
+      "app": [
+        "images/designs/music-school/app-1.webp",
+        "images/designs/music-school/app-2.webp",
+        "images/designs/music-school/app-3.webp"
+      ],
+      "portal": [
+        "images/designs/music-school/portal-1.webp"
+      ],
+      "admin": [
+        "images/designs/music-school/admin-1.webp"
+      ]
+    },
+    "featured": false,
+    "concept": true
+  },
+  {
+    "slug": "online-academy",
+    "name": "Online Academy",
+    "category": "education",
+    "tags": [
+      "education"
+    ],
+    "tagline": "Courses, learners and certificates, built to grow with your audience.",
+    "systems": [
+      "Website",
+      "Student Portal",
+      "Payments",
+      "Admin"
+    ],
+    "features": [
+      "Course catalog",
+      "Video lessons",
+      "Progress tracking",
+      "Quizzes and certificates",
+      "Cohort scheduling",
+      "Secure checkout"
+    ],
+    "integrations": [
+      "Stripe",
+      "Vimeo",
+      "Zapier"
+    ],
+    "images": {
+      "cover": "images/designs/online-academy/cover.webp",
+      "hero": "images/designs/online-academy/hero.webp",
+      "website": [
+        "images/designs/online-academy/web-1.webp",
+        "images/designs/online-academy/web-2.webp",
+        "images/designs/online-academy/web-3.webp"
+      ],
+      "app": [
+        "images/designs/online-academy/app-1.webp",
+        "images/designs/online-academy/app-2.webp",
+        "images/designs/online-academy/app-3.webp"
+      ],
+      "portal": [
+        "images/designs/online-academy/portal-1.webp"
+      ],
+      "admin": [
+        "images/designs/online-academy/admin-1.webp"
+      ]
+    },
+    "featured": false,
+    "concept": true
+  },
+  {
+    "slug": "consulting-firm",
+    "name": "Consulting Firm",
+    "category": "business",
+    "tags": [
+      "business"
+    ],
+    "tagline": "A clear public face and a private portal where your clients see progress.",
+    "systems": [
+      "Website",
+      "Client Portal",
+      "CRM",
+      "Admin"
+    ],
+    "features": [
+      "Services and case studies",
+      "Consultation booking",
+      "Secure client portal",
+      "Document sharing",
+      "Proposal requests",
+      "Lead tracking"
+    ],
+    "integrations": [
+      "HubSpot",
+      "Microsoft 365",
+      "Calendly"
+    ],
+    "images": {
+      "cover": "images/designs/consulting-firm/cover.webp",
+      "hero": "images/designs/consulting-firm/hero.webp",
+      "website": [
+        "images/designs/consulting-firm/web-1.webp",
+        "images/designs/consulting-firm/web-2.webp",
+        "images/designs/consulting-firm/web-3.webp"
+      ],
+      "app": [
+        "images/designs/consulting-firm/app-1.webp",
+        "images/designs/consulting-firm/app-2.webp",
+        "images/designs/consulting-firm/app-3.webp"
+      ],
+      "portal": [
+        "images/designs/consulting-firm/portal-1.webp"
+      ],
+      "admin": [
+        "images/designs/consulting-firm/admin-1.webp"
+      ]
+    },
+    "featured": true,
+    "concept": true
+  },
+  {
+    "slug": "real-estate",
+    "name": "Real Estate",
+    "category": "business",
+    "tags": [
+      "business"
+    ],
+    "tagline": "Listings, tours and leads for agents who want a site of their own.",
+    "systems": [
+      "Website",
+      "CRM",
+      "Booking",
+      "Admin"
+    ],
+    "features": [
+      "Property listings",
+      "Search and filters",
+      "Tour scheduling",
+      "Agent profiles",
+      "Lead capture",
+      "Neighborhood guides"
+    ],
+    "integrations": [
+      "HubSpot",
+      "Google Workspace",
+      "Mailchimp"
+    ],
+    "images": {
+      "cover": "images/designs/real-estate/cover.webp",
+      "hero": "images/designs/real-estate/hero.webp",
+      "website": [
+        "images/designs/real-estate/web-1.webp",
+        "images/designs/real-estate/web-2.webp",
+        "images/designs/real-estate/web-3.webp"
+      ],
+      "app": [
+        "images/designs/real-estate/app-1.webp",
+        "images/designs/real-estate/app-2.webp",
+        "images/designs/real-estate/app-3.webp"
+      ],
+      "portal": [
+        "images/designs/real-estate/portal-1.webp"
+      ],
+      "admin": [
+        "images/designs/real-estate/admin-1.webp"
+      ]
+    },
+    "featured": false,
+    "concept": true
+  },
+  {
+    "slug": "restaurant",
+    "name": "Restaurant",
+    "category": "business",
+    "tags": [
+      "business"
+    ],
+    "tagline": "Menus, reservations and online orders that feel as good as the food.",
+    "systems": [
+      "Website",
+      "Mobile App",
+      "Booking",
+      "Payments"
+    ],
+    "features": [
+      "Online menu",
+      "Table reservations",
+      "Online ordering",
+      "Event and catering requests",
+      "Loyalty rewards",
+      "Gift cards"
+    ],
+    "integrations": [
+      "Square",
+      "Stripe",
+      "Mailchimp"
+    ],
+    "images": {
+      "cover": "images/designs/restaurant/cover.webp",
+      "hero": "images/designs/restaurant/hero.webp",
+      "website": [
+        "images/designs/restaurant/web-1.webp",
+        "images/designs/restaurant/web-2.webp",
+        "images/designs/restaurant/web-3.webp"
+      ],
+      "app": [
+        "images/designs/restaurant/app-1.webp",
+        "images/designs/restaurant/app-2.webp",
+        "images/designs/restaurant/app-3.webp"
+      ],
+      "portal": [
+        "images/designs/restaurant/portal-1.webp"
+      ],
+      "admin": [
+        "images/designs/restaurant/admin-1.webp"
+      ]
+    },
+    "featured": false,
+    "concept": true
+  },
+  {
+    "slug": "custom-crm",
+    "name": "Custom CRM",
+    "category": "software",
+    "tags": [
+      "software"
+    ],
+    "tagline": "A CRM shaped to how your sales team works, from first call to signed deal.",
+    "systems": [
+      "CRM",
+      "Admin"
+    ],
+    "features": [
+      "Contact and company records",
+      "Visual deal pipeline",
+      "Task reminders",
+      "Email and call logging",
+      "Team dashboards",
+      "Custom fields and reports"
+    ],
+    "integrations": [
+      "Salesforce",
+      "Google Workspace",
+      "Zapier"
+    ],
+    "images": {
+      "cover": "images/designs/custom-crm/cover.webp",
+      "hero": "images/designs/custom-crm/hero.webp",
+      "website": [
+        "images/designs/custom-crm/web-1.webp",
+        "images/designs/custom-crm/web-2.webp",
+        "images/designs/custom-crm/web-3.webp"
+      ],
+      "app": [
+        "images/designs/custom-crm/app-1.webp",
+        "images/designs/custom-crm/app-2.webp",
+        "images/designs/custom-crm/app-3.webp"
+      ],
+      "portal": [
+        "images/designs/custom-crm/portal-1.webp"
+      ],
+      "admin": [
+        "images/designs/custom-crm/admin-1.webp"
+      ]
+    },
+    "featured": true,
+    "concept": true
+  },
+  {
+    "slug": "client-portal",
+    "name": "Client Portal",
+    "category": "software",
+    "tags": [
+      "software",
+      "nonprofit"
+    ],
+    "tagline": "A private login where members, donors or clients find what is theirs.",
+    "systems": [
+      "Client Portal",
+      "Admin",
+      "Payments"
+    ],
+    "features": [
+      "Secure login",
+      "Documents and files",
+      "Invoices and payments",
+      "Messages with your team",
+      "Request tracking",
+      "Activity history"
+    ],
+    "integrations": [
+      "QuickBooks",
+      "PayPal",
+      "Microsoft 365"
+    ],
+    "images": {
+      "cover": "images/designs/client-portal/cover.webp",
+      "hero": "images/designs/client-portal/hero.webp",
+      "website": [
+        "images/designs/client-portal/web-1.webp",
+        "images/designs/client-portal/web-2.webp",
+        "images/designs/client-portal/web-3.webp"
+      ],
+      "app": [
+        "images/designs/client-portal/app-1.webp",
+        "images/designs/client-portal/app-2.webp",
+        "images/designs/client-portal/app-3.webp"
+      ],
+      "portal": [
+        "images/designs/client-portal/portal-1.webp"
+      ],
+      "admin": [
+        "images/designs/client-portal/admin-1.webp"
+      ]
+    },
+    "featured": false,
+    "concept": true
+  },
+  {
+    "slug": "booking-system",
+    "name": "Booking System",
+    "category": "software",
+    "tags": [
+      "software",
+      "nonprofit"
+    ],
+    "tagline": "Appointments and sign-ups for clinics, studios and volunteer teams.",
+    "systems": [
+      "Booking",
+      "Payments",
+      "Admin"
+    ],
+    "features": [
+      "Live availability",
+      "Automatic reminders",
+      "Deposits and payments",
+      "Staff and room scheduling",
+      "Waitlists",
+      "Calendar sync"
+    ],
+    "integrations": [
+      "Calendly",
+      "Stripe",
+      "Twilio"
+    ],
+    "images": {
+      "cover": "images/designs/booking-system/cover.webp",
+      "hero": "images/designs/booking-system/hero.webp",
+      "website": [
+        "images/designs/booking-system/web-1.webp",
+        "images/designs/booking-system/web-2.webp",
+        "images/designs/booking-system/web-3.webp"
+      ],
+      "app": [
+        "images/designs/booking-system/app-1.webp",
+        "images/designs/booking-system/app-2.webp",
+        "images/designs/booking-system/app-3.webp"
+      ],
+      "portal": [
+        "images/designs/booking-system/portal-1.webp"
+      ],
+      "admin": [
+        "images/designs/booking-system/admin-1.webp"
+      ]
+    },
+    "featured": false,
+    "concept": true
+  }
+]

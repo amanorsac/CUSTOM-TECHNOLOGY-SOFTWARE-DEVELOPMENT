@@ -1,0 +1,4 @@
+# Raw image exports are never deployed; only the WebP files made by scripts/make-thumbs.mjs are.
+images/**/*.png
+images/**/*.jpg
+images/**/*.jpeg

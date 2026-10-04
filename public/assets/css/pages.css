@@ -1,0 +1,135 @@
+/* =====================================================================
+   Solutions + industry pages. Requires tokens.css, site.css, sections.css
+   (and shop.css where design cards are shown).
+   ===================================================================== */
+
+[id] { scroll-margin-top: calc(var(--header-h) + 24px); }
+.band { padding: clamp(72px, 9vw, 128px) 0; }
+.band--paper { background-color: var(--off-white); color: var(--charcoal); position: relative; }
+.band h2 { color: var(--deep-brown); }
+.section--wood.band h2 { color: var(--cream); }
+
+/* ---- Page hero ------------------------------------------------------------- */
+.page-hero { padding: clamp(56px, 8vw, 120px) 0 clamp(64px, 8vw, 112px); overflow: hidden; }
+.page-hero.section--cream {
+  background-image: radial-gradient(60% 80% at 85% 20%, rgba(212, 175, 55, .14), transparent 70%);
+}
+.page-hero.section--wood {
+  background-image:
+    radial-gradient(60% 80% at 88% 18%, rgba(212, 175, 55, .16), transparent 70%),
+    linear-gradient(180deg, var(--deep-brown), var(--deep-brown-900));
+}
+.page-hero__grid {
+  display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr);
+  gap: clamp(32px, 5vw, 80px); align-items: center;
+}
+.page-hero--single .page-hero__grid { grid-template-columns: minmax(0, 1fr); }
+.page-hero .eyebrow { display: flex; align-items: center; gap: 14px; }
+.page-hero .eyebrow::before { content: ""; width: 32px; height: 1px; background: currentColor; flex: none; }
+.page-hero h1 { margin: 22px 0 24px; max-width: 16ch; }
+.page-hero--single h1 { max-width: 20ch; }
+.page-hero.section--cream h1 { color: var(--deep-brown); }
+.page-hero.section--wood h1 { color: var(--cream); }
+.page-hero__actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 36px; }
+
+/* Decorative "typical system" chain beside the hero copy */
+.flow {
+  list-style: none; position: relative; display: grid; gap: 14px;
+  padding: 28px; border-radius: 24px;
+  background: rgba(247, 239, 228, .05);
+  box-shadow: 0 0 0 1px var(--line-dark), 0 30px 60px -30px rgba(0, 0, 0, .6);
+}
+.section--cream .flow { background: var(--off-white); box-shadow: 0 0 0 1px var(--line-light), var(--shadow-soft); }
+.flow__label { font-family: var(--font-label); font-weight: 500; font-size: .75rem; letter-spacing: .2em; text-transform: uppercase; color: var(--warm-tan); margin-bottom: 4px; }
+.section--cream .flow__label { color: var(--tan-ink); }
+.flow li:not(.flow__label) {
+  position: relative; display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px; border-radius: 12px;
+  font-family: var(--font-label); font-weight: 500; font-size: 1rem;
+  background: rgba(247, 239, 228, .07); color: var(--cream);
+}
+.section--cream .flow li:not(.flow__label) { background: var(--cream); color: var(--deep-brown); }
+.flow li:not(.flow__label)::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--gold); flex: none; }
+.flow li:not(.flow__label):not(:last-child)::after {
+  content: ""; position: absolute; left: 22px; top: 100%; width: 2px; height: 14px; background: var(--warm-tan); opacity: .6;
+}
+
+/* ---- Problems -------------------------------------------------------------- */
+.problems { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; list-style: none; }
+.problems li {
+  position: relative; padding: 28px 28px 28px 30px; border-radius: var(--radius);
+  background: var(--off-white); border: 1px solid var(--line-light); box-shadow: var(--shadow-soft);
+  font-size: 1.0625rem; line-height: 1.55; color: var(--deep-brown);
+}
+.band--paper .problems li { background: var(--cream); }
+.problems li::before {
+  content: ""; position: absolute; left: 0; top: 28px; bottom: 28px; width: 3px; border-radius: 3px; background: var(--gold);
+}
+
+/* ---- Typical systems -------------------------------------------------------- */
+.systems { display: flex; flex-wrap: wrap; gap: 12px; list-style: none; }
+.systems li {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 12px 20px; border-radius: 999px;
+  font-family: var(--font-label); font-weight: 500; font-size: .9375rem;
+  color: var(--cream); background: rgba(247, 239, 228, .06); box-shadow: inset 0 0 0 1px var(--line-dark);
+}
+.systems li::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex: none; }
+.systems__note { margin-top: 32px; max-width: 60ch; color: var(--cream-muted); }
+
+/* ---- Integrations wall sized to the count -------------------------------- */
+.wall--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.wall--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+/* ---- Accessibility section --------------------------------------------------- */
+.a11y { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(28px, 5vw, 80px); align-items: start; }
+.a11y p { font-size: var(--fs-body); line-height: 1.65; color: var(--ink-muted); max-width: 58ch; }
+.a11y p + p { margin-top: 16px; }
+
+/* ---- Solutions ------------------------------------------------------------- */
+.group { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.4fr); gap: clamp(32px, 6vw, 96px); align-items: start; }
+.group__head { position: sticky; top: calc(var(--header-h) + 32px); }
+.group__n { display: block; font-family: var(--font-head); font-weight: 600; font-size: 2.5rem; letter-spacing: -.03em; line-height: 1; color: var(--tan-ink); margin-bottom: 18px; }
+.group__head h2 { margin-top: 14px; }
+.group__head .lead { margin-top: 16px; }
+.items { list-style: none; border-top: 1px solid var(--line-light); }
+.item { padding: 32px 0 34px; border-bottom: 1px solid var(--line-light); }
+.item h3 { color: var(--deep-brown); }
+.item p { margin-top: 10px; font-size: var(--fs-body); line-height: 1.6; color: var(--ink-muted); max-width: 56ch; }
+.item__links { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 16px; list-style: none; }
+.item__links a {
+  font-family: var(--font-label); font-weight: 500; font-size: .9375rem; color: var(--tan-ink);
+  text-decoration: none; border-bottom: 1px solid transparent; padding-bottom: 1px;
+}
+.item__links a:hover { color: var(--deep-brown); border-bottom-color: currentColor; }
+
+/* ---- Responsive ------------------------------------------------------------- */
+@media (max-width: 959.98px) {
+  .page-hero__grid, .a11y, .group { grid-template-columns: minmax(0, 1fr); }
+  .page-hero h1 { max-width: 18ch; }
+  .group__head { position: static; }
+  .flow { max-width: 460px; }
+}
+@media (max-width: 699.98px) {
+  .problems { grid-template-columns: minmax(0, 1fr); }
+  .wall--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 479.98px) {
+  .page-hero__actions .btn { flex: 1 1 100%; }
+  .wall--3 li { min-height: 88px; padding-inline: 6px; font-size: .875rem; }
+}
+
+/* ---- About / Privacy ------------------------------------------------------- */
+.prose-grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(32px, 6vw, 96px); align-items: start; }
+.prose p { font-size: 1.125rem; line-height: 1.7; color: var(--charcoal); max-width: 62ch; }
+.prose p + p { margin-top: 1.1em; }
+.prose a { color: var(--deep-brown); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; font-weight: 500; }
+.prose a:hover { text-decoration-color: var(--gold); text-decoration-thickness: 2px; }
+.founder__loc { margin-top: 12px; font-family: var(--font-label); font-weight: 500; color: var(--wood-brown); }
+.prose--legal { max-width: 760px; }
+.prose--legal h2 { font-size: clamp(1.375rem, 1.1rem + 1vw, 1.75rem); margin: 2.2em 0 .5em; color: var(--deep-brown); }
+.prose--legal h2:first-child { margin-top: 0; }
+.prose--legal h3 { font-family: var(--font-label); font-weight: 500; font-size: 1.0625rem; margin: 1.4em 0 .4em; color: var(--wood-brown); }
+.prose--legal ul { padding-left: 1.3em; line-height: 1.7; color: var(--charcoal); font-size: 1.0625rem; }
+.prose--legal li + li { margin-top: .3em; }
+@media (max-width: 800px) { .prose-grid { grid-template-columns: minmax(0, 1fr); } }
