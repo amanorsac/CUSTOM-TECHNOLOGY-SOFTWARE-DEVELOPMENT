@@ -7,8 +7,11 @@ export default defineConfig({
   use: { baseURL: 'http://localhost:8787' },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
     { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+    // Firefox is opt-in (set PW_FIREFOX=1); it cannot launch on the dev machine.
+    ...(process.env.PW_FIREFOX === '1'
+      ? [{ name: 'firefox', use: { ...devices['Desktop Firefox'] } }]
+      : []),
   ],
   webServer: {
     command: 'npx wrangler dev --port 8787',
