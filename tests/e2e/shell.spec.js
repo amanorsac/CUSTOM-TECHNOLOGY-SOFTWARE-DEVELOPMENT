@@ -110,6 +110,23 @@ test.describe('mobile menu (375px)', () => {
   });
 });
 
+test.describe('mobile menu after scrolling (375px)', () => {
+  test.use({ viewport: { width: 375, height: 800 } });
+
+  test('panel keeps full height once the header is translucent', async ({ page }) => {
+    await page.goto('/');
+    await page.evaluate(() => window.scrollTo(0, 400));
+    await expect(page.locator('#site-header .site-header')).toHaveClass(/is-scrolled/);
+    await page.locator('#site-header [data-menu-toggle]').click();
+    const menu = page.locator('#site-header [data-menu]');
+    await expect(menu.getByRole('link', { name: 'Home' })).toBeVisible();
+    await page.waitForTimeout(400);
+    const box = await menu.boundingBox();
+    expect(box.height).toBeGreaterThanOrEqual(300);
+    await expect(menu.getByRole('link', { name: 'Home' })).toBeInViewport();
+  });
+});
+
 test.describe('industries dropdown (1280px)', () => {
   test.use({ viewport: { width: 1280, height: 900 } });
 

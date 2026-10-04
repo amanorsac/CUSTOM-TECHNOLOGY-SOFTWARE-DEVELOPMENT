@@ -51,7 +51,6 @@ button { font: inherit; color: inherit; }
   outline: 3px solid var(--gold);
   outline-offset: 3px;
   box-shadow: 0 0 0 3px var(--deep-brown-900);
-  border-radius: 4px;
 }
 :focus:not(:focus-visible) { outline: none; }
 
@@ -232,19 +231,26 @@ button { font: inherit; color: inherit; }
   inset: 0 0 auto 0;
   z-index: 100;
   height: var(--header-h);
+}
+/* Background + blur live on a pseudo-element: a backdrop-filter on the header
+   itself would make it the containing block for the fixed mobile menu. */
+.site-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
   background: var(--deep-brown);
   border-bottom: 1px solid transparent;
-  transition: background-color .35s var(--ease-out), border-color .35s var(--ease-out),
-    backdrop-filter .35s var(--ease-out);
+  transition: background-color .35s var(--ease-out), border-color .35s var(--ease-out);
 }
-.site-header.is-scrolled {
+.site-header.is-scrolled::before {
   background: rgba(62, 39, 35, .84);
   border-bottom-color: rgba(200, 155, 107, .16);
   -webkit-backdrop-filter: blur(16px) saturate(140%);
   backdrop-filter: blur(16px) saturate(140%);
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .site-header.is-scrolled { background: rgba(62, 39, 35, .97); }
+  .site-header.is-scrolled::before { background: rgba(62, 39, 35, .97); }
 }
 .site-header__bar {
   display: flex;
@@ -411,13 +417,14 @@ button { font: inherit; color: inherit; }
   .nav-cta .btn { width: 100%; min-height: 54px; font-size: 1rem; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .site-header, .site-menu, .site-menu.is-open, .menu-toggle__icon span, .nav-chevron, .btn, .card { transition: none; }
+  .site-header::before, .site-menu, .site-menu.is-open, .menu-toggle__icon span, .nav-chevron, .btn, .card { transition: none; }
 }
 
 /* =====================================================================
    Footer
    ===================================================================== */
 .site-footer {
+  position: relative;
   background: var(--deep-brown-900);
   padding: var(--space-8) 0 var(--space-6);
   font-size: .9375rem;
