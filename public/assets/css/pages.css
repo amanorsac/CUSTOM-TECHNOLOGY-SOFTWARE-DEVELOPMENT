@@ -118,3 +118,18 @@
   .page-hero__actions .btn { flex: 1 1 100%; }
   .wall--3 li { min-height: 88px; padding-inline: 6px; font-size: .875rem; }
 }
+
+/* ---- About / Privacy ------------------------------------------------------- */
+.prose-grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(32px, 6vw, 96px); align-items: start; }
+.prose p { font-size: 1.125rem; line-height: 1.7; color: var(--charcoal); max-width: 62ch; }
+.prose p + p { margin-top: 1.1em; }
+.prose a { color: var(--deep-brown); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; font-weight: 500; }
+.prose a:hover { text-decoration-color: var(--gold); text-decoration-thickness: 2px; }
+.founder__loc { margin-top: 12px; font-family: var(--font-label); font-weight: 500; color: var(--wood-brown); }
+.prose--legal { max-width: 760px; }
+.prose--legal h2 { font-size: clamp(1.375rem, 1.1rem + 1vw, 1.75rem); margin: 2.2em 0 .5em; color: var(--deep-brown); }
+.prose--legal h2:first-child { margin-top: 0; }
+.prose--legal h3 { font-family: var(--font-label); font-weight: 500; font-size: 1.0625rem; margin: 1.4em 0 .4em; color: var(--wood-brown); }
+.prose--legal ul { padding-left: 1.3em; line-height: 1.7; color: var(--charcoal); font-size: 1.0625rem; }
+.prose--legal li + li { margin-top: .3em; }
+@media (max-width: 800px) { .prose-grid { grid-template-columns: minmax(0, 1fr); } }
