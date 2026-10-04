@@ -1,0 +1,20 @@
+{
+  "name": "custom-technology-software-development",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "test": "vitest run",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@cloudflare/vitest-pool-workers": "^0.22.0",
+    "@playwright/test": "^1.63.0",
+    "vitest": "^4.1.11",
+    "wrangler": "^4.147.0"
+  },
+  "overrides": {
+    "workerd": "1.20261001.1"
+  }
+}
