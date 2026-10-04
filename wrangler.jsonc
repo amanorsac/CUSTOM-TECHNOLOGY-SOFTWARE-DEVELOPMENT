@@ -12,5 +12,15 @@
     "LEAD_EMAIL": "amanorsac@gmail.com",
     "SUPABASE_URL": "",
     "MAIL_FROM": ""
+  },
+  // Branch and pull-request previews (Cloudflare Worker Previews).
+  // SUPABASE_URL stays empty so previews never write leads into the
+  // production database; their forms show the email fallback instead.
+  "previews": {
+    "vars": {
+      "LEAD_EMAIL": "amanorsac@gmail.com",
+      "SUPABASE_URL": "",
+      "MAIL_FROM": ""
+    }
   }
 }
