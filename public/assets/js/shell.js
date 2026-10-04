@@ -199,6 +199,21 @@ function ensureSkipLink() {
   document.body.prepend(a);
 }
 
+// ANALYTICS: Cloudflare Web Analytics. Paste the site token from the Cloudflare
+// dashboard (Web Analytics > your site > Manage site) between the quotes.
+// While it is empty nothing loads. It has no custom events, so a lead counts as a
+// page view of /thanks?kind=...
+const CF_BEACON_TOKEN = '';
+
+function initAnalytics() {
+  if (!CF_BEACON_TOKEN) return;
+  const s = document.createElement('script');
+  s.defer = true;
+  s.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+  s.setAttribute('data-cf-beacon', JSON.stringify({ token: CF_BEACON_TOKEN }));
+  document.head.appendChild(s);
+}
+
 function init() {
   const page = document.body.dataset.page || '';
   ensureSkipLink();
@@ -210,6 +225,7 @@ function init() {
   }
   if (footerSlot) footerSlot.innerHTML = footerHTML();
   initReveal();
+  initAnalytics();
 }
 
 init();

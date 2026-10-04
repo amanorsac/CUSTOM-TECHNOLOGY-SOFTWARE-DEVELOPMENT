@@ -3,11 +3,13 @@
 // Unknown slug -> 404 with the same template (the client shows "Design not
 //                found"), robots noindex kept.
 
+import { jsonLdTag } from '../lib/seo.js';
+
 const PATH = /^\/designs\/([^/]+)\/?$/;
 
 // Fetch a static asset, following the asset layer's html_handling redirects
 // (e.g. /design.html -> 307 /design) without leaving the ASSETS binding.
-async function asset(env, base, path) {
+export async function asset(env, base, path) {
   let url = new URL(path, base);
   for (let hop = 0; hop < 3; hop++) {
     const res = await env.ASSETS.fetch(new Request(url, { redirect: 'manual' }));
@@ -18,7 +20,7 @@ async function asset(env, base, path) {
   throw new Error(`too many asset redirects for ${path}`);
 }
 
-async function loadDesigns(env, base) {
+export async function loadDesigns(env, base) {
   const res = await asset(env, base, '/data/designs.json');
   if (!res.ok) return [];
   try {
@@ -29,7 +31,7 @@ async function loadDesigns(env, base) {
   }
 }
 
-const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({
+export const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
 })[c]);
 const meta = (attr, key, content) => `<meta ${attr}="${key}" content="${esc(content)}">`;
@@ -79,7 +81,20 @@ function rewrite(res, design, url) {
       'meta[property="og:url"]', 'meta[name="twitter:title"]', 'meta[name="twitter:description"]',
       'meta[name="twitter:image"]',
     ].join(', '), remove)
-    .on('head', { element: (el) => el.append(tags, { html: true }) })
+    .on('head', {
+      element: (el) => {
+        el.append(tags, { html: true });
+        el.append(jsonLdTag({
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: abs('') },
+            { '@type': 'ListItem', position: 2, name: 'Explore Designs', item: abs('designs') },
+            { '@type': 'ListItem', position: 3, name: design.name, item: pageUrl },
+          ],
+        }), { html: true });
+      },
+    })
     .on('main', { element: (el) => el.setAttribute('data-slug', design.slug) })
     // Server-render the hero text so crawlers and no-JS visitors see it.
     .on('[data-d="name"]', { element: (el) => el.setInnerContent(design.name) })

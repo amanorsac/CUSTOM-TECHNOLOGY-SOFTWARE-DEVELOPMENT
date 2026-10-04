@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('home page serves', async ({ page }) => {
   await page.goto('/');
-  await expect(page).toHaveTitle(/Custom Technology & Software Development/);
+  await expect(page).toHaveTitle(/^CTSD — Technology built around your organization.$/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Technology built around your organization.');
 });
 
