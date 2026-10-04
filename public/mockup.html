@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Mockup | CTSD</title>
+<meta name="description" content="We'll design a homepage concept for your organization, free. Tell us about your organization and pick a style.">
+<meta name="theme-color" content="#3E2723">
+<link rel="canonical" href="/mockup">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CTSD — Custom Technology &amp; Software Development">
+<meta property="og:title" content="Free Mockup | CTSD">
+<meta property="og:description" content="We'll design a homepage concept for your organization, free.">
+<link rel="icon" href="/assets/brand/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/fonts/montserrat-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preconnect" href="https://challenges.cloudflare.com">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="/assets/css/site.css">
+<link rel="stylesheet" href="/assets/css/sections.css">
+<link rel="stylesheet" href="/assets/css/pages.css">
+<link rel="stylesheet" href="/assets/css/forms.css">
+</head>
+<body data-page="mockup">
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="site-header"></div>
+
+<main id="main" tabindex="-1">
+  <section class="fx section--cream" data-section="mockup" aria-labelledby="hero-title">
+    <div class="container fx__grid">
+      <div class="fx__intro">
+        <p class="eyebrow">Free mockup</p>
+        <h1 id="hero-title">See your homepage before you decide.</h1>
+        <p class="lead">We'll design a homepage concept for your organization, free. No cost and no obligation.</p>
+        <h2 class="fx__next-title">How it works</h2>
+        <ol class="fx__next" role="list">
+          <li><span class="fx__num" aria-hidden="true">1</span><span><strong>Tell us about your organization.</strong> A name, a type and, if you have one, your current site.</span></li>
+          <li><span class="fx__num" aria-hidden="true">2</span><span><strong>Pick a style.</strong> Add your logo if you would like it in the concept.</span></li>
+          <li><span class="fx__num" aria-hidden="true">3</span><span><strong>We design it.</strong> You receive a homepage concept made for you.</span></li>
+        </ol>
+        <p class="fx__aside">Already know what you need? <a href="/start">Start a Project</a></p>
+      </div>
+
+      <div class="fx__card">
+        <noscript><p class="fx__noscript">This form needs JavaScript to send. You can find our contact address on the <a href="/privacy">privacy page</a>.</p></noscript>
+        <form class="fx__form" data-form="mockup" data-fallback="amanorsac@gmail.com" data-fallback-subject="Free mockup request" novalidate>
+          <p class="design-chip" data-design-chip hidden>
+            <span>Inspired by: <strong data-design-name></strong></span>
+            <button type="button" class="design-chip__remove" data-design-remove aria-label="Remove design reference">
+              <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            </button>
+          </p>
+
+          <div class="fgroup">
+            <h2 class="fgroup__title">Your organization</h2>
+            <div class="fields">
+              <div class="field" data-field="org_name">
+                <label class="field__label" for="org_name">Organization name</label>
+                <input class="input" type="text" id="org_name" name="org_name" autocomplete="organization" maxlength="160" aria-required="true">
+                <p class="field__error" id="err-org_name" hidden></p>
+              </div>
+            </div>
+            <fieldset class="choices choices--legend" data-field="org_type" data-choices="org_type" data-variant="pill">
+              <legend class="field__label">Type of organization</legend>
+            </fieldset>
+            <p class="field__error" id="err-org_type" hidden></p>
+            <div class="field" data-field="website">
+              <label class="field__label" for="website">Current website <span class="field__opt">(optional)</span></label>
+              <input class="input" type="url" id="website" name="website" autocomplete="url" inputmode="url" maxlength="300" placeholder="https://" aria-describedby="website-hint">
+              <p class="field__hint" id="website-hint">The full address, starting with https://</p>
+              <p class="field__error" id="err-website" hidden></p>
+            </div>
+          </div>
+
+          <div class="fgroup">
+            <h2 class="fgroup__title" id="style-title">Pick a style</h2>
+            <fieldset class="choices" data-field="style" data-choices="style" data-variant="style" aria-labelledby="style-title">
+            </fieldset>
+            <p class="field__error" id="err-style" hidden></p>
+          </div>
+
+          <div class="fgroup">
+            <h2 class="fgroup__title">Your logo <span class="field__opt">(optional)</span></h2>
+            <div class="field" data-field="logo">
+              <div class="drop">
+                <input class="drop__input" type="file" id="logo" name="logo" accept=".png,.jpg,.jpeg,.svg,image/png,image/jpeg,image/svg+xml" aria-describedby="logo-hint">
+                <div class="drop__face" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="24" height="24" focusable="false"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span class="drop__cta">Choose a logo file</span>
+                </div>
+                <label class="sr-only" for="logo">Logo (optional)</label>
+              </div>
+              <p class="field__hint" id="logo-hint">PNG, JPG or SVG, up to 5MB.</p>
+              <div class="file" data-logo-preview hidden>
+                <svg class="file__icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M14 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V7zM14 3v4h4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                <span class="file__name" data-logo-name></span>
+                <span class="file__size" data-logo-size></span>
+                <button type="button" class="file__remove" data-logo-remove>Remove<span class="sr-only"> logo</span></button>
+              </div>
+              <p class="field__error" id="err-logo" hidden></p>
+            </div>
+          </div>
+
+          <div class="fgroup">
+            <h2 class="fgroup__title">Where should we send it?</h2>
+            <div class="fields fields--two">
+              <div class="field" data-field="name">
+                <label class="field__label" for="name">Your name</label>
+                <input class="input" type="text" id="name" name="name" autocomplete="name" maxlength="120" aria-required="true">
+                <p class="field__error" id="err-name" hidden></p>
+              </div>
+              <div class="field" data-field="email">
+                <label class="field__label" for="email">Email</label>
+                <input class="input" type="email" id="email" name="email" autocomplete="email" inputmode="email" maxlength="254" aria-required="true">
+                <p class="field__error" id="err-email" hidden></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cloudflare Turnstile. OWNER: replace data-sitekey with the real site key
+               from the Cloudflare dashboard (the value below is Cloudflare's always-pass test key). -->
+          <div class="turnstile" data-turnstile data-sitekey="1x00000000000000000000AA"></div>
+
+          <div class="hp" aria-hidden="true">
+            <label for="website_hp">Leave this field empty</label>
+            <input type="text" id="website_hp" name="website_hp" tabindex="-1" autocomplete="off">
+          </div>
+
+          <div class="form-status" data-form-status role="status" aria-live="polite" hidden></div>
+
+          <div class="fx__actions">
+            <p class="fx__privacy">We only use your details to send your mockup. See our <a href="/privacy">privacy policy</a>.</p>
+            <button type="submit" class="btn btn--primary" data-submit><span class="spinner" aria-hidden="true"></span>Get a free mockup <span class="arrow" aria-hidden="true">→</span></button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="site-footer"></div>
+<script type="module" src="/assets/js/shell.js"></script>
+<script type="module" src="/assets/js/forms.js"></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer data-turnstile-script></script>
+</body>
+</html>
