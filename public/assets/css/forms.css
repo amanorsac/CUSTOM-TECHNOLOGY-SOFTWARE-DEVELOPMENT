@@ -161,6 +161,10 @@
 
 /* ---- Option cards ------------------------------------------------------------ */
 .choices { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: 12px; }
+/* Reserve option-card height until forms.js renders them (avoids a layout shift that pushes the footer). */
+.choices[data-icons]:not(:has(*)) { min-height: 440px; }
+@media (max-width: 1099.98px) { .choices[data-icons]:not(:has(*)) { min-height: 330px; } }
+@media (max-width: 639.98px) { .choices[data-icons]:not(:has(*)) { min-height: 700px; } }
 .choices--legend legend { margin-bottom: 12px; }
 .choices__grid { display: grid; gap: 12px; }
 .choices__grid--card { grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); }

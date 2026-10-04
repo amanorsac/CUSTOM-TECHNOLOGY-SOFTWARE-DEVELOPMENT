@@ -98,6 +98,8 @@ img[data-fb].is-loaded { opacity: 1; }
   list-style: none;
 }
 .shop-grid > li { display: flex; }
+/* Reserve the grid's height until JS fills it, so the CTA and footer do not jump (CLS). */
+.shop-grid:empty { min-height: 2000px; }
 
 .design-card {
   position: relative;
@@ -244,6 +246,7 @@ img[data-fb].is-loaded { opacity: 1; }
 /* ---- Responsive --------------------------------------------------------------- */
 @media (max-width: 1099.98px) {
   .shop-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .shop-grid:empty { min-height: 2900px; }
 }
 @media (max-width: 859.98px) {
   .shop-head { grid-template-columns: 1fr; align-items: start; }
@@ -251,6 +254,7 @@ img[data-fb].is-loaded { opacity: 1; }
 }
 @media (max-width: 639.98px) {
   .shop-grid { grid-template-columns: 1fr; }
+  .shop-grid:empty { min-height: 5800px; }
   .shop-bar { margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); }
   .shop-tabs { gap: 2px; }
   .shop-tab { padding-inline: 10px; letter-spacing: .12em; }
