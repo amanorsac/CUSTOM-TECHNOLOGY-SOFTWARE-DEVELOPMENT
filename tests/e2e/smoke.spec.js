@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
 
-test('placeholder home page serves', async ({ page }) => {
+test('home page serves', async ({ page }) => {
   await page.goto('/');
   await expect(page).toHaveTitle(/Custom Technology & Software Development/);
-  await expect(page.getByText('Coming soon')).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Technology built around your organization.');
 });
 
 test('unknown API route returns JSON 404', async ({ request }) => {

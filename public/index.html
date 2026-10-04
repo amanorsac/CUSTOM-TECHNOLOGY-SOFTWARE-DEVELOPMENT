@@ -4,17 +4,132 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CTSD — Custom Technology &amp; Software Development</title>
+<meta name="description" content="Custom websites, mobile applications and business systems designed for the way your organization works.">
+<meta name="theme-color" content="#3E2723">
+<link rel="icon" href="/assets/brand/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/fonts/montserrat-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="/assets/css/site.css">
 <style>
-  html,body{height:100%;margin:0}
-  body{display:flex;align-items:center;justify-content:center;background:#3E2723;color:#F7EFE4;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;text-align:center;padding:16px;box-sizing:border-box}
-  h1{font-size:clamp(1.75rem,6vw,3rem);margin:0 0 .5rem}
-  p{margin:0;font-size:1.125rem}
+  /* Holding hero: Task 5 replaces the rest of this page. */
+  .hero { overflow: hidden; padding: clamp(40px, 7vw, 96px) 0 clamp(56px, 8vw, 112px);
+    background-image: radial-gradient(1100px 560px at 85% -10%, rgba(200,155,107,.16), rgba(62,39,35,0) 60%),
+      radial-gradient(700px 400px at 0% 110%, rgba(43,27,24,.7), rgba(62,39,35,0) 70%); }
+  .hero__grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: clamp(32px, 6vw, 88px); align-items: center; }
+  .hero__copy .eyebrow { display: flex; align-items: center; gap: 14px; }
+  .hero__copy .eyebrow::before { content: ""; width: 32px; height: 1px; background: currentColor; }
+  .hero h1 { margin: 22px 0 24px; color: var(--cream); max-width: 13ch; }
+  .hero__actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 36px; }
+  .hero__note { display: flex; flex-wrap: wrap; gap: 10px 0; margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--line-dark); list-style: none;
+    font-family: var(--font-label); font-weight: 500; font-size: .75rem; letter-spacing: .18em; text-transform: uppercase; color: var(--cream-muted); }
+  .hero__note li { display: flex; align-items: center; }
+  .hero__note li + li::before { content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--warm-tan); margin: 0 14px; }
+
+  .sign { position: relative; aspect-ratio: 4 / 5; border-radius: 22px; overflow: hidden; isolation: isolate;
+    box-shadow: 0 40px 80px -30px rgba(0,0,0,.7), 0 0 0 1px rgba(200,155,107,.14); }
+  .sign::before { content: ""; position: absolute; inset: 0; z-index: -1;
+    background: radial-gradient(60% 45% at 50% 38%, rgba(236,196,146,.34), rgba(43,27,24,0) 70%),
+      linear-gradient(90deg, rgba(20,12,10,.55), rgba(20,12,10,0) 22%, rgba(20,12,10,0) 78%, rgba(20,12,10,.55)); }
+  .sign::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.04), inset 0 -120px 120px -60px rgba(20,12,10,.8); }
+  .sign__mark { position: absolute; left: 50%; top: 40%; width: 46%; translate: -50% -50%; z-index: 2;
+    filter: drop-shadow(0 2px 1px rgba(0,0,0,.35)) drop-shadow(0 26px 30px rgba(0,0,0,.55)); }
+  .sign__label { position: absolute; left: 0; right: 0; bottom: 30px; z-index: 2; text-align: center;
+    font-family: var(--font-label); font-weight: 500; font-size: .6875rem; letter-spacing: .32em; text-transform: uppercase; color: var(--cream-muted); }
+  .sign__leaf { position: absolute; right: -6%; bottom: -4%; width: 44%; z-index: 2; opacity: .95;
+    filter: drop-shadow(0 18px 20px rgba(0,0,0,.45)); }
+  @media (prefers-reduced-motion: no-preference) {
+    .sign__mark { animation: rise 1.1s var(--ease-out) both .1s; }
+    @keyframes rise { from { opacity: 0; translate: -50% -44%; } }
+  }
+
+  .strip { padding: clamp(40px, 6vw, 64px) 0; border-bottom: 1px solid var(--line-light); }
+  .strip__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px 24px; margin-bottom: 28px; }
+  .strip__head h2 { font-size: var(--fs-h3); font-weight: 600; color: var(--deep-brown); }
+  .strip__list { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); list-style: none; border-top: 1px solid var(--line-light); }
+  .strip__list li { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 28px 8px 4px; text-align: center;
+    font-family: var(--font-label); font-weight: 500; font-size: .75rem; letter-spacing: .16em; text-transform: uppercase; color: var(--deep-brown); }
+  .strip__list li + li { border-left: 1px solid var(--line-light); }
+  .strip__list svg { width: 30px; height: 30px; color: var(--tan-ink); }
+
+  @media (max-width: 959.98px) {
+    .hero__grid { grid-template-columns: 1fr; }
+    .sign { aspect-ratio: 16 / 11; max-height: 440px; }
+    .sign__mark { width: 30%; top: 44%; }
+    .sign__leaf { width: 30%; }
+    .strip__list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .strip__list li:nth-child(4) { border-left: 0; }
+    .strip__list li:nth-child(n+4) { border-top: 1px solid var(--line-light); margin-top: 20px; }
+  }
+  @media (max-width: 479.98px) {
+    .hero h1 { margin: 18px 0 18px; }
+    .hero__actions .btn { flex: 1 1 100%; }
+    .hero__note { margin-top: 32px; }
+    .strip__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .strip__list li:nth-child(4) { border-left: 1px solid var(--line-light); }
+    .strip__list li:nth-child(odd) { border-left: 0; }
+    .strip__list li:nth-child(n+3) { border-top: 1px solid var(--line-light); margin-top: 20px; }
+  }
 </style>
 </head>
-<body>
-<main>
-  <h1>CTSD</h1>
-  <p>Coming soon</p>
+<body data-page="home">
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="site-header"></div>
+
+<main id="main" tabindex="-1">
+  <section class="hero section--wood" aria-labelledby="hero-title">
+    <div class="container hero__grid">
+      <div class="hero__copy">
+        <p class="eyebrow">Custom Technology &amp; Software Development</p>
+        <h1 id="hero-title">Technology built around your organization.</h1>
+        <p class="lead">Custom websites, mobile applications and business systems designed for the way you work.</p>
+        <div class="hero__actions">
+          <a class="btn btn--primary" href="/start.html">Start Your Project <span class="arrow" aria-hidden="true">→</span></a>
+          <a class="btn btn--ghost" href="/designs.html">Explore What We Build</a>
+        </div>
+        <ul class="hero__note" aria-label="What we build">
+          <li>Websites</li><li>Apps</li><li>Portals</li><li>Business systems</li>
+        </ul>
+      </div>
+
+      <div class="sign slats" aria-hidden="true">
+        <img class="sign__mark" src="/assets/brand/mark-reverse.svg" alt="" width="100" height="112">
+        <svg class="sign__leaf" viewBox="0 0 200 220" focusable="false">
+          <defs>
+            <linearGradient id="leafA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7A8F45"/><stop offset="1" stop-color="#3A4A1F"/></linearGradient>
+            <linearGradient id="leafB" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6B8238"/><stop offset="1" stop-color="#33421B"/></linearGradient>
+          </defs>
+          <path fill="url(#leafB)" d="M196 214C150 196 112 160 96 112C86 80 92 42 118 6C140 46 158 92 166 138C172 168 184 194 196 214Z"/>
+          <path fill="none" stroke="rgba(247,239,228,.18)" stroke-width="1.4" d="M196 214C168 160 140 96 118 6"/>
+          <path fill="url(#leafA)" d="M200 216C150 214 96 196 58 160C34 136 18 102 14 64C56 78 98 104 134 140C160 166 182 192 200 216Z"/>
+          <path fill="none" stroke="rgba(247,239,228,.2)" stroke-width="1.4" d="M200 216C152 172 92 112 14 64"/>
+          <path fill="#556B2F" d="M200 218C170 222 130 222 96 214C70 208 48 196 30 180C66 176 108 182 146 194C168 201 186 210 200 218Z"/>
+        </svg>
+        <span class="sign__label">Built around you</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="strip section--cream" aria-labelledby="strip-title">
+    <div class="container">
+      <div class="strip__head reveal">
+        <p class="eyebrow">What we build</p>
+        <h2 id="strip-title">One partner for the whole system.</h2>
+      </div>
+      <ul class="strip__list reveal">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3Z"/></svg>Websites</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.2"/><path d="M10.5 18.5h3"/></svg>Mobile Apps</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><ellipse cx="12" cy="5.5" rx="7.5" ry="2.8"/><path d="M4.5 5.5v13c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8v-13M4.5 12c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8"/></svg>CRM Systems</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="2.5"/><circle cx="12" cy="10" r="3"/><path d="M6.8 18c1-2.3 3-3.5 5.2-3.5s4.2 1.2 5.2 3.5"/></svg>Client Portals</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>Automation</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="M10 14a4.2 4.2 0 0 0 6 0l3-3a4.2 4.2 0 0 0-6-6l-1.2 1.2M14 10a4.2 4.2 0 0 0-6 0l-3 3a4.2 4.2 0 0 0 6 6l1.2-1.2"/></svg>Integrations</li>
+      </ul>
+    </div>
+  </section>
 </main>
+
+<div id="site-footer"></div>
+<script type="module" src="/assets/js/shell.js"></script>
 </body>
 </html>
