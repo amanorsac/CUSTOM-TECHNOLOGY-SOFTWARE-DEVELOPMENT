@@ -56,7 +56,8 @@ test('privacy names processors, retention and contact', async ({ page }) => {
   await page.goto('/privacy');
   const t = await page.locator('main').innerText();
   for (const s of ['Supabase', 'Resend', 'Cloudflare Turnstile', 'Cloudflare Web Analytics',
-    'amanorsac@gmail.com', '24 months', 'October 3, 2026']) expect(t).toContain(s);
+    'amanorsac@gmail.com', 'up to 24 months', 'October 3, 2026',
+    'The design you were looking at, if you arrived from one', 'IP address to tell people from bots']) expect(t).toContain(s);
   await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
 });
 
