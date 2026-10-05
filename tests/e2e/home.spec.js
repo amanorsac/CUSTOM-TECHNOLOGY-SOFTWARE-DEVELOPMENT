@@ -37,7 +37,15 @@ test.describe('home page', () => {
       'Custom websites, mobile applications and business systems designed around the way your organization actually works.');
   });
 
-  test('hero visual shows a website, a phone app, an admin panel and a CRM dashboard', async ({ page }) => {
+  test('the real hero photo shows when it exists', async ({ page }) => {
+    await page.goto('/');
+    const img = page.locator('.hero__img');
+    await expect(img).toBeVisible();
+    expect(await img.evaluate((i) => i.naturalWidth)).toBeGreaterThan(0);
+  });
+
+  test('hero visual falls back to a website, phone, admin and CRM mock when the photo is missing', async ({ page }) => {
+    await page.route('**/images/site/hero.webp', (route) => route.fulfill({ status: 404, body: '' }));
     for (const w of [1280, 375]) {
       await page.setViewportSize({ width: w, height: 900 });
       await page.goto('/');

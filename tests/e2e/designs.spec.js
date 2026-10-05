@@ -188,11 +188,13 @@ test.describe('Design page', () => {
         }
       }).observe(document, { subtree: true, attributes: true, attributeFilter: ['hidden'] });
     });
+    // Simulate a design whose images have not been made yet.
+    await page.route('**/images/designs/modern-church/**', (route) => route.fulfill({ status: 404, body: '' }));
     await page.goto('/designs/modern-church');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Modern Church Platform');
     await scrollThrough(page);
     await expect.poll(() => brokenVisibleImages(page), { timeout: 10000 }).toEqual([]);
-    // None of the gallery files exist yet, so every gallery section is hidden.
+    // With every gallery file missing, every gallery section stays hidden.
     for (const s of ['website', 'app', 'portal', 'admin']) {
       await expect(page.locator(`[data-section="${s}"]`)).toBeHidden();
     }
