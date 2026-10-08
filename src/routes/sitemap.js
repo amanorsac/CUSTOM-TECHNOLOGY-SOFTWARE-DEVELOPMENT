@@ -6,6 +6,7 @@ const STATIC_PAGES = [
   '/', '/solutions',
   '/industries/business', '/industries/church', '/industries/education', '/industries/nonprofit',
   '/designs', '/demo/', '/about', '/start', '/mockup',
+  '/lab/', '/lab/particles', '/lab/workshop', '/lab/gallery', '/lab/playground',
 ];
 
 export const sitemapRoute = {

@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-const NAV = ['Home', 'Solutions', 'Industries', 'Explore Designs', 'Live Demo', 'About', 'Start a Project'];
+const NAV = ['Home', 'Solutions', 'Industries', 'Explore Designs', 'Live Demo', 'Lab', 'About', 'Start a Project'];
 const INDUSTRIES = ['Business', 'Church', 'Education', 'Nonprofit'];
 
 // Generated images that do not exist yet (owner produces them later).
@@ -25,10 +25,10 @@ for (const width of [375, 1280]) {
   test.describe(`shell at ${width}px`, () => {
     test.use({ viewport: { width, height: 900 } });
 
-    test('header nav has the 7 items in order', async ({ page }) => {
+    test('header nav has the 8 items in order', async ({ page }) => {
       await page.goto('/');
       const items = page.locator('#site-header [data-nav-list] > li');
-      await expect(items).toHaveCount(7);
+      await expect(items).toHaveCount(8);
       const labels = (await items.evaluateAll((lis) =>
         lis.map((li) => li.firstElementChild.textContent.replace(/\s+/g, ' ').trim()))).map((t) => t.replace(/\s*▾$/, ''));
       expect(labels).toEqual(NAV);

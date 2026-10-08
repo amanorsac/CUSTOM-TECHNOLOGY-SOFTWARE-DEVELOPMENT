@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CTSD Lab | Experiments in motion</title>
+<meta name="description" content="Four live experiments from CTSD: a particle logo, a 3D workshop, a liquid gallery and a physics playground. A taste of what your site could do.">
+<meta name="theme-color" content="#2B1B18">
+<link rel="canonical" href="/lab/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CTSD — Custom Technology &amp; Software Development">
+<meta property="og:title" content="CTSD Lab | Experiments in motion">
+<meta property="og:description" content="Four live experiments from CTSD: a particle logo, a 3D workshop, a liquid gallery and a physics playground.">
+<meta property="og:url" content="/lab/">
+<meta property="og:image" content="/assets/lab/previews/particles.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="/assets/lab/previews/particles.jpg">
+<link rel="icon" href="/assets/brand/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/fonts/montserrat-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="/assets/css/site.css">
+<link rel="stylesheet" href="/assets/css/lab.css">
+</head>
+<body data-page="lab" class="lab-body">
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="site-header"></div>
+
+<main id="main" tabindex="-1">
+  <section class="container lab-index__hero">
+    <p class="lab-kicker">CTSD Lab</p>
+    <h1 class="lab-title">Experiments in <em>motion.</em></h1>
+    <p class="lab-lead">Four live experiments that show how far a website can go: 3D, shaders, physics and scroll-driven stories. Every one runs in your browser, right now.</p>
+  </section>
+
+  <section class="container lab-index__grid" aria-label="Experiments">
+    <a class="lab-card" href="/lab/particles">
+      <div class="lab-card__media"><video src="/assets/lab/previews/particles.mp4" poster="/assets/lab/previews/particles.jpg" muted loop playsinline preload="metadata" aria-hidden="true"></video></div>
+      <div class="lab-card__body"><span class="lab-card__num">01</span><h2>Particle morph</h2><p>Sixty thousand points of light become websites, apps, portals and more as you scroll.</p><span class="lab-card__go">Open experiment <span aria-hidden="true">→</span></span></div>
+    </a>
+    <a class="lab-card" href="/lab/workshop">
+      <div class="lab-card__media"><video src="/assets/lab/previews/workshop.mp4" poster="/assets/lab/previews/workshop.jpg" muted loop playsinline preload="metadata" aria-hidden="true"></video></div>
+      <div class="lab-card__body"><span class="lab-card__num">02</span><h2>Workshop</h2><p>Fly through a 3D wooden workshop as a website and app come together on the bench.</p><span class="lab-card__go">Open experiment <span aria-hidden="true">→</span></span></div>
+    </a>
+    <a class="lab-card" href="/lab/gallery">
+      <div class="lab-card__media"><video src="/assets/lab/previews/gallery.mp4" poster="/assets/lab/previews/gallery.jpg" muted loop playsinline preload="metadata" aria-hidden="true"></video></div>
+      <div class="lab-card__body"><span class="lab-card__num">03</span><h2>Liquid gallery</h2><p>Twelve concept designs that melt into each other like liquid, with kinetic type.</p><span class="lab-card__go">Open experiment <span aria-hidden="true">→</span></span></div>
+    </a>
+    <a class="lab-card" href="/lab/playground">
+      <div class="lab-card__media"><video src="/assets/lab/previews/playground.mp4" poster="/assets/lab/previews/playground.jpg" muted loop playsinline preload="metadata" aria-hidden="true"></video></div>
+      <div class="lab-card__body"><span class="lab-card__num">04</span><h2>Physics playground</h2><p>Everything we build, as real objects you can grab, stack and throw. Every piece is a link.</p><span class="lab-card__go">Open experiment <span aria-hidden="true">→</span></span></div>
+    </a>
+  </section>
+
+  <section class="container lab-index__cta">
+    <h2>Want something like this on your site?</h2>
+    <p>Motion should serve your message. We'll design a free homepage concept and show you what fits your organization.</p>
+    <div class="lab-actions">
+      <a class="btn btn--primary" href="/mockup">Request your free mockup <span class="arrow" aria-hidden="true">→</span></a>
+      <a class="btn btn--ghost" href="/designs">Explore designs</a>
+    </div>
+  </section>
+</main>
+
+<div id="site-footer"></div>
+<script type="module" src="/assets/js/shell.js"></script>
+<script type="module">
+  // Previews play while on screen, unless the visitor prefers reduced motion (then the poster stays).
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const vids = document.querySelectorAll('.lab-card video');
+  if (!reduced && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver((es) => es.forEach((e) => (e.isIntersecting ? e.target.play().catch(() => {}) : e.target.pause())), { threshold: 0.25 });
+    vids.forEach((v) => io.observe(v));
+  }
+</script>
+</body>
+</html>

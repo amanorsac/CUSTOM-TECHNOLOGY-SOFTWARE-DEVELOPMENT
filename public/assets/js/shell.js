@@ -19,6 +19,7 @@ const NAV = [
   },
   { id: 'designs', label: 'Explore Designs', href: '/designs' },
   { id: 'demo', label: 'Live Demo', href: '/demo/' },
+  { id: 'lab', label: 'Lab', href: '/lab/' },
   { id: 'about', label: 'About', href: '/about' },
   { id: 'start', label: 'Start a Project', href: '/start', cta: true },
 ];
@@ -35,6 +36,7 @@ const SERVICES = [
 const COMPANY = [
   { label: 'Explore Designs', href: '/designs' },
   { label: 'Live Demo', href: '/demo/' },
+  { label: 'CTSD Lab', href: '/lab/' },
   { label: 'About', href: '/about' },
   { label: 'Start a Project', href: '/start' },
 ];

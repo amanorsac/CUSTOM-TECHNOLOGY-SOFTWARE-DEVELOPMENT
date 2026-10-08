@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
 
 const PAGES = ['/', '/solutions', '/industries/business', '/industries/church', '/industries/education',
-  '/industries/nonprofit', '/designs', '/demo/', '/about', '/start', '/mockup', '/privacy'];
+  '/industries/nonprofit', '/designs', '/demo/', '/about', '/start', '/mockup', '/privacy',
+  '/lab/', '/lab/particles', '/lab/workshop', '/lab/gallery', '/lab/playground'];
 const slugs = ['modern-church', 'multi-campus-church', 'youth-ministry', 'private-school', 'music-school',
   'online-academy', 'consulting-firm', 'real-estate', 'restaurant', 'custom-crm', 'client-portal', 'booking-system'];
 const ALL = [...PAGES, ...slugs.map((s) => `/designs/${s}`)];
