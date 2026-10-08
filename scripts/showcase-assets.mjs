@@ -53,6 +53,25 @@ const SHOWPIECES = {
       street: [1600, 'real-estate/web-3', [904, 1054, 740, 420]],
     },
   },
+  basecamp: {
+    fonts: [
+      ['@fontsource/anton/files/anton-latin-400-normal.woff2', 'anton-400.woff2'],
+      ['@fontsource/inter/files/inter-latin-400-normal.woff2', 'inter-400.woff2'],
+      ['@fontsource/inter/files/inter-latin-500-normal.woff2', 'inter-500.woff2'],
+      ['@fontsource/inter/files/inter-latin-600-normal.woff2', 'inter-600.woff2'],
+    ],
+    images: {
+      fire: [1600, 'youth-ministry/web-1', [104, 500, 1069, 960]],
+      retreat: [2000, 'youth-ministry/web-2', [480, 415, 1440, 368]],
+      people: [1400, 'youth-ministry/hero', [1032, 690, 734, 215]],
+      forest: [1400, 'youth-ministry/web-3', [816, 271, 708, 581]],
+      gym: [1000, 'youth-ministry/web-2', [1462, 832, 460, 306]],
+      lounge: [1000, 'youth-ministry/web-2', [1224, 1186, 340, 290]],
+      shoes: [1000, 'youth-ministry/web-2', [1612, 1186, 308, 290]],
+      lights: [1000, 'youth-ministry/web-3', [883, 1205, 634, 180]],
+      court: [1000, 'youth-ministry/web-3', [1567, 1205, 634, 180]],
+    },
+  },
 };
 
 const cfg = SHOWPIECES[slug];

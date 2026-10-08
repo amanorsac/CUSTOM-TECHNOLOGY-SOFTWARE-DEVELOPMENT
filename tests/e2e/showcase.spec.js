@@ -187,3 +187,102 @@ test.describe('Juniper & Vale showpiece', () => {
     await expect(page.locator('[data-d="showcase"]')).toHaveAttribute('href', JV);
   });
 });
+
+const BC = '/showcase/basecamp';
+
+test.describe('Basecamp showpiece', () => {
+  test('loads live: one h1, the preloader hands over, no errors', async ({ page, browserName }) => {
+    const errors = collectErrors(page);
+    const res = await page.goto(BC);
+    expect(res.status()).toBe(200);
+    await expect(page.locator('h1')).toHaveCount(1);
+    await expect(page.locator('h1')).toContainText('Find your people.');
+    const mode = await page.locator('html').getAttribute('data-bc-mode');
+    if (browserName === 'webkit') expect(['live', 'nowebgl']).toContain(mode); else expect(mode).toBe('live');
+    await expect(page.locator('[data-pre]')).toHaveCount(0, { timeout: 10000 });
+    await expect(page.locator('a.bc-badge')).toHaveAttribute('href', '/designs/youth-ministry');
+    expect(errors).toEqual([]);
+  });
+
+  test('retreat registration: needs a name, a grade and all three, then confirms and takes a spot', async ({ page }) => {
+    await page.goto(`${BC}?still=1`);
+    const go = page.locator('[data-reg-go]');
+    await expect(page.locator('[data-unit="d"]')).toHaveText(/^\d\d+$/);
+    await expect(go).toBeDisabled();
+    await page.locator('#reg-name').fill('Maya');
+    await page.locator('[data-grades]').getByRole('radio', { name: '9' }).click();
+    await expect(go).toBeDisabled();
+    for (const n of ['Permission form', 'Medical info']) await page.getByLabel(n).check();
+    await expect(go).toBeDisabled();
+    await page.getByLabel(/Payment/).check();
+    await expect(go).toBeEnabled();
+    await go.click();
+    await expect(page.locator('[data-reg-done]')).toBeVisible();
+    await expect(page.locator('[data-reg-msg]')).toHaveText("Maya, you're going to Cedar Ridge.");
+    await expect(page.locator('[data-spots-tag]')).toHaveText('17 spots left');
+    await page.locator('[data-reg-again]').click();
+    await expect(page.locator('[data-reg-form]')).toBeVisible();
+    await expect(go).toBeDisabled();
+  });
+
+  test('group finder matches a grade and an interest', async ({ page }) => {
+    await page.goto(`${BC}?still=1`);
+    await page.getByRole('button', { name: 'High school' }).click();
+    await page.getByRole('button', { name: 'Music' }).click();
+    await expect(page.locator('[data-match]')).toHaveClass(/is-flipped/);
+    await expect(page.locator('[data-match-body] h3')).toHaveText('Worship Team');
+    await page.getByRole('button', { name: 'Middle school' }).click();
+    await expect(page.locator('[data-match-body] h3')).toHaveText('Garage Band');
+  });
+
+  test('check-in pass checks in and resets; parents update expands', async ({ page }) => {
+    await page.goto(`${BC}?still=1`);
+    await expect(page.locator('[data-qr] rect').first()).toBeAttached();
+    await page.locator('[data-checkin]').click();
+    await expect(page.locator('[data-pass-status]')).toContainText('Checked in');
+    await page.locator('[data-checkin]').click();
+    await expect(page.locator('[data-pass-status]')).toContainText('Tonight');
+    const more = page.locator('[data-more-btn]');
+    await more.click();
+    await expect(more).toHaveAttribute('aria-expanded', 'true');
+    await expect(page.locator('#update-more')).toBeVisible();
+  });
+
+  test('reduced motion: still version, accessible', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto(BC);
+    await expect(page.locator('html')).toHaveClass(/bc-static/);
+    await expect(page.locator('[data-pre]')).toHaveCount(0);
+    await expect(page.locator('[data-fire-img]')).toBeVisible();
+    await expect(page.locator('.bc-pol').first()).toBeVisible();
+    const axe = await new AxeBuilder({ page }).analyze();
+    expect(axe.violations.filter((v) => ['serious', 'critical'].includes(v.impact))).toEqual([]);
+  });
+
+  test('no WebGL: the photo stays and the rest still moves, no errors', async ({ page }) => {
+    await page.addInitScript(() => {
+      const get = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = function (t, ...a) { return /webgl/.test(t) ? null : get.call(this, t, ...a); };
+    });
+    const errors = collectErrors(page);
+    await page.goto(BC);
+    await expect(page.locator('html')).toHaveAttribute('data-bc-mode', 'nowebgl');
+    await expect(page.locator('html')).toHaveClass(/bc-live/);
+    await expect(page.locator('[data-fire-img]')).toBeVisible();
+    await expect(page.locator('[data-fire]')).not.toHaveClass(/is-gl/);
+    expect(errors).toEqual([]);
+  });
+
+  test('no horizontal scroll on a phone', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto(BC);
+    await page.waitForTimeout(600);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  });
+
+  test('the youth ministry design page links to the live showpiece', async ({ page }) => {
+    await page.goto('/designs/youth-ministry');
+    await expect(page.locator('[data-d="showcase"]')).toBeVisible();
+    await expect(page.locator('[data-d="showcase"]')).toHaveAttribute('href', BC);
+  });
+});
