@@ -11,6 +11,7 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
     "@cloudflare/vitest-pool-workers": "^0.22.0",
+    "@fontsource/anton": "^5.3.0",
     "@fontsource/bodoni-moda": "^5.3.0",
     "@fontsource/cormorant-garamond": "^5.3.0",
     "@fontsource/inter": "^5.3.0",

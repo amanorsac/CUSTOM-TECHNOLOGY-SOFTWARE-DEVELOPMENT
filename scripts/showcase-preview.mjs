@@ -56,6 +56,30 @@ const SCRIPTS = {
     await glide(p, '#neighborhoods', '#mortgage', 8000);          // fly between neighborhoods
     await slide('#c-price', 685000, 1200000, 1800); await wait(1600);
   },
+  basecamp: async (p) => {
+    const sweep = async (pts, ms) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { const k = (Date.now() - t0) / ms, i = Math.min(pts.length - 2, Math.floor(k * (pts.length - 1))), f = k * (pts.length - 1) - i; await p.mouse.move(pts[i][0] + (pts[i + 1][0] - pts[i][0]) * f, pts[i][1] + (pts[i + 1][1] - pts[i][1]) * f); await wait(16); } };
+    await wait(3600);                                             // letters slam in, the headline drops onto its springs
+    await sweep([[700, 120], [1400, 200], [900, 330], [1380, 420], [760, 260]], 3200);   // shove the letters around
+    await sweep([[120, 500], [640, 520], [200, 600]], 2400);     // wind over the fire
+    await glide(p, 0, '.bc-tapes', 1400);
+    await glide(p, '.bc-tapes', '#retreat', 7000);               // the week slides sideways
+    await glide(p, '#retreat', '.bc-retreat__grid', 2400); await wait(800);
+    await p.evaluate(() => window.scrollBy(0, -60)); await wait(300);
+    await p.click('#reg-name'); await p.keyboard.type('Maya', { delay: 90 });
+    await p.click('[data-grades] button:nth-child(5)'); await wait(250);
+    for (const n of ['permission', 'medical', 'payment']) { await p.click(`.bc-checks input[name="${n}"] + .bc-check`); await wait(300); }
+    await p.click('[data-reg-go]'); await wait(3000);           // confetti, the card flips, a spot turns orange
+    await glide(p, '.bc-retreat__grid', '#groups', 1400);
+    await wait(400); await p.click('[data-level] button:nth-child(2)'); await wait(600); await p.click('[data-vibe] button:nth-child(4)'); await wait(3200);
+    await glide(p, '#groups', '#checkin', 1400);
+    await sweep([[600, 300], [1350, 200], [900, 700], [1300, 600]], 2400);
+    await p.click('[data-checkin]'); await wait(2600);
+    await glide(p, '#checkin', '#photos', 1400); await wait(2600);  // the photos tumble in
+    await p.mouse.move(400, 650); await p.mouse.down(); await p.mouse.move(1100, 250, { steps: 8 }); await p.mouse.up(); await wait(1600);
+    await glide(p, '#photos', '#parents', 1600); await wait(1600);
+    await glide(p, '#parents', '.bc-foot', 2200);
+    await sweep([[200, 300], [1200, 500], [400, 600]], 2400); await wait(800);
+  },
 };
 
 rmSync(TMP, { recursive: true, force: true }); mkdirSync(TMP, { recursive: true });
