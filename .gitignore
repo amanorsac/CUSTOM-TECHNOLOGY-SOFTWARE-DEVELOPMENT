@@ -9,3 +9,6 @@ public/images/**/*.png
 public/images/**/*.jpg
 public/images/**/*.jpeg
 brag-output/
+
+# Raw showpiece photos (scripts/showcase-assets.mjs turns them into WebP)
+assets-src/

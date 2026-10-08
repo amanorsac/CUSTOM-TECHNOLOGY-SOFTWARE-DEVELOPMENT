@@ -1,0 +1,53 @@
+// Prepares a showpiece's assets: node scripts/showcase-assets.mjs osteria-lume
+// - copies its self-hosted fonts and the shared GSAP builds
+// - writes every image as WebP (+ a -sm copy). A photo the owner generated (from
+//   docs/showcase/<slug>-prompts.md) wins: drop it in assets-src/<slug>/<name>.(png|jpg|webp).
+//   Until then a placeholder is cropped from the CTSD concept images.
+import sharp from 'sharp';
+import { copyFileSync, existsSync, mkdirSync } from 'node:fs';
+
+const slug = process.argv[2] || 'osteria-lume';
+const SHOWPIECES = {
+  'osteria-lume': {
+    fonts: [
+      ['@fontsource/cormorant-garamond/files/cormorant-garamond-latin-500-italic.woff2', 'cormorant-500-italic.woff2'],
+      ['@fontsource/cormorant-garamond/files/cormorant-garamond-latin-600-italic.woff2', 'cormorant-600-italic.woff2'],
+      ['@fontsource/cormorant-garamond/files/cormorant-garamond-latin-500-normal.woff2', 'cormorant-500.woff2'],
+      ['@fontsource/jost/files/jost-latin-300-normal.woff2', 'jost-300.woff2'],
+      ['@fontsource/jost/files/jost-latin-400-normal.woff2', 'jost-400.woff2'],
+      ['@fontsource/jost/files/jost-latin-500-normal.woff2', 'jost-500.woff2'],
+    ],
+    // name: [width of the full-size WebP, placeholder source, crop [left, top, width, height] in that source]
+    images: {
+      hero: [2400, 'restaurant/web-1', [0, 105, 1224, 585]],
+      kitchen: [2000, 'restaurant/web-2', [900, 598, 600, 287]],
+      oven: [1400, 'restaurant/web-1', [1339, 137, 490, 333]],
+      room: [2000, 'restaurant/web-1', [1339, 780, 489, 343]],
+      'dish-burrata': [900, 'restaurant/web-2', [1633, 886, 591, 246]],
+      'dish-cacio': [900, 'restaurant/web-1', [260, 300, 760, 390]],
+      'dish-pappardelle': [900, 'restaurant/web-2', [900, 598, 600, 287]],
+      'dish-margherita': [900, 'restaurant/web-2', [1633, 598, 591, 247]],
+      'dish-tiramisu': [900, 'restaurant/web-1', [1846, 780, 488, 343]],
+      'dish-branzino': [900, 'restaurant/web-2', [1633, 1173, 591, 246]],
+    },
+  },
+};
+
+const cfg = SHOWPIECES[slug];
+if (!cfg) throw new Error(`unknown showpiece ${slug}`);
+const out = `public/assets/showcase/${slug}`;
+for (const d of ['fonts', 'img']) mkdirSync(`${out}/${d}`, { recursive: true });
+
+for (const [src, name] of cfg.fonts) copyFileSync(`node_modules/${src}`, `${out}/fonts/${name}`);
+for (const f of ['gsap.min.js', 'ScrollTrigger.min.js', 'SplitText.min.js']) copyFileSync(`node_modules/gsap/dist/${f}`, `public/assets/vendor/${f}`);
+
+for (const [name, [width, phSrc, crop]] of Object.entries(cfg.images)) {
+  const own = ['png', 'jpg', 'jpeg', 'webp'].map((e) => `assets-src/${slug}/${name}.${e}`).find(existsSync);
+  const base = own
+    ? sharp(own)
+    : sharp(`public/images/designs/${phSrc}.webp`).extract({ left: crop[0], top: crop[1], width: crop[2], height: crop[3] });
+  const buf = await base.toBuffer();
+  await sharp(buf).resize({ width, withoutEnlargement: !!own }).webp({ quality: own ? 82 : 86 }).toFile(`${out}/img/${name}.webp`);
+  await sharp(buf).resize({ width: Math.round(width / 2.5) }).webp({ quality: 78 }).toFile(`${out}/img/${name}-sm.webp`);
+  console.log(`${name}: ${own ? 'owner photo' : 'placeholder'}`);
+}

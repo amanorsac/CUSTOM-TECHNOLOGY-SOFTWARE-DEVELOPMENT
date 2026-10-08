@@ -405,6 +405,7 @@
   {
     "slug": "restaurant",
     "name": "Restaurant",
+    "showcase": "/showcase/osteria-lume",
     "category": "business",
     "tags": [
       "business"

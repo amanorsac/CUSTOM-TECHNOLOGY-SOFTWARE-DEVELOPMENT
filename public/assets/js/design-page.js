@@ -192,6 +192,9 @@ function fill(design, designs) {
   catLink.href = shopCat;
   $('[data-d="more-link"]').href = shopCat;
   $$('[data-d="cta"]').forEach((a) => { a.href = start; });
+  // Designs with a live showpiece get a button to it.
+  const live = $('[data-d="showcase"]');
+  if (live && design.showcase) { live.href = design.showcase; live.hidden = false; }
 
   $('[data-d="systems"]').replaceChildren(...(design.systems || []).map((s) => el('li', '', s)));
 
