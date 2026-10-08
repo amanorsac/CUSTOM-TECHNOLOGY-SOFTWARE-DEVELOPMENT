@@ -19,7 +19,8 @@ describe('GET /sitemap.xml', () => {
     const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
     const o = 'https://ctsd.example';
     for (const p of ['/', '/solutions', '/industries/business', '/industries/church',
-      '/industries/education', '/industries/nonprofit', '/designs', '/demo/', '/about', '/start', '/mockup']) {
+      '/industries/education', '/industries/nonprofit', '/designs', '/demo/', '/about', '/start', '/mockup',
+      '/lab/', '/lab/particles', '/lab/workshop', '/lab/gallery', '/lab/playground']) {
       expect(locs).toContain(o + p);
     }
     expect(locs.filter((l) => l.startsWith(`${o}/designs/`))).toHaveLength(12);
