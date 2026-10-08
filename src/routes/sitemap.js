@@ -7,7 +7,7 @@ const STATIC_PAGES = [
   '/industries/business', '/industries/church', '/industries/education', '/industries/nonprofit',
   '/designs', '/demo/', '/about', '/start', '/mockup',
   '/lab/', '/lab/particles', '/lab/workshop', '/lab/gallery', '/lab/playground',
-  '/showcase/osteria-lume',
+  '/showcase/osteria-lume', '/showcase/juniper-vale',
 ];
 
 export const sitemapRoute = {

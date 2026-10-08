@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Juniper &amp; Vale | Find the home that fits</title>
+<meta name="description" content="Homes, neighborhoods and agents who know them. A live real estate showpiece concept designed and built by CTSD.">
+<meta name="theme-color" content="#F4F1EC">
+<link rel="canonical" href="/showcase/juniper-vale">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Juniper &amp; Vale · a CTSD showpiece">
+<meta property="og:title" content="Juniper &amp; Vale | Find the home that fits">
+<meta property="og:description" content="A real estate brand, as a live showpiece concept by CTSD.">
+<meta property="og:url" content="/showcase/juniper-vale">
+<meta property="og:image" content="/assets/showcase/juniper-vale/img/hero.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="/assets/showcase/juniper-vale/img/hero.webp">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23141414'/%3E%3Cpath d='M6 22 16 9l10 13' fill='none' stroke='%23F4F1EC' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preload" href="/assets/showcase/juniper-vale/fonts/bodoni-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/showcase/juniper-vale/fonts/manrope-500.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/showcase/juniper-vale/img/hero.webp" as="image">
+<link rel="stylesheet" href="/assets/showcase/juniper-vale/jv.css">
+<script>
+  (function () {
+    var d = document.documentElement, still = matchMedia('(prefers-reduced-motion: reduce)').matches || /[?&]still/.test(location.search), gl = false;
+    try { var c = document.createElement('canvas'); gl = !!(c.getContext('webgl2') || c.getContext('webgl')); } catch (e) {}
+    d.classList.add(still || !gl ? 'jv-static' : 'jv-live');
+    d.dataset.jvMode = still ? 'reduced' : gl ? 'live' : 'nowebgl';
+    try { if (sessionStorage.getItem('jv-seen')) d.classList.add('jv-seen'); } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="jv-pre" data-pre aria-hidden="true">
+  <svg viewBox="0 0 680 360" data-sketch>
+    <line class="jv-pre__guide" x1="0" y1="300" x2="680" y2="300"/>
+    <line class="jv-pre__guide" x1="250" y1="20" x2="250" y2="340"/>
+    <path d="M60 300V150h190v150"/>
+    <path d="M30 150h250l-20-30H50z"/>
+    <path d="M250 300V95h330v205"/>
+    <path d="M220 95h390l-24-36H244z"/>
+    <rect x="290" y="130" width="120" height="170"/><rect x="430" y="130" width="120" height="170"/>
+    <line x1="350" y1="130" x2="350" y2="300"/><line x1="490" y1="130" x2="490" y2="300"/>
+    <rect x="95" y="190" width="80" height="70"/>
+    <path d="M250 300h360M20 330h640"/>
+    <path d="M60 300c-30-40-10-90 20-100M600 300c30-30 20-80-10-95"/>
+  </svg>
+  <p class="jv-pre__count" data-count>0</p>
+  <p class="jv-pre__name">Juniper &amp; Vale</p>
+</div>
+
+<header class="jv-nav" data-nav>
+  <a class="jv-logo" href="#top">Juniper <i>&amp;</i> Vale</a>
+  <nav aria-label="Main"><ul>
+    <li><a href="#homes">Homes</a></li><li><a href="#plan">Floor plans</a></li><li><a href="#neighborhoods">Neighborhoods</a></li><li><a href="#mortgage">Mortgage</a></li><li><a href="#agents">Agents</a></li>
+  </ul></nav>
+  <a class="jv-btn" href="#agents"><span>Book a tour</span></a>
+</header>
+
+<main id="main" tabindex="-1">
+  <section class="jv-hero" id="top" aria-labelledby="hero-title">
+    <img class="jv-hero__img" src="/assets/showcase/juniper-vale/img/hero.webp" alt="A modern home with floor-to-ceiling windows at golden hour" width="2400" height="1537">
+    <canvas data-hero aria-hidden="true"></canvas>
+    <div class="jv-hero__shade"></div>
+    <div class="jv-hero__copy">
+      <div>
+        <h1 id="hero-title" data-lines>Find the home <em>that fits.</em></h1>
+        <form class="jv-search" data-search role="search" aria-label="Search homes">
+          <div role="radiogroup" aria-label="Buy or rent"><button type="button" role="radio" aria-checked="true" data-mode="buy">Buy</button><button type="button" role="radio" aria-checked="false" data-mode="rent">Rent</button></div>
+          <label class="sr-only" for="q">City, neighborhood or street</label>
+          <input id="q" name="q" type="search" placeholder="City, neighborhood or street" autocomplete="off">
+          <button type="submit">Search</button>
+        </form>
+      </div>
+      <div class="jv-tod">
+        <span class="jv-tod__label" id="tod-label">See it at any hour</span>
+        <div class="jv-tod__track"><input type="range" min="0" max="100" value="45" aria-labelledby="tod-label" aria-valuetext="Golden hour" data-tod></div>
+        <div class="jv-tod__ticks" aria-hidden="true"><span>Day</span><span>Golden hour</span><span>Night</span></div>
+      </div>
+    </div>
+    <p class="jv-hero__hint" aria-hidden="true">Move to look around</p>
+  </section>
+
+  <section class="jv-numbers" aria-label="Juniper &amp; Vale in numbers">
+    <div><b data-num="42">0</b><span>Homes for sale</span></div>
+    <div><b data-num="18">0</b><span>Years in the valley</span></div>
+    <div><b data-num="3">0</b><span>Neighborhoods we know street by street</span></div>
+    <div><b data-num="96" data-suffix="%">0</b><span>Of sellers would list with us again</span></div>
+  </section>
+
+  <section class="jv-listings" id="homes" aria-labelledby="homes-title">
+    <div class="jv-listings__head">
+      <div><p class="jv-label">Featured homes</p><h2 class="jv-h2" id="homes-title" data-lines>Six homes, <em>hand-picked.</em></h2></div>
+      <p data-rise>Drag to browse. Open any home to see the rooms, the numbers and who to call.</p>
+    </div>
+    <div class="jv-rail" data-rail role="list" aria-label="Featured homes"></div>
+    <div class="jv-progress" aria-hidden="true"><i data-railbar></i></div>
+  </section>
+
+  <section class="jv-plan" id="plan" aria-labelledby="plan-title" data-plan>
+    <div class="jv-plan__stick">
+      <canvas data-plan-canvas aria-hidden="true"></canvas>
+      <div class="jv-plan__labels" data-plan-labels aria-hidden="true"></div>
+      <div class="jv-plan__copy"><p class="jv-label">Floor plan · 18 Linden Court</p><h2 class="jv-h2" id="plan-title" data-lines>Walk it <em>before you visit.</em></h2><p data-rise>Scroll and the plan rises into the home: every room in proportion, so you know how it lives before the tour.</p></div>
+      <svg class="jv-plan__img" data-plan-svg viewBox="0 0 520 380" role="img" aria-label="Floor plan of 18 Linden Court: living room, kitchen, dining, primary suite, two bedrooms and two baths"></svg>
+      <div class="jv-plan__stats"><div><b>1,840</b><span>Square feet</span></div><div><b>3</b><span>Bedrooms</span></div><div><b>2</b><span>Baths</span></div></div>
+    </div>
+  </section>
+
+  <section class="jv-ba" aria-labelledby="ba-title">
+    <div class="jv-ba__head"><div><p class="jv-label">Renovation</p><h2 class="jv-h2" id="ba-title" data-lines>Same room, <em>new life.</em></h2></div><p data-rise>We help sellers stage and refresh before listing. Drag across the room to compare.</p></div>
+    <div class="jv-ba__frame" data-ba data-img-wipe>
+      <img src="/assets/showcase/juniper-vale/img/room-living-before.webp" alt="The living room before renovation: dim and dated" width="2000" height="760" loading="lazy">
+      <img class="jv-ba__after" src="/assets/showcase/juniper-vale/img/room-living.webp" alt="The living room after renovation: bright, warm and open" width="2000" height="760" loading="lazy">
+      <div class="jv-ba__lens" aria-hidden="true"></div>
+      <div class="jv-ba__knob" aria-hidden="true">Drag</div>
+      <span class="jv-ba__tag jv-ba__tag--b">Before</span><span class="jv-ba__tag jv-ba__tag--a">After</span>
+      <label class="sr-only" for="ba-range">Compare before and after</label>
+      <input id="ba-range" type="range" min="0" max="100" value="50" data-ba-range>
+    </div>
+    <p class="jv-ba__note">Concept: the "before" is a simulated version of the same photo.</p>
+  </section>
+
+  <section class="jv-map" id="neighborhoods" aria-labelledby="map-title" data-map>
+    <div class="jv-map__stick">
+      <canvas data-map-canvas aria-hidden="true"></canvas>
+      <div class="jv-map__pin" data-map-pin aria-hidden="true"></div>
+      <div class="jv-map__head"><p class="jv-label">Neighborhoods</p><h2 class="jv-h2" id="map-title" data-lines>Know the <em>street</em>,<br>not just the house.</h2></div>
+      <div class="jv-map__tabs" role="group" aria-label="Choose a neighborhood" data-map-tabs></div>
+      <div class="jv-map__card" data-map-card aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="jv-calc" id="mortgage" aria-labelledby="calc-title">
+    <div>
+      <p class="jv-label">Mortgage</p>
+      <h2 class="jv-h2" id="calc-title" data-lines>What it costs <em>each month.</em></h2>
+      <p class="jv-calc__out" aria-live="polite"><span class="sr-only" data-calc-text></span><span aria-hidden="true">$</span><span class="jv-odo" data-odo aria-hidden="true"></span><small>/ month</small></p>
+      <p class="jv-calc__note">Principal and interest only. An estimate, not an offer.</p>
+    </div>
+    <form data-calc>
+      <div class="jv-field"><label for="c-price">Home price <output data-out="price"></output></label><input id="c-price" type="range" min="300000" max="2000000" step="5000" value="685000"></div>
+      <div class="jv-field"><label for="c-down">Down payment <output data-out="down"></output></label><input id="c-down" type="range" min="3" max="50" step="1" value="20"></div>
+      <div class="jv-field"><label for="c-rate">Interest rate <output data-out="rate"></output></label><input id="c-rate" type="range" min="3" max="9" step="0.05" value="6.25"></div>
+      <div class="jv-field"><label for="c-years">Term <output data-out="years"></output></label><input id="c-years" type="range" min="10" max="30" step="5" value="30"></div>
+    </form>
+  </section>
+
+  <section class="jv-team" id="agents" aria-labelledby="team-title">
+    <p class="jv-label">Agents</p>
+    <h2 class="jv-h2" id="team-title" data-lines>People who <em>pick up the phone.</em></h2>
+    <div class="jv-team__grid">
+      <article class="jv-agent" data-rise><span class="jv-mono" aria-hidden="true">SJ</span><h3>Sarah Jenkins</h3><p>Lead broker · Coastal Living</p><a href="#agents" data-tour>Book a tour with Sarah →</a></article>
+      <article class="jv-agent" data-rise><span class="jv-mono" aria-hidden="true">DC</span><h3>David Chen</h3><p>Senior agent · Urban Core</p><a href="#agents" data-tour>Book a tour with David →</a></article>
+      <article class="jv-agent" data-rise><span class="jv-mono" aria-hidden="true">AL</span><h3>Avery Lin</h3><p>Listing agent · Mountain Views</p><a href="#agents" data-tour>Book a tour with Avery →</a></article>
+    </div>
+  </section>
+</main>
+
+<footer class="jv-foot">
+  <p class="jv-foot__big" data-lines>Let's find <em>yours.</em></p>
+  <div class="jv-foot__row"><span>Juniper &amp; Vale Realty · 40 Main Street</span><span>hello@junipervale.example · (555) 010-2200</span><span>Fictional brand, real craft.</span></div>
+</footer>
+
+<div class="jv-detail" role="dialog" aria-modal="true" aria-labelledby="dt-title" data-detail>
+  <div class="jv-detail__media" data-detail-media><img alt="" data-detail-img></div>
+  <div class="jv-detail__body">
+    <div>
+      <p class="jv-label" data-detail-area></p>
+      <h2 id="dt-title" data-detail-title></h2>
+      <p class="jv-detail__price" data-detail-price></p>
+      <div class="jv-detail__facts" data-detail-facts></div>
+      <p data-detail-text></p>
+    </div>
+    <aside class="jv-detail__agent"><span class="jv-mono" aria-hidden="true" data-detail-mono></span><b data-detail-agent></b><span>Listing agent</span><a class="jv-btn" href="#agents" data-detail-tour><span>Schedule a tour</span></a></aside>
+  </div>
+</div>
+<button class="jv-close" type="button" aria-label="Close home details" data-detail-close>×</button>
+
+<a class="jv-badge" href="/designs/real-estate">Concept by <b>CTSD</b></a>
+<div class="jv-cursor" aria-hidden="true" data-cursor><i></i><i></i><span data-cursor-label></span></div>
+
+<script src="/assets/vendor/lenis.min.js"></script>
+<script src="/assets/vendor/gsap.min.js"></script>
+<script src="/assets/vendor/ScrollTrigger.min.js"></script>
+<script src="/assets/vendor/SplitText.min.js"></script>
+<script src="/assets/vendor/Flip.min.js"></script>
+<script type="module" src="/assets/showcase/juniper-vale/main.js"></script>
+</body>
+</html>

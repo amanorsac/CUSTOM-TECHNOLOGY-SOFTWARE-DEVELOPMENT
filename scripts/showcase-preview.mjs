@@ -37,6 +37,25 @@ const SCRIPTS = {
     await p.click('[data-dates] button'); await p.click('[data-times] button:nth-child(6)'); await wait(300);
     await p.click('[data-book]'); await wait(2400);
   },
+  'juniper-vale': async (p) => {
+    // Slide a range input from one value to another, firing input events like a drag would.
+    const slide = async (sel, from, to, ms) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { const v = from + (to - from) * ease((Date.now() - t0) / ms); await p.$eval(sel, (el, v) => { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); }, v); await wait(16); } };
+    await wait(4200);                                             // the house sketch draws in, then wipes away
+    await circle(p, 900, 380, 240, 2600);                         // depth parallax
+    await slide('[data-tod]', 45, 0, 1600); await wait(500);      // midday
+    await slide('[data-tod]', 0, 100, 2600); await wait(900);     // through golden hour into night
+    await slide('[data-tod]', 100, 45, 1400);
+    await glide(p, 0, '#homes', 2000); await wait(400);
+    await p.mouse.move(1100, 560); await p.mouse.down(); await p.mouse.move(400, 560, { steps: 30 }); await p.mouse.up(); await wait(1400);
+    await p.click('.jv-card:nth-child(3)'); await wait(3200);     // the card opens into the home
+    await p.keyboard.press('Escape'); await wait(1200);
+    await glide(p, '#homes', '#plan', 1200);
+    await glide(p, '#plan', '.jv-ba', 8000);                      // the plan rises into a house
+    await wait(3600);                                             // before/after sweep
+    await glide(p, '.jv-ba', '#neighborhoods', 1200);
+    await glide(p, '#neighborhoods', '#mortgage', 8000);          // fly between neighborhoods
+    await slide('#c-price', 685000, 1200000, 1800); await wait(1600);
+  },
 };
 
 rmSync(TMP, { recursive: true, force: true }); mkdirSync(TMP, { recursive: true });

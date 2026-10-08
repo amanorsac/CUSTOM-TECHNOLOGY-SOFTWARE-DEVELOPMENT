@@ -31,6 +31,28 @@ const SHOWPIECES = {
       'dish-branzino': [900, 'restaurant/web-2', [1633, 1173, 591, 246]],
     },
   },
+  'juniper-vale': {
+    fonts: [
+      ['@fontsource/bodoni-moda/files/bodoni-moda-latin-400-normal.woff2', 'bodoni-400.woff2'],
+      ['@fontsource/bodoni-moda/files/bodoni-moda-latin-500-normal.woff2', 'bodoni-500.woff2'],
+      ['@fontsource/bodoni-moda/files/bodoni-moda-latin-400-italic.woff2', 'bodoni-400-italic.woff2'],
+      ['@fontsource/manrope/files/manrope-latin-400-normal.woff2', 'manrope-400.woff2'],
+      ['@fontsource/manrope/files/manrope-latin-500-normal.woff2', 'manrope-500.woff2'],
+      ['@fontsource/manrope/files/manrope-latin-600-normal.woff2', 'manrope-600.woff2'],
+    ],
+    images: {
+      hero: [2400, 'real-estate/web-1', [0, 90, 740, 474]],
+      'home-linden': [1600, 'real-estate/web-2', [80, 233, 436, 388]],
+      'home-harbor': [1600, 'real-estate/web-2', [80, 670, 436, 388]],
+      'home-ridge': [1600, 'real-estate/web-2', [80, 1106, 436, 388]],
+      'home-maple': [1600, 'real-estate/web-1', [244, 740, 458, 209]],
+      'home-oak': [1600, 'real-estate/web-1', [730, 740, 458, 209]],
+      'home-cedar': [1600, 'real-estate/web-1', [1700, 740, 458, 209]],
+      'room-living': [2000, 'real-estate/web-3', [132, 446, 1510, 574]],
+      'room-kitchen': [1600, 'real-estate/web-3', [132, 1054, 740, 420]],
+      street: [1600, 'real-estate/web-3', [904, 1054, 740, 420]],
+    },
+  },
 };
 
 const cfg = SHOWPIECES[slug];
@@ -39,7 +61,7 @@ const out = `public/assets/showcase/${slug}`;
 for (const d of ['fonts', 'img']) mkdirSync(`${out}/${d}`, { recursive: true });
 
 for (const [src, name] of cfg.fonts) copyFileSync(`node_modules/${src}`, `${out}/fonts/${name}`);
-for (const f of ['gsap.min.js', 'ScrollTrigger.min.js', 'SplitText.min.js']) copyFileSync(`node_modules/gsap/dist/${f}`, `public/assets/vendor/${f}`);
+for (const f of ['gsap.min.js', 'ScrollTrigger.min.js', 'SplitText.min.js', 'Flip.min.js']) copyFileSync(`node_modules/gsap/dist/${f}`, `public/assets/vendor/${f}`);
 
 for (const [name, [width, phSrc, crop]] of Object.entries(cfg.images)) {
   const own = ['png', 'jpg', 'jpeg', 'webp'].map((e) => `assets-src/${slug}/${name}.${e}`).find(existsSync);
@@ -50,4 +72,15 @@ for (const [name, [width, phSrc, crop]] of Object.entries(cfg.images)) {
   await sharp(buf).resize({ width, withoutEnlargement: !!own }).webp({ quality: own ? 82 : 86 }).toFile(`${out}/img/${name}.webp`);
   await sharp(buf).resize({ width: Math.round(width / 2.5) }).webp({ quality: 78 }).toFile(`${out}/img/${name}-sm.webp`);
   console.log(`${name}: ${own ? 'owner photo' : 'placeholder'}`);
+}
+
+// Juniper & Vale's before/after: an owner "before" photo if there is one, otherwise the staged room
+// aged, darkened and desaturated (the page labels it as a simulation).
+if (slug === 'juniper-vale') {
+  const own = ['png', 'jpg', 'jpeg', 'webp'].map((e) => `assets-src/${slug}/room-living-before.${e}`).find(existsSync);
+  const before = own
+    ? sharp(own).resize({ width: 2000, withoutEnlargement: true })
+    : sharp(`${out}/img/room-living.webp`).modulate({ saturation: 0.35, brightness: 0.78 }).tint({ r: 150, g: 128, b: 96 }).linear(0.82, 8).blur(0.6);
+  await before.webp({ quality: 80 }).toFile(`${out}/img/room-living-before.webp`);
+  console.log(`room-living-before: ${own ? 'owner photo' : 'simulated'}`);
 }

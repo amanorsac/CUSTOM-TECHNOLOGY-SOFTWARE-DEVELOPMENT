@@ -11,9 +11,12 @@ await p.goto('http://localhost:8787' + path, { waitUntil: 'networkidle' });
 await p.waitForTimeout(+wait);
 for (const f of fr.split(',').map((x) => (x.startsWith('#') ? x : Number(x)))) {
   // A number scrolls to that fraction of the page; '#id' scrolls that element to the top.
-  await p.evaluate((f) => (typeof f === 'string'
-    ? window.scrollTo(0, document.querySelector(f).getBoundingClientRect().top + scrollY)
-    : window.scrollTo(0, f * (document.documentElement.scrollHeight - innerHeight))), f);
+  // '#id+N' scrolls N screens past the element's top (for pinned sections).
+  await p.evaluate((f) => {
+    if (typeof f !== 'string') return window.scrollTo(0, f * (document.documentElement.scrollHeight - innerHeight));
+    const [sel, n = 0] = f.split('+');
+    window.scrollTo(0, document.querySelector(sel).getBoundingClientRect().top + scrollY + Number(n) * innerHeight);
+  }, f);
   await p.waitForTimeout(1600);
   await p.screenshot({ path: `${out}-${String(f).replace('#', '')}.jpg`, type: 'jpeg', quality: 70 });
 }

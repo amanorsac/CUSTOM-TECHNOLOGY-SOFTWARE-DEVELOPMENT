@@ -102,3 +102,88 @@ test.describe('Osteria Lume showpiece', () => {
     await expect(page.locator('[data-d="showcase"]')).toBeHidden();
   });
 });
+
+const JV = '/showcase/juniper-vale';
+
+test.describe('Juniper & Vale showpiece', () => {
+  test('loads live: one h1, the preloader hands over, no errors', async ({ page, browserName }) => {
+    const errors = collectErrors(page);
+    const res = await page.goto(JV);
+    expect(res.status()).toBe(200);
+    await expect(page.locator('h1')).toHaveCount(1);
+    const mode = await page.locator('html').getAttribute('data-jv-mode');
+    if (browserName === 'webkit') expect(['live', 'nowebgl']).toContain(mode); else expect(mode).toBe('live');
+    await expect(page.locator('[data-pre]')).toHaveCount(0, { timeout: 10000 });
+    await expect(page.locator('a.jv-badge')).toHaveAttribute('href', '/designs/real-estate');
+    expect(errors).toEqual([]);
+  });
+
+  test('a listing opens into the detail view and Escape closes it', async ({ page }) => {
+    await page.goto(`${JV}?still=1`);
+    await expect(page.locator('.jv-card')).toHaveCount(6);
+    await page.locator('.jv-card').first().click();
+    await expect(page.locator('[data-detail]')).toHaveClass(/is-open/);
+    await expect(page.locator('[data-detail-title]')).not.toBeEmpty();
+    await page.keyboard.press('Escape');
+    await expect(page.locator('[data-detail]')).not.toHaveClass(/is-open/);
+  });
+
+  test('search narrows the homes; Rent shows monthly prices', async ({ page }) => {
+    await page.goto(`${JV}?still=1`);
+    await page.locator('#q').fill('harbor');
+    await page.locator('[data-search]').getByRole('button', { name: 'Search' }).click();
+    await expect(page.locator('.jv-card')).toHaveCount(1);
+    await page.getByRole('radio', { name: 'Rent' }).click();
+    await expect(page.getByRole('radio', { name: 'Rent' })).toHaveAttribute('aria-checked', 'true');
+    await expect(page.locator('.jv-card__price').first()).toContainText('/mo');
+  });
+
+  test('before/after slider, mortgage and neighborhood tabs respond', async ({ page }) => {
+    await page.goto(`${JV}?still=1`);
+    await page.locator('[data-ba-range]').fill('20');
+    expect(await page.locator('[data-ba]').evaluate((el) => el.style.getPropertyValue('--x'))).toBe('20%');
+    const before = await page.locator('[data-calc-text]').textContent();
+    await page.locator('#c-rate').fill('8');
+    await expect(page.locator('[data-calc-text]')).not.toHaveText(before);
+    await expect(page.locator('[data-calc-text]')).toContainText('per month');
+    await page.locator('[data-map-tabs] button', { hasText: 'Mountain Views' }).click();
+    await expect(page.locator('[data-map-tabs] button', { hasText: 'Mountain Views' })).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('[data-map-card] h3')).toHaveText('Mountain Views');
+  });
+
+  test('reduced motion: still version, accessible', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto(JV);
+    await expect(page.locator('html')).toHaveClass(/jv-static/);
+    await expect(page.locator('[data-pre]')).toHaveCount(0);
+    await expect(page.locator('[data-plan-svg]')).toBeVisible();
+    const axe = await new AxeBuilder({ page }).analyze();
+    expect(axe.violations.filter((v) => ['serious', 'critical'].includes(v.impact))).toEqual([]);
+  });
+
+  test('no WebGL: still hero, plan and map, no errors', async ({ page }) => {
+    await page.addInitScript(() => {
+      const get = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = function (t, ...a) { return /webgl/.test(t) ? null : get.call(this, t, ...a); };
+    });
+    const errors = collectErrors(page);
+    await page.goto(JV);
+    await expect(page.locator('html')).toHaveAttribute('data-jv-mode', 'nowebgl');
+    await expect(page.locator('[data-plan-svg]')).toBeVisible();
+    await expect(page.locator('.jv-card')).toHaveCount(6);
+    expect(errors).toEqual([]);
+  });
+
+  test('no horizontal scroll on a phone', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto(JV);
+    await page.waitForTimeout(600);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  });
+
+  test('the real-estate design page links to the live showpiece', async ({ page }) => {
+    await page.goto('/designs/real-estate');
+    await expect(page.locator('[data-d="showcase"]')).toBeVisible();
+    await expect(page.locator('[data-d="showcase"]')).toHaveAttribute('href', JV);
+  });
+});
