@@ -72,6 +72,27 @@ const SHOWPIECES = {
       court: [1000, 'youth-ministry/web-3', [1567, 1205, 634, 180]],
     },
   },
+  lanternway: {
+    fonts: [
+      ['@fontsource/fraunces/files/fraunces-latin-400-normal.woff2', 'fraunces-400.woff2'],
+      ['@fontsource/fraunces/files/fraunces-latin-400-italic.woff2', 'fraunces-400-italic.woff2'],
+      ['@fontsource/fraunces/files/fraunces-latin-500-normal.woff2', 'fraunces-500.woff2'],
+      ['@fontsource/inter/files/inter-latin-400-normal.woff2', 'inter-400.woff2'],
+      ['@fontsource/inter/files/inter-latin-500-normal.woff2', 'inter-500.woff2'],
+      ['@fontsource/inter/files/inter-latin-600-normal.woff2', 'inter-600.woff2'],
+    ],
+    images: {
+      hero: [2400, 'modern-church/web-1', [672, 210, 1728, 750]],
+      candles: [1400, 'modern-church/web-2', [130, 452, 940, 523]],
+      pews: [1000, 'modern-church/web-2', [130, 1014, 690, 370]],
+      bible: [1000, 'modern-church/web-2', [856, 1014, 690, 370]],
+      exterior: [1000, 'modern-church/web-2', [1582, 1014, 690, 370]],
+      sanctuary: [900, 'modern-church/web-3', [173, 460, 539, 706]],
+      ledge: [800, 'modern-church/web-3', [746, 460, 396, 430]],
+      chapel: [800, 'modern-church/web-3', [746, 925, 396, 522]],
+      linen: [900, 'modern-church/web-3', [173, 1200, 539, 247]],
+    },
+  },
 };
 
 const cfg = SHOWPIECES[slug];
