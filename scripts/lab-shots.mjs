@@ -9,10 +9,13 @@ const p = await b.newPage({ viewport: { width: +w, height: +h }, deviceScaleFact
 const errs = []; p.on('pageerror', (e) => errs.push(e.message)); p.on('console', (m) => m.type() === 'error' && errs.push(m.text()));
 await p.goto('http://localhost:8787' + path, { waitUntil: 'networkidle' });
 await p.waitForTimeout(+wait);
-for (const f of fr.split(',').map(Number)) {
-  await p.evaluate((f) => window.scrollTo(0, f * (document.documentElement.scrollHeight - innerHeight)), f);
+for (const f of fr.split(',').map((x) => (x.startsWith('#') ? x : Number(x)))) {
+  // A number scrolls to that fraction of the page; '#id' scrolls that element to the top.
+  await p.evaluate((f) => (typeof f === 'string'
+    ? window.scrollTo(0, document.querySelector(f).getBoundingClientRect().top + scrollY)
+    : window.scrollTo(0, f * (document.documentElement.scrollHeight - innerHeight))), f);
   await p.waitForTimeout(1600);
-  await p.screenshot({ path: `${out}-${f}.jpg`, type: 'jpeg', quality: 70 });
+  await p.screenshot({ path: `${out}-${String(f).replace('#', '')}.jpg`, type: 'jpeg', quality: 70 });
 }
 console.log('mode', await p.evaluate(() => document.documentElement.dataset.labMode), 'errors', JSON.stringify(errs));
 await b.close();

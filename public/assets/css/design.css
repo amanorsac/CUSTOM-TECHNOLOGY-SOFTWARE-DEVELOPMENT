@@ -295,3 +295,6 @@
 @media (prefers-reduced-motion: reduce) {
   .d-arrow { transition: none; }
 }
+
+/* The live-showpiece button only shows for designs that have one. */
+.d-hero__actions [hidden] { display: none; }
