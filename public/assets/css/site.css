@@ -241,7 +241,10 @@ button { font: inherit; color: inherit; }
   inset: 0 0 auto 0;
   z-index: 100;
   height: var(--header-h);
+  transition: transform .45s var(--ease-out);
 }
+.site-header.is-hidden { transform: translateY(-110%); }
+.site-header .btn.is-magnet { transition: transform .5s var(--ease-out), background-color .2s var(--ease-out), color .2s var(--ease-out); }
 /* Background + blur live on a pseudo-element: a backdrop-filter on the header
    itself would make it the containing block for the fixed mobile menu. */
 .site-header::before {
@@ -440,10 +443,29 @@ button { font: inherit; color: inherit; }
    ===================================================================== */
 .site-footer {
   position: relative;
+  overflow: hidden;
   background: var(--deep-brown-900);
   padding: var(--space-8) 0 var(--space-6);
   font-size: .9375rem;
 }
+.site-footer__lamp {
+  position: absolute; left: 0; top: 0; width: 760px; height: 760px; margin: -380px 0 0 -380px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 175, 55, .22), rgba(200, 155, 107, .1) 40%, rgba(43, 27, 24, 0) 70%);
+  pointer-events: none; opacity: 0; transition: opacity .8s var(--ease-out); mix-blend-mode: screen;
+}
+.site-footer__lamp.is-on { opacity: 1; }
+.site-footer .container { position: relative; z-index: 1; }
+.site-footer__big {
+  margin: 0 0 var(--space-7);
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: clamp(2.6rem, 1.2rem + 5.4vw, 6.4rem);
+  line-height: .98;
+  letter-spacing: -.025em;
+  color: var(--cream);
+}
+.site-footer__big em { font-style: normal; color: var(--warm-tan); }
+.site-footer .btn.is-magnet { transition: transform .5s var(--ease-out), background-color .2s var(--ease-out), color .2s var(--ease-out), border-color .2s var(--ease-out); }
 .site-footer::before {
   content: "";
   position: absolute;

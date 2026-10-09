@@ -84,7 +84,9 @@ function footerHTML() {
   const list = (arr) => arr.map((l) => `<li><a href="${l.href}">${esc(l.label)}</a></li>`).join('');
   const year = new Date().getFullYear();
   return `<footer class="site-footer section--wood">
+  <div class="site-footer__lamp" data-foot-lamp aria-hidden="true"></div>
   <div class="container">
+    <p class="site-footer__big">Let's build <em>yours.</em></p>
     <div class="site-footer__top">
       <div class="site-footer__brand">
         <img src="/assets/brand/logo-horizontal-reverse.svg" alt="Custom Technology &amp; Software Development" width="195" height="56" loading="lazy">
@@ -163,18 +165,56 @@ function initHeader(root) {
   // Leaving mobile layout resets the menu.
   MOBILE.addEventListener('change', () => { if (!MOBILE.matches && menuOpen()) setMenu(false); });
 
-  // Solid at the top; translucent with blur once the page scrolls.
+  // Solid at the top; translucent with blur once the page scrolls. Past the first screen the header
+  // steps out of the way while you scroll down and returns the moment you scroll up (never while the
+  // menu is open, while it holds focus, or under reduced motion).
   let ticking = false;
+  let lastY = window.scrollY;
   const onScroll = () => {
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(() => {
-      header.classList.toggle('is-scrolled', window.scrollY > 8);
+      const y = window.scrollY;
+      header.classList.toggle('is-scrolled', y > 8);
+      const canHide = !REDUCED.matches && !menuOpen() && !header.contains(document.activeElement);
+      if (y <= window.innerHeight || y < lastY - 2) header.classList.remove('is-hidden');
+      else if (canHide && y > lastY + 2) header.classList.add('is-hidden');
+      if (Math.abs(y - lastY) > 2) lastY = y;
       ticking = false;
     });
   };
   window.addEventListener('scroll', onScroll, { passive: true });
+  header.addEventListener('focusin', () => header.classList.remove('is-hidden'));
   onScroll();
+
+  // The "Start a Project" button leans toward the pointer.
+  magnet(root.querySelector('.nav-cta .btn'));
+}
+
+// A button that follows the pointer a little while it is hovered, then springs back.
+function magnet(el) {
+  if (!el || REDUCED.matches) return;
+  el.classList.add('is-magnet');
+  el.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse') return;
+    const r = el.getBoundingClientRect();
+    el.style.transform = `translate(${((e.clientX - r.left - r.width / 2) * 0.28).toFixed(1)}px, ${((e.clientY - r.top - r.height / 2) * 0.28).toFixed(1)}px)`;
+  });
+  el.addEventListener('pointerleave', () => { el.style.transform = ''; });
+}
+
+// The footer's warm lamp follows the pointer across the sign-off.
+function initFooter(root) {
+  const footer = root.querySelector('.site-footer'), lamp = root.querySelector('[data-foot-lamp]');
+  if (!footer || !lamp || REDUCED.matches) return;
+  footer.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse') return;
+    const r = footer.getBoundingClientRect();
+    lamp.classList.add('is-on');
+    lamp.style.transform = `translate(${Math.round(e.clientX - r.left)}px, ${Math.round(e.clientY - r.top)}px)`;
+  });
+  footer.addEventListener('pointerleave', () => lamp.classList.remove('is-on'));
+  magnet(footer.querySelector('.site-footer__big ~ .site-footer__top .btn'));
 }
 
 function initReveal() {
@@ -225,7 +265,7 @@ function init() {
     headerSlot.innerHTML = headerHTML(page);
     initHeader(headerSlot);
   }
-  if (footerSlot) footerSlot.innerHTML = footerHTML();
+  if (footerSlot) { footerSlot.innerHTML = footerHTML(); initFooter(footerSlot); }
   initReveal();
   initAnalytics();
 }

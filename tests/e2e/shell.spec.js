@@ -164,4 +164,49 @@ test.describe('industries dropdown (1280px)', () => {
     await page.evaluate(() => window.scrollTo(0, 400));
     await expect(header).toHaveClass(/is-scrolled/);
   });
+
+  test('header hides on scroll down and returns on scroll up', async ({ page }) => {
+    await page.goto('/about');
+    const header = page.locator('#site-header .site-header');
+    await expect(header).not.toHaveClass(/is-hidden/);
+    // Hiding starts past the first screen, so the menu stays within reach near the top.
+    await page.evaluate(() => window.scrollTo(0, 1000));
+    await page.waitForTimeout(200);
+    await page.evaluate(() => window.scrollTo(0, 1500));
+    await expect(header).toHaveClass(/is-hidden/);
+    await page.evaluate(() => window.scrollTo(0, 1300));
+    await expect(header).not.toHaveClass(/is-hidden/);
+  });
+
+  test('header never hides under reduced motion', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/about');
+    const header = page.locator('#site-header .site-header');
+    await page.evaluate(() => window.scrollTo(0, 200));
+    await page.waitForTimeout(150);
+    await page.evaluate(() => window.scrollTo(0, 700));
+    await page.waitForTimeout(300);
+    await expect(header).not.toHaveClass(/is-hidden/);
+  });
+
+  test('footer has the big sign-off', async ({ page }) => {
+    await page.goto('/about');
+    await expect(page.locator('#site-footer .site-footer__big')).toHaveText("Let's build yours.");
+  });
+});
+
+test.describe('mobile menu keeps the header (375px)', () => {
+  test.use({ viewport: { width: 375, height: 800 } });
+
+  test('header never hides while the mobile menu is open', async ({ page }) => {
+    await page.goto('/about');
+    const header = page.locator('#site-header .site-header');
+    await page.locator('#site-header [data-menu-toggle]').click();
+    await expect(page.locator('#site-header [data-menu]').getByRole('link', { name: 'Home' })).toBeVisible();
+    await page.evaluate(() => window.scrollTo(0, 200));
+    await page.waitForTimeout(150);
+    await page.evaluate(() => window.scrollTo(0, 700));
+    await page.waitForTimeout(300);
+    await expect(header).not.toHaveClass(/is-hidden/);
+  });
 });
