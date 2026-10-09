@@ -77,6 +77,12 @@ test.describe('home page', () => {
     expect(hero).toHaveLength(1);
     expect(hero[0]).toMatch(/fetchpriority="high"/);
     expect(hero[0]).toMatch(/src="\/assets\/home\/wall\.webp"/);
+    // The still is a render of the WebGL wall: 1600×1000 and small enough to be the first paint.
+    const still = await request.get('/assets/home/wall.webp');
+    expect(still.status()).toBe(200);
+    expect((await still.body()).length).toBeLessThanOrEqual(180 * 1024);
+    await page.goto('/?still=1');
+    expect(await page.locator('.hero__img').evaluate((i) => [i.naturalWidth, i.naturalHeight])).toEqual([1600, 1000]);
     for (const t of imgs.filter((x) => !/hero__img/.test(x))) expect(t).toMatch(/loading="lazy"/);
     // Videos never load ahead of time.
     for (const v of html.matchAll(/<video\b[^>]*>/g)) expect(v[0]).toMatch(/preload="none"/);

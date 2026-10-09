@@ -39,11 +39,13 @@ async function loops() {
 async function wall() {
   const { chromium } = require('playwright');
   const b = await chromium.launch({ channel: 'chrome', args: ['--use-angle=d3d11', '--enable-gpu', '--autoplay-policy=no-user-gesture-required'] });
-  const p = await b.newPage({ viewport: { width: 1600, height: 1000 }, deviceScaleFactor: 1 });
+  // The header sits above the hero in flow, so the viewport is taller than the still and the shot is clipped to the canvas.
+  const p = await b.newPage({ viewport: { width: 1600, height: 1100 }, deviceScaleFactor: 1 });
   await p.goto('http://localhost:8787/?wallshot=1');
   await p.waitForFunction(() => document.documentElement.dataset.wallReady === '1', null, { timeout: 20000 });
   await p.waitForTimeout(2000);
-  const png = await p.locator('[data-wall-canvas]').screenshot();
+  const clip = await p.locator('[data-wall-canvas]').evaluate((c) => { const r = c.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height }; });
+  const png = await p.screenshot({ clip });
   await b.close();
   await sharp(png).resize(1600, 1000).webp({ quality: 72 }).toFile(`${OUT}/wall.webp`);
   console.log('wall still');
