@@ -114,6 +114,8 @@ test.describe('home page', () => {
   test('journey highlights a step as it scrolls into view', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await page.goto('/');
+    // Live mode pins the journey; wait for the motion module to be measured before scrolling.
+    await expect(page.locator('html')).toHaveAttribute('data-home-motion', '1', { timeout: 15000 });
     const list = page.locator('ol[data-journey]');
     await expect(list.locator('li.is-active')).toHaveCount(0);
     await list.scrollIntoViewIfNeeded();
@@ -135,7 +137,8 @@ test.describe('home page', () => {
 
   test('the reel shows the 4 showpieces with their links', async ({ page, request }) => {
     const designs = await designsBySlug(request);
-    await page.goto('/');
+    // The still version: in live mode the reel is pinned and only the active showpiece is on screen.
+    await page.goto('/?still=1');
     const items = page.locator('[data-reel] .reel__item');
     await expect(items).toHaveCount(4);
     for (const [i, [slug, design]] of REEL.entries()) {

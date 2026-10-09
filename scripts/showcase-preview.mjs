@@ -98,6 +98,22 @@ const SCRIPTS = {
     await p.click('[data-prayer-go]'); await wait(4200);           // the note folds into a lantern and rises
     await glide(p, '#prayer', '.lw-foot', 1600); await wait(3600); // the windows light up
   },
+  home: async (p) => {
+    await wait(4500);                                             // the wall fades in over the still
+    await circle(p, 1000, 420, 320, 4200);                        // the work lamp sweeps the screens
+    await glide(p, 0, '[data-section="featured"]', 4200);        // dolly into the first screen
+    await glide(p, '[data-section="featured"]', '[data-section="services"]', 9000);  // the reel: four showpieces
+    await wait(400);
+    for (const n of ['Mobile Apps', 'CRM', 'Client Portals', 'Automation']) { const li = await p.$(`.strip__list li:has-text("${n}")`); const b = await li.boundingBox(); await p.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 12 }); await wait(650); }
+    await glide(p, '[data-section="services"]', '[data-section="journey"]', 1400);
+    await glide(p, '[data-section="journey"]', '[data-section="manage"]', 6000);   // the journey slides sideways
+    await circle(p, 900, 500, 260, 2400);                         // the admin frame tilts
+    await glide(p, '[data-section="manage"]', '[data-section="industries"]', 1600);
+    for (const x of [300, 640, 980]) { await p.mouse.move(x, 560, { steps: 14 }); await wait(1100); }
+    await glide(p, '[data-section="industries"]', '[data-section="process"]', 3000);
+    await glide(p, '[data-section="process"]', '[data-section="cta"]', 4500);     // the line draws, the marquee drifts
+    await circle(p, 720, 450, 300, 3000);                         // the lamp on the closing wall
+  },
 };
 
 rmSync(TMP, { recursive: true, force: true }); mkdirSync(TMP, { recursive: true });
@@ -108,7 +124,7 @@ const cdp = await ctx.newCDPSession(p);
 const frames = [];
 cdp.on('Page.screencastFrame', (f) => { frames.push({ data: f.data, ts: f.metadata.timestamp }); cdp.send('Page.screencastFrameAck', { sessionId: f.sessionId }).catch(() => {}); });
 await cdp.send('Page.startScreencast', { format: 'jpeg', quality: 90, maxWidth: 1440, maxHeight: 900, everyNthFrame: 1 });
-await p.goto(`http://localhost:8787/showcase/${slug}`);
+await p.goto(slug === 'home' ? 'http://localhost:8787/' : `http://localhost:8787/showcase/${slug}`);
 await SCRIPTS[slug](p);
 await cdp.send('Page.stopScreencast');
 await browser.close();

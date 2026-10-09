@@ -2,6 +2,7 @@
 // screens. The lamp follows the pointer, the screens glow brighter as it nears them, and scrolling dollies
 // the camera into the first screen. Without WebGL the screens sit over the still as plain videos.
 import * as THREE from '/assets/vendor/three.min.js';
+import { toVideo } from './video.js';
 
 const WARM = 0xFFD9A0;
 const FOV = 35;
@@ -102,11 +103,14 @@ export function startWall(canvas, videos, { mobile, dpr }) {
   addEventListener('pointermove', (e) => { if (frozen || e.pointerType !== 'mouse') return; const [x, y] = toWall(e.clientX / innerWidth, e.clientY / innerHeight); target.set(x, y); lastMove = performance.now(); }, { passive: true });
   new IntersectionObserver(([en]) => { visible = en.isIntersecting; for (const v of videos) { if (visible) v.play().catch(() => {}); else v.pause(); } }).observe(canvas);
 
+  let stopped = false;
   return {
     setDolly(p) { dolly = Math.min(1, Math.max(0, p)); },
     freeze(x, y) { frozen = true; ptr.set(x, y); target.set(x, y); },
+    lighten() { renderer.shadowMap.enabled = false; lamp.castShadow = false; renderer.setPixelRatio(0.5); for (const s of screens) s.halo.visible = false; },
+    stop() { stopped = true; },
     tick(t, dt) {
-      if (!visible) return;
+      if (!visible || stopped) return;
       const k = dolly * dolly * (3 - 2 * dolly);
       camera.position.lerpVectors(start, end, k);
       camera.lookAt(look0.clone().lerp(look1, k));
@@ -127,10 +131,12 @@ export function startWall(canvas, videos, { mobile, dpr }) {
   };
 }
 
-// Wires the four screen videos, loads them, and starts the scene. Returns the wall, or null if it failed.
+// Turns the four screen posters into videos, starts the scene, and watches its frame rate: a slow machine
+// gets a lighter scene, and a very slow one goes back to the still with the loops over it. Returns the
+// wall, or null if it could not start.
 export function bootWall() {
   const hero = document.querySelector('[data-hero]'), canvas = hero.querySelector('[data-wall-canvas]');
-  const videos = [...hero.querySelectorAll('[data-wall-screens] video')];
+  const videos = [...hero.querySelectorAll('[data-wall-screens] img[data-video], [data-wall-screens] video')].map((el) => { el.dataset.manual = '1'; return toVideo(el); });
   const MOBILE = matchMedia('(max-width: 760px)').matches;
   const shot = /[?&]wallshot/.test(location.search);
   let wall;
@@ -139,17 +145,27 @@ export function bootWall() {
   // Show the scene once a loop can play, or after 2.5 s even if the videos never arrive.
   let shown = false;
   const show = () => { if (shown) return; shown = true; hero.classList.add('is-gl'); if (shot) requestAnimationFrame(() => { document.documentElement.dataset.wallReady = '1'; }); };
-  for (const v of videos) { v.dataset.manual = '1'; v.addEventListener('canplay', show, { once: true }); v.src = v.dataset.src; v.play().catch(() => {}); }
+  for (const v of videos) { v.addEventListener('canplay', show, { once: true }); v.src = v.dataset.src; v.play().catch(() => {}); }
   setTimeout(show, 2500);
   if (shot) { wall.freeze(3.4, 0.5); document.querySelector('[data-hero-copy]').style.visibility = 'hidden'; document.querySelector('.hero__scroll').style.visibility = 'hidden'; }
+  // Frame-time watchdog: after a few seconds of slow frames, lighten; if still slow, give the hero back
+  // to the still image (the screens keep playing over it).
+  let frames = 0, slow = 0, stage = 0;
+  const base = wall.tick;
+  wall.tick = (t, dt) => {
+    const t0 = performance.now(); base(t, dt); const cost = performance.now() - t0;
+    if (shot || stage > 1 || ++frames < 20) return;
+    if (cost > 45) slow++; else slow = Math.max(0, slow - 1);
+    if (slow > 25) { slow = 0; if (stage === 0) { stage = 1; wall.lighten(); } else { stage = 2; hero.classList.remove('is-gl'); wall.stop(); bootStillWall(videos); } }
+  };
   return wall;
 }
 
-// No WebGL: the screens play as positioned videos over the still.
-export function bootStillWall() {
-  const vids = [...document.querySelectorAll('[data-wall-screens] video')];
+// No WebGL (or a wall that gave up): the screens play as positioned videos over the still.
+export function bootStillWall(existing) {
+  const vids = existing || [...document.querySelectorAll('[data-wall-screens] img[data-video], [data-wall-screens] video')].map((el) => { el.dataset.manual = '1'; return toVideo(el); });
   const io = new IntersectionObserver((entries) => {
     for (const e of entries) { const v = e.target; if (e.isIntersecting) { if (!v.src) v.src = v.dataset.src; v.play().catch(() => {}); } else v.pause(); }
   });
-  vids.forEach((v) => { v.dataset.manual = '1'; io.observe(v); });
+  vids.forEach((v) => io.observe(v));
 }

@@ -33,6 +33,9 @@ img[data-fb].is-loaded, .manage__img.is-loaded { opacity: 1; }
 .wall-screens [data-slug="basecamp"] { left: 48%; top: 50%; width: 20%; }
 .wall-screens [data-slug="lanternway"] { left: 71%; top: 46%; width: 25%; }
 .hero.is-gl .wall-screens { visibility: hidden; }
+.hero.is-gl .wall__canvas { opacity: 1; }
+/* A wall that gave up fades back to the still; the screens return with it. */
+.hero:not(.is-gl) .wall__canvas { opacity: 0; }
 .hero__copy { position: relative; z-index: 2; width: 100%; padding-top: clamp(120px, 16vh, 200px); padding-bottom: clamp(56px, 10vh, 120px); }
 .hero__copy .eyebrow { display: flex; align-items: center; gap: 14px; }
 .hero__copy .eyebrow::before { content: ""; width: 32px; height: 1px; background: currentColor; flex: none; }
@@ -81,7 +84,7 @@ img[data-fb].is-loaded, .manage__img.is-loaded { opacity: 1; }
 .reel__build:hover { text-decoration: underline; }
 .reel__build .chev { display: inline-block; margin-left: .3em; }
 .reel__media { display: block; aspect-ratio: 16 / 10; border-radius: 14px; overflow: hidden; background: #000; box-shadow: 0 30px 80px rgba(0, 0, 0, .35); transform: perspective(1200px) rotateY(-6deg); }
-.reel__media video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.reel__media video, .reel__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* =====================================================================
    Mock screens (shared by hero, tiles and the manage section)
@@ -371,6 +374,44 @@ img[data-fb].is-loaded, .manage__img.is-loaded { opacity: 1; }
 .ind-card__more { margin-top: auto; padding-top: 24px; font-family: var(--font-label); font-weight: 500; font-size: .9375rem; color: var(--tan-ink); }
 .ind-card:hover .ind-card__more { color: var(--deep-brown); }
 
+/* The connected system (services): a map of the seven services around the organization */
+.sys { display: block; width: 100%; height: auto; margin: 8px 0 28px; overflow: visible; }
+.sys .edge__line { stroke: rgba(122, 86, 52, .28); stroke-width: 1.5; transition: stroke .3s; }
+.sys .edge__dot { stroke: var(--gold); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 1 22; opacity: 0; transition: opacity .3s; }
+.sys .edge.is-on .edge__line { stroke: var(--warm-tan); stroke-width: 2; }
+.sys .edge.is-on .edge__dot, .sys .edge.is-pulse .edge__dot { opacity: 1; animation: sys-flow 1.1s linear infinite; }
+@keyframes sys-flow { to { stroke-dashoffset: -23; } }
+.sys .node circle { fill: var(--off-white); stroke: var(--tan-ink); stroke-width: 1.5; transition: fill .3s, stroke .3s, r .3s; }
+.sys .node text { font-family: var(--font-label); font-weight: 500; font-size: 15px; letter-spacing: .08em; text-transform: uppercase; fill: var(--deep-brown); text-anchor: middle; }
+.sys .node--hub circle { fill: var(--deep-brown); stroke: var(--warm-tan); }
+.sys .node--hub text { fill: var(--cream); font-size: 12px; letter-spacing: .06em; }
+.sys .node.is-on circle { fill: var(--warm-tan); stroke: var(--deep-brown); }
+.sys .node--hub.is-on circle { fill: var(--deep-brown); stroke: var(--gold); stroke-width: 3; }
+.strip__list li { transition: color .3s, background-color .3s; cursor: default; }
+.strip__list li.is-on { color: var(--deep-brown); background: rgba(200, 155, 107, .16); }
+.strip__list li.is-on svg { color: var(--deep-brown); }
+
+/* The reel when pinned (motion.js): items stack and cross-fade */
+.featured { --reel-bg: var(--deep-brown-900); --reel-fg: var(--cream); background: var(--reel-bg); color: var(--reel-fg); transition: none; }
+.reel.is-pinned { position: relative; height: 100svh; display: block; padding: 0; gap: 0; overflow: hidden; }
+.reel.is-pinned .reel__item { position: absolute; inset: 0; display: flex; align-items: center; padding: 0; opacity: 0; pointer-events: none; transition: opacity .5s; background: transparent; }
+.reel.is-pinned .reel__item.is-active { opacity: 1; pointer-events: auto; }
+.reel.is-pinned .reel__grid { width: 100%; }
+.reel.is-pinned .reel__media { transform: perspective(1200px) rotateY(-6deg); }
+
+/* The journey when wide and live (motion.js): one long row that slides sideways */
+.home-live .journey-sec { overflow: hidden; }
+.journey--wide { display: flex; gap: 40px; width: max-content; will-change: transform; }
+.journey--wide li { width: 240px; flex: none; }
+.journey--wide p { max-width: none; }
+
+/* The integrations marquee (motion.js): the list stays for readers; two drifting rows are decoration */
+.wall--src { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.wall-row { overflow: hidden; margin-top: 18px; mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); }
+.wall-track { display: flex; gap: 48px; width: max-content; padding: 6px 0; will-change: transform; }
+.wall-track span { font-family: var(--font-head); font-weight: 700; font-size: clamp(1.4rem, 1rem + 1.6vw, 2.4rem); letter-spacing: -.01em; color: var(--deep-brown); white-space: nowrap; opacity: .82; }
+.wall-row[data-dir="-1"] .wall-track span { color: var(--tan-ink); }
+
 /* Industry cards: a loop plays under the icon on hover (motion.js) */
 .ind-card { overflow: hidden; }
 .ind-card__media { display: block; margin: -24px -24px 20px; aspect-ratio: 16 / 10; background: var(--deep-brown-900); overflow: hidden; }
@@ -385,7 +426,7 @@ img[data-fb].is-loaded, .manage__img.is-loaded { opacity: 1; }
 .labstrip h2 { margin-top: 14px; color: var(--cream); }
 .labstrip .lead { margin: 18px 0 30px; }
 .labstrip__media { display: block; aspect-ratio: 16 / 10; border-radius: 14px; overflow: hidden; background: #000; box-shadow: 0 30px 80px rgba(0, 0, 0, .45); }
-.labstrip__media video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.labstrip__media video, .labstrip__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* Process: the line that draws through the steps (motion.js) */
 .process .container { position: relative; }

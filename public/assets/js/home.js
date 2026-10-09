@@ -2,6 +2,7 @@
 // live mode boots the workshop wall (WebGL hero) and the section motion from /assets/home/.
 import { armStaticImg } from './img-fallback.js';
 import { REEL } from '/assets/home/reel-data.js';
+import { playLoop } from '/assets/home/video.js';
 
 const root = document.documentElement;
 const LIVE = root.classList.contains('home-live');
@@ -32,7 +33,7 @@ function reelItem(r, d, i) {
       </p>
     </div>
     <a class="reel__media" href="/showcase/${esc(r.slug)}" tabindex="-1" aria-hidden="true">
-      <video muted playsinline loop preload="none" poster="/assets/home/loops/${esc(r.slug)}.webp" data-src="/assets/home/loops/${esc(r.slug)}.mp4"></video>
+      <img src="/assets/home/loops/${esc(r.slug)}.webp" data-video="/assets/home/loops/${esc(r.slug)}.mp4" width="640" height="400" loading="lazy" decoding="async" alt="">
     </a>
   </div>`;
   return art;
@@ -96,24 +97,25 @@ function initJourney() {
 // Every loop starts with preload="none" and a data-src; the src is assigned the first time it comes
 // within a screen of the viewport, and the video plays only while it is on screen.
 function lazyVideos(scope = document) {
-  const vids = [...scope.querySelectorAll('video[data-src]:not([data-manual])')];
-  if (!vids.length) return;
+  const els = [...scope.querySelectorAll('img[data-video]:not([data-manual])')];
+  if (!els.length) return;
   const io = new IntersectionObserver((entries) => {
     for (const e of entries) {
-      const v = e.target;
-      if (e.isIntersecting) { if (!v.src) v.src = v.dataset.src; v.play().catch(() => {}); }
-      else v.pause();
+      if (e.isIntersecting) { const v = playLoop(e.target); if (v !== e.target) { io.unobserve(e.target); io.observe(v); } }
+      else if (e.target.tagName === 'VIDEO') e.target.pause();
     }
   }, { rootMargin: '60% 0px' });
-  vids.forEach((v) => io.observe(v));
+  els.forEach((el) => io.observe(el));
 }
 
 // ---- Boot -------------------------------------------------------------------
 armStaticImg(document.querySelector('.manage__img'), {
   onLoad: (img) => img.closest('.h-frame').classList.add('has-img'),
 });
-initJourney();
-renderReel().then(() => { if (LIVE) lazyVideos(document.querySelector('[data-reel]')); });
+// On wide live screens motion.js pins the journey and lights it by scroll progress; otherwise the
+// scroll-position highlight below does the job (and reduced motion keeps it a plain list).
+if (!LIVE || innerWidth < 1000) initJourney();
+const reelReady = renderReel();
 
 if (LIVE) {
   lazyVideos(document.querySelector('[data-section="lab"]'));
@@ -125,23 +127,34 @@ if (LIVE) {
   gsap.ticker.add((t) => lenis.raf(t * 1000)); gsap.ticker.lagSmoothing(0);
   document.querySelectorAll('a[href^="#"]').forEach((a) => a.addEventListener('click', (e) => { const t = document.querySelector(a.getAttribute('href')); if (!t) return; e.preventDefault(); lenis.scrollTo(t, { duration: 1.4 }); }));
 
-  // The hero and the industry cards manage their own videos (wall.js and motion.js).
+  // The hero pin is created now, in document order, so the pins that follow measure the page as it
+  // really is. The WebGL wall arrives later and simply takes over the dolly from the still.
   const copy = document.querySelector('[data-hero-copy]');
-  const pinHero = (wall) => {
-    ScrollTrigger.create({
-      trigger: '[data-hero]', pin: '.hero__stick', start: 'top top', end: '+=160%', scrub: true,
-      onUpdate: (s) => {
-        const p = s.progress;
-        if (wall) wall.setDolly(p); else gsap.set('.hero__img', { scale: 1 + p * 0.25 });
-        gsap.set(copy, { opacity: 1 - Math.min(1, p * 2.5), y: -p * 90, filter: `blur(${Math.min(8, p * 20)}px)` });
-        gsap.set('.hero__scroll', { opacity: Math.max(0, 1 - p * 5) });
-      },
-    });
-  };
-  import('/assets/home/wall.js').then((m) => {
-    const wall = GL ? m.bootWall() : (m.bootStillWall(), null);
-    if (wall) { let last = performance.now() / 1000; gsap.ticker.add(() => { const t = performance.now() / 1000, dt = Math.min(0.05, t - last); last = t; wall.tick(t, dt); }); }
-    pinHero(wall);
-    addEventListener('load', () => ScrollTrigger.refresh());
-  }).catch(() => { root.classList.add('home-nogl'); });
+  let wall = null;
+  ScrollTrigger.create({
+    trigger: '[data-hero]', pin: '.hero__stick', start: 'top top', end: '+=160%', scrub: true,
+    onUpdate: (s) => {
+      const p = s.progress;
+      if (wall) wall.setDolly(p); else gsap.set('.hero__img', { scale: 1 + p * 0.25 });
+      gsap.set(copy, { opacity: 1 - Math.min(1, p * 2.5), y: -p * 90, filter: `blur(${Math.min(8, p * 20)}px)` });
+      gsap.set('.hero__scroll', { opacity: Math.max(0, 1 - p * 5) });
+    },
+  });
+  if (GL) {
+    import('/assets/home/wall.js').then((m) => {
+      wall = m.bootWall();
+      if (wall) { let last = performance.now() / 1000; gsap.ticker.add(() => { const t = performance.now() / 1000, dt = Math.min(0.05, t - last); last = t; wall.tick(t, dt); }); }
+    }).catch(() => { root.classList.add('home-nogl'); stillWall(); });
+  } else stillWall();
+  // The section motion starts once the reel exists, so its pin measures the real content.
+  reelReady.then(() => import('/assets/home/motion.js')).then((m) => m.startMotion({ lenis })).catch(() => {});
+}
+
+// No WebGL: the four screens play as videos over the still, without downloading three.js at all.
+function stillWall() {
+  const vids = [...document.querySelectorAll('[data-wall-screens] img[data-video]')].map((img) => { img.dataset.manual = '1'; return playLoop(img); });
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) { const v = e.target; if (e.isIntersecting) { if (!v.src) v.src = v.dataset.src; v.play().catch(() => {}); } else v.pause(); }
+  });
+  vids.forEach((v) => io.observe(v));
 }
