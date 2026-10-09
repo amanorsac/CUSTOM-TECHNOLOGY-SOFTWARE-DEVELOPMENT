@@ -117,7 +117,31 @@ renderReel().then(() => { if (LIVE) lazyVideos(document.querySelector('[data-ree
 
 if (LIVE) {
   lazyVideos(document.querySelector('[data-section="lab"]'));
+  // GSAP and Lenis are deferred classic scripts; modules run after they have parsed.
+  const { gsap, ScrollTrigger } = window;
+  gsap.registerPlugin(ScrollTrigger);
+  const lenis = new window.Lenis({ lerp: 0.1 });
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add((t) => lenis.raf(t * 1000)); gsap.ticker.lagSmoothing(0);
+  document.querySelectorAll('a[href^="#"]').forEach((a) => a.addEventListener('click', (e) => { const t = document.querySelector(a.getAttribute('href')); if (!t) return; e.preventDefault(); lenis.scrollTo(t, { duration: 1.4 }); }));
+
   // The hero and the industry cards manage their own videos (wall.js and motion.js).
-  if (GL) import('/assets/home/wall.js').then((m) => m.bootWall()).catch(() => root.classList.add('home-nogl'));
-  else import('/assets/home/wall.js').then((m) => m.bootStillWall()).catch(() => {});
+  const copy = document.querySelector('[data-hero-copy]');
+  const pinHero = (wall) => {
+    ScrollTrigger.create({
+      trigger: '[data-hero]', pin: '.hero__stick', start: 'top top', end: '+=160%', scrub: true,
+      onUpdate: (s) => {
+        const p = s.progress;
+        if (wall) wall.setDolly(p); else gsap.set('.hero__img', { scale: 1 + p * 0.25 });
+        gsap.set(copy, { opacity: 1 - Math.min(1, p * 2.5), y: -p * 90, filter: `blur(${Math.min(8, p * 20)}px)` });
+        gsap.set('.hero__scroll', { opacity: Math.max(0, 1 - p * 5) });
+      },
+    });
+  };
+  import('/assets/home/wall.js').then((m) => {
+    const wall = GL ? m.bootWall() : (m.bootStillWall(), null);
+    if (wall) { let last = performance.now() / 1000; gsap.ticker.add(() => { const t = performance.now() / 1000, dt = Math.min(0.05, t - last); last = t; wall.tick(t, dt); }); }
+    pinHero(wall);
+    addEventListener('load', () => ScrollTrigger.refresh());
+  }).catch(() => { root.classList.add('home-nogl'); });
 }

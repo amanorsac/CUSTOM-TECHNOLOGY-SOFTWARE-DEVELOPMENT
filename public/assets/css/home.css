@@ -17,6 +17,8 @@ img[data-fb].is-loaded, .manage__img.is-loaded { opacity: 1; }
    ===================================================================== */
 .hero { position: relative; overflow: hidden; background: var(--deep-brown-900); }
 .hero__stick { position: relative; min-height: 100svh; display: flex; align-items: flex-end; }
+.home-live .hero__stick { height: 100svh; }
+.home-still .wall__canvas, .home-nogl .wall__canvas { display: none; }
 .workshop { position: absolute; inset: 0; overflow: hidden; }
 .hero__img, .wall__canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 62% 50%; }
 .wall__canvas { opacity: 0; transition: opacity 1.2s var(--ease-out); }
