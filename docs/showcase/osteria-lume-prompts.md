@@ -1,8 +1,10 @@
 # Osteria Lume: photo and video prompts
 
 Generate these in Higgsfield with **Nano Banana**, then save them to
-`public/assets/showcase/osteria-lume/img/` using the file names below (PNG or JPG is fine; the site
-converts them). Each one replaces a placeholder automatically on the next build.
+`assets-src/osteria-lume/` using the file names below (PNG or JPG is fine), then run
+`node scripts/showcase-assets.mjs osteria-lume` and
+`node scripts/depth-map.mjs public/assets/showcase/osteria-lume/img/hero.webp`. Each one replaces a
+placeholder cropped from the concept images.
 
 **Shared style (add to every prompt):** *moody candlelit Italian trattoria, warm amber light, deep black
 shadows, shallow depth of field, editorial food photography, film grain, no text, no logos, no people's faces.*
