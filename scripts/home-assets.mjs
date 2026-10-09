@@ -49,6 +49,18 @@ async function wall() {
   console.log('wall still');
 }
 
+// A stand-in for the still until the WebGL wall exists: dark walnut slats with a warm pool of light.
+async function wallPlaceholder() {
+  const w = 1600, h = 1000, slats = [];
+  for (let x = 0; x < w; x += 28) slats.push(`<rect x="${x}" y="0" width="26" height="${h}" fill="${['#2B1B18', '#4E3626', '#5E4430', '#553B29', '#432D1F'][Math.floor(x / 28) % 5]}"/>`);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">${slats.join('')}
+    <radialGradient id="g" cx="68%" cy="42%" r="55%"><stop offset="0" stop-color="#C89B6B" stop-opacity=".55"/><stop offset="1" stop-color="#2B1B18" stop-opacity="0"/></radialGradient>
+    <rect width="${w}" height="${h}" fill="url(#g)"/></svg>`;
+  await sharp(Buffer.from(svg)).webp({ quality: 72 }).toFile(`${OUT}/wall.webp`);
+  console.log('wall placeholder');
+}
+
 if (step === 'loops') await loops();
 else if (step === 'wall') await wall();
+else if (step === 'wall-placeholder') await wallPlaceholder();
 else throw new Error(`unknown step ${step}`);

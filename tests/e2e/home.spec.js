@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-const SECTIONS = ['hero', 'services', 'journey', 'featured', 'manage', 'industries', 'process', 'integrations', 'cta'];
+const SECTIONS = ['hero', 'featured', 'services', 'journey', 'manage', 'industries', 'lab', 'process', 'integrations', 'cta'];
+// The showpiece reel, in order: [showcase slug, design slug]
+const REEL = [['osteria-lume', 'restaurant'], ['juniper-vale', 'real-estate'], ['basecamp', 'youth-ministry'], ['lanternway', 'modern-church']];
 const SERVICES = ['Web Development', 'Mobile Apps', 'CRM', 'Client Portals', 'Business Systems', 'Automation', 'Integrations'];
 const JOURNEY = ['Discover', 'Register', 'Book', 'Pay', 'Receive', 'Portal', 'Communicate', 'Return'];
 const PROCESS = ['Discover', 'Design', 'Build', 'Test', 'Launch', 'Handoff'];
@@ -14,14 +16,14 @@ const MANAGE_LIST = ['Update content', 'Manage customers', 'Review bookings', 'M
   'Control users', 'View analytics'];
 const INDUSTRIES = ['/industries/business', '/industries/church', '/industries/education', '/industries/nonprofit'];
 
-async function featured(request) {
+async function designsBySlug(request) {
   const res = await request.get('/data/designs.json');
   const data = await res.json();
-  return (Array.isArray(data) ? data : data.designs).filter((d) => d.featured);
+  return Object.fromEntries((Array.isArray(data) ? data : data.designs).map((d) => [d.slug, d]));
 }
 
 test.describe('home page', () => {
-  test('the 9 sections are in spec order', async ({ page }) => {
+  test('the 10 sections are in spec order', async ({ page }) => {
     await page.goto('/');
     const ids = await page.locator('main > section').evaluateAll((s) => s.map((n) => n.dataset.section));
     expect(ids).toEqual(SECTIONS);
@@ -44,34 +46,27 @@ test.describe('home page', () => {
     expect(await img.evaluate((i) => i.naturalWidth)).toBeGreaterThan(0);
   });
 
-  test('hero visual falls back to a website, phone, admin and CRM mock when the photo is missing', async ({ page }) => {
-    await page.route('**/images/site/hero.webp', (route) => route.fulfill({ status: 404, body: '' }));
+  test('hero still missing: the four screen posters still show', async ({ page }) => {
+    await page.route('**/assets/home/wall.webp', (route) => route.fulfill({ status: 404, body: '' }));
     for (const w of [1280, 375]) {
       await page.setViewportSize({ width: w, height: 900 });
-      await page.goto('/');
-      const stage = page.locator('[data-section="hero"] .stage');
-      for (const part of ['.dev-laptop', '.dev-phone', '.dev-admin', '.dev-crm']) {
-        const el = stage.locator(part);
-        await expect(el).toBeVisible();
-        // fully inside the stage
-        const [s, b] = [await stage.boundingBox(), await el.boundingBox()];
-        expect(b.x).toBeGreaterThanOrEqual(s.x - 1);
-        expect(b.x + b.width).toBeLessThanOrEqual(s.x + s.width + 1);
-        expect(b.y).toBeGreaterThanOrEqual(s.y - 1);
-        expect(b.y + b.height).toBeLessThanOrEqual(s.y + s.height + 1);
-      }
+      await page.goto('/?still=1');
+      const screens = page.locator('.wall-screens figure');
+      await expect(screens).toHaveCount(4);
+      for (let i = 0; i < 4; i++) await expect(screens.nth(i)).toBeVisible();
     }
   });
 
-  test('hero image is visible without waiting for JS (LCP)', async ({ browser }) => {
+  test('no-JS: hero still visible and the reel fallback links to /designs', async ({ browser }) => {
     const ctx = await browser.newContext({ javaScriptEnabled: false });
     const page = await ctx.newPage();
-    await page.route('**/images/site/hero.webp', (route) =>
-      route.fulfill({ path: 'public/images/designs/_placeholder.webp', contentType: 'image/webp' }));
     await page.goto('/');
     const img = page.locator('.hero__img');
     await expect(img).toBeVisible();
     expect(await img.evaluate((i) => getComputedStyle(i).opacity)).toBe('1');
+    await expect(page.locator('[data-section="featured"] noscript')).toHaveCount(1);
+    const html = await page.locator('[data-section="featured"] noscript').evaluate((n) => n.innerHTML);
+    expect(html).toContain('href="/designs"');
     await ctx.close();
   });
 
@@ -81,15 +76,17 @@ test.describe('home page', () => {
     const hero = imgs.filter((t) => /hero__img/.test(t));
     expect(hero).toHaveLength(1);
     expect(hero[0]).toMatch(/fetchpriority="high"/);
-    expect(hero[0]).toMatch(/src="\/images\/site\/hero\.webp"/);
+    expect(hero[0]).toMatch(/src="\/assets\/home\/wall\.webp"/);
     for (const t of imgs.filter((x) => !/hero__img/.test(x))) expect(t).toMatch(/loading="lazy"/);
+    // Videos never load ahead of time.
+    for (const v of html.matchAll(/<video\b[^>]*>/g)) expect(v[0]).toMatch(/preload="none"/);
 
     // Serve every image so none goes through the error fallback (which retries
     // eagerly by design); what is left is the loading attribute as authored.
     await page.route(/\/images\/(site|designs)\/.+\.webp$/, (route) =>
       route.fulfill({ path: 'public/images/designs/_placeholder.webp', contentType: 'image/webp' }));
     await page.goto('/');
-    await expect(page.locator('[data-featured] .tile')).toHaveCount(4);
+    await expect(page.locator('.reel__item')).toHaveCount(4);
     const notLazy = await page.locator('main img').evaluateAll((list) => list
       .filter((i) => !i.classList.contains('hero__img') && i.getAttribute('loading') !== 'lazy')
       .map((i) => i.outerHTML));
@@ -130,20 +127,20 @@ test.describe('home page', () => {
     await expect(list.locator('li').last()).toBeVisible();
   });
 
-  test('4 featured tiles with both links, alternating wood and cream', async ({ page, request }) => {
-    const designs = await featured(request);
-    expect(designs).toHaveLength(4);
+  test('the reel shows the 4 showpieces with their links', async ({ page, request }) => {
+    const designs = await designsBySlug(request);
     await page.goto('/');
-    const tiles = page.locator('[data-featured] .tile');
-    await expect(tiles).toHaveCount(4);
-    for (const [i, d] of designs.entries()) {
-      const tile = tiles.nth(i);
-      await expect(tile.locator('.tile__title')).toHaveText(d.name);
-      await expect(tile.locator('.badge-concept')).toHaveText('Concept');
-      await expect(tile.getByRole('link', { name: /^View design/ })).toHaveAttribute('href', `/designs/${d.slug}`);
-      await expect(tile.getByRole('link', { name: /^Build something like this/ }))
-        .toHaveAttribute('href', `/start?design=${d.slug}`);
-      await expect(tile).toHaveClass(i % 2 === 0 ? /section--wood/ : /section--cream/);
+    const items = page.locator('[data-reel] .reel__item');
+    await expect(items).toHaveCount(4);
+    for (const [i, [slug, design]] of REEL.entries()) {
+      const item = items.nth(i);
+      await expect(item).toHaveAttribute('data-slug', slug);
+      await expect(item.locator('.reel__title')).toHaveText(designs[design].name);
+      await expect(item.locator('.badge-concept')).toHaveText('Concept');
+      await expect(item.locator('.reel__highlights li')).toHaveCount(3);
+      await expect(item.getByRole('link', { name: /^Open live showpiece/ })).toHaveAttribute('href', `/showcase/${slug}`);
+      await expect(item.getByRole('link', { name: /^See the design/ })).toHaveAttribute('href', `/designs/${design}`);
+      await expect(item.getByRole('link', { name: /^Build something like this/ })).toHaveAttribute('href', `/start?design=${design}`);
     }
   });
 
@@ -201,7 +198,7 @@ test.describe('home page', () => {
       return 0.2126 * r + 0.7152 * g + 0.0722 * b;
     };
     const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
-    for (const sel of ['[data-section="industries"] a', '[data-section="integrations"] ~ section a', '[data-section="hero"] a.btn--ghost', '.tile--cream a']) {
+    for (const sel of ['[data-section="industries"] a', '[data-section="integrations"] ~ section a', '[data-section="hero"] a.btn--ghost', '.reel__item a.btn--ghost']) {
       const link = page.locator(sel).first();
       await link.scrollIntoViewIfNeeded();
       // A key press first makes the programmatic focus count as keyboard focus
@@ -220,7 +217,7 @@ test.describe('home page', () => {
 
   test('no dollar sign anywhere on the page', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('[data-featured] .tile')).toHaveCount(4);
+    await expect(page.locator('.reel__item')).toHaveCount(4);
     const text = await page.evaluate(() => document.body.innerText + document.title);
     expect(text).not.toContain('$');
   });
@@ -249,7 +246,7 @@ for (const width of [375, 1280]) {
     test('axe: no serious violations; no horizontal scroll', async ({ page }) => {
       await page.emulateMedia({ reducedMotion: 'reduce' });
       await page.goto('/');
-      await expect(page.locator('[data-featured] .tile')).toHaveCount(4);
+      await expect(page.locator('.reel__item')).toHaveCount(4);
       await page.waitForLoadState('networkidle');
       const { violations } = await new AxeBuilder({ page }).analyze();
       const bad = violations.filter((v) => ['serious', 'critical'].includes(v.impact));

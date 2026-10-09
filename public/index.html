@@ -22,6 +22,16 @@
 <link rel="stylesheet" href="/assets/css/site.css">
 <link rel="stylesheet" href="/assets/css/sections.css">
 <link rel="stylesheet" href="/assets/css/home.css">
+<link rel="preload" href="/assets/home/wall.webp" as="image" fetchpriority="high">
+<script>
+  (function () {
+    var d = document.documentElement, still = matchMedia('(prefers-reduced-motion: reduce)').matches || /[?&]still/.test(location.search), gl = false;
+    try { var c = document.createElement('canvas'); gl = !!(c.getContext('webgl2') || c.getContext('webgl')); } catch (e) {}
+    d.classList.add(still ? 'home-still' : 'home-live');
+    if (!gl) d.classList.add('home-nogl');
+    d.dataset.homeMode = still ? 'reduced' : gl ? 'live' : 'nowebgl';
+  })();
+</script>
 </head>
 <body data-page="home">
 <a class="skip-link" href="#main">Skip to content</a>
@@ -29,10 +39,21 @@
 
 <main id="main" tabindex="-1">
 
-  <!-- 1. Hero -->
-  <section class="hero section--wood" data-section="hero" aria-labelledby="hero-title">
-    <div class="container hero__grid">
-      <div class="hero__copy">
+  <!-- 1. Hero: the workshop wall. The still is the first paint; the WebGL wall fades in over it. -->
+  <section class="hero section--wood" data-section="hero" aria-labelledby="hero-title" data-hero>
+    <div class="hero__stick">
+      <div class="workshop" aria-hidden="true">
+        <img class="hero__img" src="/assets/home/wall.webp" width="1600" height="1000" fetchpriority="high" decoding="async" alt="">
+        <canvas class="wall__canvas" data-wall-canvas></canvas>
+        <div class="wall-screens" data-wall-screens>
+          <figure data-slug="osteria-lume"><video muted playsinline loop preload="none" poster="/assets/home/loops/osteria-lume.webp" data-src="/assets/home/loops/osteria-lume.mp4"></video></figure>
+          <figure data-slug="juniper-vale"><video muted playsinline loop preload="none" poster="/assets/home/loops/juniper-vale.webp" data-src="/assets/home/loops/juniper-vale.mp4"></video></figure>
+          <figure data-slug="basecamp"><video muted playsinline loop preload="none" poster="/assets/home/loops/basecamp.webp" data-src="/assets/home/loops/basecamp.mp4"></video></figure>
+          <figure data-slug="lanternway"><video muted playsinline loop preload="none" poster="/assets/home/loops/lanternway.webp" data-src="/assets/home/loops/lanternway.mp4"></video></figure>
+        </div>
+        <div class="wall__shade"></div>
+      </div>
+      <div class="container hero__copy" data-hero-copy>
         <p class="eyebrow">Custom Technology &amp; Software Development</p>
         <h1 id="hero-title">Technology built around your organization.</h1>
         <p class="lead">Custom websites, mobile applications and business systems designed around the way your organization actually works.</p>
@@ -44,78 +65,25 @@
           <li>Businesses</li><li>Churches</li><li>Schools</li><li>Nonprofits</li>
         </ul>
       </div>
-
-      <div class="hero__art">
-        <div class="stage slats" aria-hidden="true">
-          <div class="stage__glow"></div>
-          <div class="dev-laptop">
-            <div class="dev-laptop__screen">
-              <div class="m-site m-site--church">
-                <div class="m-nav"><span class="m-logo"><i></i>Grace Hill</span><span class="m-links"><i></i><i></i><i></i><i></i></span><span class="m-btn">Plan a visit</span></div>
-                <div class="m-hero">
-                  <div class="m-hero__copy">
-                    <span class="m-kick">Sundays 9 &amp; 11 AM</span>
-                    <b class="m-h">A place to belong.</b>
-                    <span class="m-line"></span><span class="m-line m-line--short"></span>
-                    <span class="m-ctas"><span class="m-btn">Plan a visit</span><span class="m-btn m-btn--ghost">Watch live</span></span>
-                  </div>
-                  <div class="m-hero__art"><span class="m-arch"></span></div>
-                </div>
-                <div class="m-cards">
-                  <span class="m-card"><i></i><b>Online giving</b><span class="m-line"></span></span>
-                  <span class="m-card"><i></i><b>Events</b><span class="m-line"></span></span>
-                  <span class="m-card"><i></i><b>Small groups</b><span class="m-line"></span></span>
-                </div>
-              </div>
-            </div>
-            <div class="dev-laptop__base"></div>
-          </div>
-          <div class="dev-crm">
-            <div class="dev-head"><b>Pipeline</b><span>CRM</span></div>
-            <div class="dev-crm__cols">
-              <span><small>Lead</small><b>12</b><i></i><i></i><i></i></span>
-              <span><small>Proposal</small><b>5</b><i></i><i></i></span>
-              <span><small>Won</small><b>3</b><i class="won"></i></span>
-            </div>
-          </div>
-          <div class="dev-admin">
-            <div class="dev-admin__side"><i class="on"></i><i></i><i></i><i></i></div>
-            <div class="dev-admin__main">
-              <div class="dev-head"><b>Events</b><span class="dev-admin__btn">+ New</span></div>
-              <span class="dev-admin__row"><b>Family Night</b><em class="ok">Published</em></span>
-              <span class="dev-admin__row"><b>Youth Retreat</b><em>Draft</em></span>
-              <span class="dev-admin__row"><b>Volunteer Day</b><em class="ok">Published</em></span>
-            </div>
-          </div>
-          <div class="dev-phone">
-            <div class="m-app">
-              <span class="m-app__bar"><b>Grace Hill</b><i></i></span>
-              <span class="m-app__card"><small>Next up</small><b>Sunday Service</b><span class="m-app__pill">Join live</span></span>
-              <span class="m-app__row"><i></i><span class="m-line"></span></span>
-              <span class="m-app__row"><i></i><span class="m-line"></span></span>
-              <span class="m-app__row"><i></i><span class="m-line"></span></span>
-              <span class="m-app__tabs"><i></i><i></i><i></i><i></i></span>
-            </div>
-          </div>
-          <svg class="stage__leaf" viewBox="0 0 200 220" focusable="false">
-            <defs>
-              <linearGradient id="leafA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7A8F45"/><stop offset="1" stop-color="#3A4A1F"/></linearGradient>
-              <linearGradient id="leafB" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6B8238"/><stop offset="1" stop-color="#33421B"/></linearGradient>
-            </defs>
-            <path fill="url(#leafB)" d="M196 214C150 196 112 160 96 112C86 80 92 42 118 6C140 46 158 92 166 138C172 168 184 194 196 214Z"/>
-            <path fill="none" stroke="rgba(247,239,228,.18)" stroke-width="1.4" d="M196 214C168 160 140 96 118 6"/>
-            <path fill="url(#leafA)" d="M200 216C150 214 96 196 58 160C34 136 18 102 14 64C56 78 98 104 134 140C160 166 182 192 200 216Z"/>
-            <path fill="none" stroke="rgba(247,239,228,.2)" stroke-width="1.4" d="M200 216C152 172 92 112 14 64"/>
-            <path fill="#556B2F" d="M200 218C170 222 130 222 96 214C70 208 48 196 30 180C66 176 108 182 146 194C168 201 186 210 200 218Z"/>
-          </svg>
-        </div>
-        <img class="hero__img" src="/images/site/hero.webp" width="1440" height="1200" fetchpriority="high" decoding="async" onerror="this.remove()"
-             alt="A laptop, a phone and an admin dashboard showing a custom-built system, set in a wood-panelled office">
-      </div>
+      <p class="hero__scroll" aria-hidden="true">Scroll to look closer</p>
     </div>
   </section>
 
-  <!-- 2. Service strip -->
+  <!-- 2. The showpiece reel (rendered by home.js from reel-data.js + designs.json) -->
+  <section class="featured section--wood" data-section="featured" aria-labelledby="featured-title">
+    <div class="reel__head">
+      <div class="container sec-head sec-head--center reveal">
+        <p class="eyebrow">Live showpieces</p>
+        <h2 id="featured-title">See what we could build for you.</h2>
+        <p class="lead">Four fictional organizations, four live sites you can click around. Every one of them is a concept, built to show what is possible.</p>
+        <p class="featured__all"><a href="/designs">Explore all designs <span aria-hidden="true">›</span></a></p>
+      </div>
+    </div>
+    <div class="reel" data-reel></div>
+    <noscript><p class="container featured__noscript"><a href="/designs">Browse the concept designs</a></p></noscript>
+  </section>
+
+  <!-- 3. Service strip -->
   <section class="strip section--cream" data-section="services" aria-labelledby="strip-title">
     <div class="container">
       <div class="strip__head reveal">
@@ -153,20 +121,6 @@
         <li><span class="journey__dot"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4v4h-4"/></svg></span><h3>Return</h3><p>They come back, because it was easy.</p></li>
       </ol>
     </div>
-  </section>
-
-  <!-- 4. Featured design tiles (rendered by home.js from designs.json) -->
-  <section class="featured" data-section="featured" aria-labelledby="featured-title">
-    <div class="featured__head section--cream">
-      <div class="container sec-head sec-head--center reveal">
-        <p class="eyebrow">Concept designs</p>
-        <h2 id="featured-title">See what we could build for you.</h2>
-        <p class="lead">One concept system for each kind of organization we serve. Every organization shown is fictional, built to show what is possible.</p>
-        <p class="featured__all"><a href="/designs">Explore all designs <span aria-hidden="true">›</span></a></p>
-      </div>
-    </div>
-    <div class="tiles" data-featured></div>
-    <noscript><p class="container featured__noscript"><a href="/designs">Browse the concept designs</a></p></noscript>
   </section>
 
   <!-- 5. Built for your team to manage -->
@@ -233,26 +187,45 @@
       </div>
       <ul class="ind-grid" role="list">
         <li class="reveal"><a class="ind-card" href="/industries/business">
+          <span class="ind-card__media" aria-hidden="true"><video muted playsinline loop preload="none" poster="/assets/home/loops/osteria-lume.webp" data-src="/assets/home/loops/osteria-lume.mp4" data-ind-video></video></span>
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="7" width="17" height="12.5" rx="2"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3.5 12.5h17"/></svg>
           <h3>Business</h3>
           <p>Websites, client portals and CRMs that turn inquiries into booked work.</p>
           <span class="ind-card__more">Business solutions <span aria-hidden="true">›</span></span></a></li>
         <li class="reveal"><a class="ind-card" href="/industries/church">
+          <span class="ind-card__media" aria-hidden="true"><video muted playsinline loop preload="none" poster="/assets/home/loops/lanternway.webp" data-src="/assets/home/loops/lanternway.mp4" data-ind-video></video></span>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5v5M9.5 5h5M5 21V12l7-4.5 7 4.5v9"/><path d="M10 21v-4.5a2 2 0 0 1 4 0V21M3 21h18"/></svg>
           <h3>Church</h3>
           <p>Giving, events, sermons and a member app that keep your church connected.</p>
           <span class="ind-card__more">Church solutions <span aria-hidden="true">›</span></span></a></li>
         <li class="reveal"><a class="ind-card" href="/industries/education">
+          <span class="ind-card__media" aria-hidden="true"><video muted playsinline loop preload="none" poster="/assets/home/loops/basecamp.webp" data-src="/assets/home/loops/basecamp.mp4" data-ind-video></video></span>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m2.5 9 9.5-4.5L21.5 9 12 13.5 2.5 9Z"/><path d="M6.5 11v4.5c1.5 1.5 3.4 2.2 5.5 2.2s4-.7 5.5-2.2V11M21.5 9v5"/></svg>
           <h3>Education</h3>
           <p>Admissions, parent portals and calendars that keep families informed.</p>
           <span class="ind-card__more">Education solutions <span aria-hidden="true">›</span></span></a></li>
         <li class="reveal"><a class="ind-card" href="/industries/nonprofit">
+          <span class="ind-card__media ind-card__media--still" aria-hidden="true"><img src="/assets/home/loops/juniper-vale.webp" width="640" height="400" loading="lazy" decoding="async" alt=""></span>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7.5-4.4-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.6-7.5 10-7.5 10Z"/></svg>
           <h3>Nonprofit</h3>
           <p>Donations, volunteers and programs managed from one place.</p>
           <span class="ind-card__more">Nonprofit solutions <span aria-hidden="true">›</span></span></a></li>
       </ul>
+    </div>
+  </section>
+
+  <!-- 6b. The Lab -->
+  <section class="labstrip section--wood" data-section="lab" aria-labelledby="lab-title">
+    <div class="container labstrip__grid">
+      <div class="labstrip__copy reveal">
+        <p class="eyebrow">CTSD Lab</p>
+        <h2 id="lab-title">Where we try the wild ideas first.</h2>
+        <p class="lead">Particles, physics, 3D and shaders: four live experiments that show what a website can do when nobody says no.</p>
+        <a class="btn btn--ghost" href="/lab/">Open the Lab <span class="arrow" aria-hidden="true">→</span></a>
+      </div>
+      <a class="labstrip__media reveal" href="/lab/" aria-label="Open the Lab" tabindex="-1">
+        <video muted playsinline loop preload="none" poster="/assets/home/loops/lab.webp" data-src="/assets/home/loops/lab.mp4" data-lab-video></video>
+      </a>
     </div>
   </section>
 
@@ -263,6 +236,7 @@
         <p class="eyebrow">How we work</p>
         <h2 id="process-title">A clear process, from first call to handoff.</h2>
       </div>
+      <svg class="process__line" viewBox="0 0 1200 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0 20H1200" data-process-line/></svg>
       <ol class="steps" role="list">
         <li class="reveal"><span class="steps__n" aria-hidden="true">01</span><h3>Discover</h3><p>We learn how the organization operates.</p></li>
         <li class="reveal"><span class="steps__n" aria-hidden="true">02</span><h3>Design</h3><p>We design the customer experience and internal system.</p></li>
@@ -292,12 +266,13 @@
 
   <!-- 9. Final call to action -->
   <section class="final section--wood slats" data-section="cta" aria-labelledby="final-title">
+    <div class="final__lamp" aria-hidden="true" data-lamp></div>
     <div class="container final__in reveal">
       <img class="final__mark" src="/assets/brand/mark-reverse.svg" alt="" role="presentation" width="56" height="63" loading="lazy">
       <h2 id="final-title">Tell us what your organization needs.</h2>
       <p class="lead">Share your goals and we will come back with a clear plan, a timeline and a quote.</p>
       <div class="final__actions">
-        <a class="btn btn--primary" href="/start">Start a Project <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="btn btn--primary" href="/start" data-magnet>Start a Project <span class="arrow" aria-hidden="true">→</span></a>
         <a class="btn btn--ghost" href="/mockup">Get a free mockup</a>
       </div>
     </div>
