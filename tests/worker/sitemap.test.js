@@ -42,6 +42,28 @@ describe('GET /robots.txt', () => {
   });
 });
 
+describe('client drafts under /preview/ stay out of search', () => {
+  it('robots.txt disallows /preview/ and its assets', async () => {
+    const t = await (await get('/robots.txt')).text();
+    expect(t).toContain('Disallow: /preview/');
+    // /assets/ is served straight from the asset store (it never reaches the worker), so robots covers it.
+    expect(t).toContain('Disallow: /assets/preview/');
+  });
+
+  it('every /preview/ response carries X-Robots-Tag noindex, nofollow', async () => {
+    for (const p of ['/preview/kezia-woods', '/preview/no-such-draft']) {
+      const res = await get(p);
+      expect(res.headers.get('x-robots-tag'), p).toBe('noindex, nofollow');
+    }
+    expect((await get('/about')).headers.get('x-robots-tag')).toBeNull();
+  });
+
+  it('the sitemap lists no /preview/ pages', async () => {
+    const xml = await (await get('/sitemap.xml')).text();
+    expect(xml).not.toContain('/preview/');
+  });
+});
+
 describe('absolute head URLs on static HTML', () => {
   it('/, /designs and /about get absolute canonical, og:url, og:image, twitter:image', async () => {
     for (const [path, canon] of [['/', 'https://ctsd.example/'], ['/designs', 'https://ctsd.example/designs'], ['/about', 'https://ctsd.example/about']]) {

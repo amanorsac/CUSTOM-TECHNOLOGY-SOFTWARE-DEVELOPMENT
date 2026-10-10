@@ -31,7 +31,8 @@ export const robotsRoute = {
   method: 'GET',
   test: (url) => url.pathname === '/robots.txt',
   handle(request, env, ctx, url) {
-    const body = `User-agent: *\nAllow: /\n\nSitemap: ${url.origin}/sitemap.xml\n`;
+    // Client drafts live under /preview/ until the client approves them; keep them out of search.
+    const body = `User-agent: *\nAllow: /\nDisallow: /preview/\nDisallow: /assets/preview/\n\nSitemap: ${url.origin}/sitemap.xml\n`;
     return new Response(body, { headers: { 'content-type': 'text/plain; charset=utf-8' } });
   },
 };
