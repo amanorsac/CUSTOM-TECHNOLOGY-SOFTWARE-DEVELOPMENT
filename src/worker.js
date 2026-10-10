@@ -34,8 +34,11 @@ export default {
     }
 
     const res = await env.ASSETS.fetch(request);
+    // Client drafts are unlisted: no search engine may index or follow them.
+    const draft = url.pathname.startsWith('/preview/');
+    const noindex = (r) => { if (!draft) return r; const h = new Headers(r.headers); h.set('x-robots-tag', 'noindex, nofollow'); return new Response(r.body, { status: r.status, statusText: r.statusText, headers: h }); };
     // Redirects and non-HTML (images, fonts, JSON) pass straight through.
-    if (!(res.headers.get('content-type') || '').includes('text/html')) return res;
-    return absolutizeHtml(res, url, { home: url.pathname === '/' });
+    if (!(res.headers.get('content-type') || '').includes('text/html')) return noindex(res);
+    return noindex(absolutizeHtml(res, url, { home: url.pathname === '/' }));
   },
 };

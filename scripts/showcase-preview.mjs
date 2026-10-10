@@ -98,6 +98,20 @@ const SCRIPTS = {
     await p.click('[data-prayer-go]'); await wait(4200);           // the note folds into a lantern and rises
     await glide(p, '#prayer', '.lw-foot', 1600); await wait(3600); // the windows light up
   },
+  kezia: async (p) => {
+    await wait(5200);                                             // the nameplate presses in; the cover lines type themselves
+    await glide(p, 0, '#story', 4200);                            // the cover turns like a page onto the opener
+    await glide(p, '#story', '#ch-security', 3200);
+    await glide(p, '#ch-security', '#ch-500', 5200);              // pull quotes set themselves; the chapter list follows
+    await wait(1400);
+    await glide(p, '#ch-500', '#numbers', 1600); await wait(1800); // the figures roll like a split-flap board
+    await glide(p, '#numbers', '#press', 1400); await wait(1200);
+    const clip = await (await p.$('.kw-clip')).boundingBox(); await p.mouse.move(clip.x + clip.width / 2, clip.y + clip.height / 2, { steps: 15 }); await wait(1000);
+    await glide(p, '#press', '#speaking', 1400);
+    for (const n of [1, 3]) { await p.click(`#speaking li:nth-child(${n}) button`); await wait(900); }
+    await glide(p, '#speaking', '#ventures', 1600); await wait(1200);
+    await glide(p, '#ventures', '.kw-back', 2400); await wait(1500);
+  },
   home: async (p) => {
     await wait(4500);                                             // the wall fades in over the still
     await circle(p, 1000, 420, 320, 4200);                        // the work lamp sweeps the screens
@@ -124,7 +138,7 @@ const cdp = await ctx.newCDPSession(p);
 const frames = [];
 cdp.on('Page.screencastFrame', (f) => { frames.push({ data: f.data, ts: f.metadata.timestamp }); cdp.send('Page.screencastFrameAck', { sessionId: f.sessionId }).catch(() => {}); });
 await cdp.send('Page.startScreencast', { format: 'jpeg', quality: 90, maxWidth: 1440, maxHeight: 900, everyNthFrame: 1 });
-await p.goto(slug === 'home' ? 'http://localhost:8787/' : `http://localhost:8787/showcase/${slug}`);
+await p.goto(slug === 'home' ? 'http://localhost:8787/' : slug === 'kezia' ? 'http://localhost:8787/preview/kezia-woods' : `http://localhost:8787/showcase/${slug}`);
 await SCRIPTS[slug](p);
 await cdp.send('Page.stopScreencast');
 await browser.close();
