@@ -17,8 +17,8 @@ const step = process.argv[2] || 'loops';
 export const LOOPS = {
   'osteria-lume': ['.superpowers/showcase/osteria-lume-walkthrough.mp4', 4, 7],
   'juniper-vale': ['.superpowers/showcase/juniper-vale-walkthrough.mp4', 6.5, 7],
-  basecamp: ['.superpowers/showcase/basecamp-walkthrough.mp4', 3.5, 7],
-  lanternway: ['.superpowers/showcase/lanternway-walkthrough.mp4', 4.5, 7],
+  basecamp: ['.superpowers/showcase/basecamp-walkthrough.mp4', 5.2, 7],
+  lanternway: ['.superpowers/showcase/lanternway-walkthrough.mp4', 8.2, 7],
   lab: ['public/assets/lab/previews/particles.mp4', 0, 6],
 };
 
