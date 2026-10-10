@@ -4,17 +4,17 @@
 import * as THREE from '/assets/vendor/three.min.js';
 
 const IMG = '/assets/showcase/juniper-vale/img/';
-const SUN = [0.19, 0.86];   // the sun in texture space (0,0 = bottom-left)
-const FOCUS = [0.62, 0.5];  // what stays in frame on narrow screens: the house
+const SUN = [0.93, 0.55];   // the sun in texture space (0,0 = bottom-left)
+const FOCUS = [0.5, 0.48];  // what stays in frame on narrow screens: the house
 
 export function startHero(canvas, { mobile, dpr }) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });
   renderer.setPixelRatio(mobile ? Math.min(dpr, 1.5) : dpr);
   const scene = new THREE.Scene(), camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-  const load = (f, srgb) => { const t = new THREE.TextureLoader().load(IMG + f); t.minFilter = THREE.LinearFilter; if (srgb) t.colorSpace = THREE.SRGBColorSpace; return t; };
+  const load = (f, srgb, onLoad) => { const t = new THREE.TextureLoader().load(IMG + f, onLoad); t.minFilter = THREE.LinearFilter; if (srgb) t.colorSpace = THREE.SRGBColorSpace; return t; };
   const uniforms = {
-    uTex: { value: load('hero.webp', true) }, uDepth: { value: load('hero-depth.webp') }, uTime: { value: 0 },
-    uRes: { value: new THREE.Vector2(1, 1) }, uImg: { value: new THREE.Vector2(2400, 1537) }, uMouse: { value: new THREE.Vector2(0.5, 0.5) },
+    uTex: { value: load('hero.webp', true, (t) => uniforms.uImg.value.set(t.image.width, t.image.height)) }, uDepth: { value: load('hero-depth.webp') }, uTime: { value: 0 },
+    uRes: { value: new THREE.Vector2(1, 1) }, uImg: { value: new THREE.Vector2(16, 9) }, uMouse: { value: new THREE.Vector2(0.5, 0.5) },
     uTod: { value: 0.45 }, uIn: { value: 0 }, uSun: { value: new THREE.Vector2(...SUN) }, uFocus: { value: new THREE.Vector2(...FOCUS) },
   };
   const mat = new THREE.ShaderMaterial({

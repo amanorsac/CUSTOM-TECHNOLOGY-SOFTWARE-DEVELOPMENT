@@ -13,7 +13,7 @@ export function startHero(canvas, img, depthImg, { mobile, dpr }) {
   const uniforms = {
     uTex: { value: tex(img, true) }, uDepth: { value: tex(depthImg) }, uTime: { value: 0 },
     uRes: { value: new THREE.Vector2(1, 1) }, uImg: { value: new THREE.Vector2(img.naturalWidth, img.naturalHeight) },
-    uSun: { value: new THREE.Vector2(0.95, 1.25) }, uMouse: { value: new THREE.Vector2(0.5, 0.5) },
+    uSun: { value: new THREE.Vector2(1.2, 0.82) }, uMouse: { value: new THREE.Vector2(0.5, 0.5) },
     uDolly: { value: 0 }, uIn: { value: 0 }, uFocus: { value: new THREE.Vector2(...FOCUS) }, uSteps: { value: mobile ? 28 : 48 },
   };
   const mat = new THREE.ShaderMaterial({

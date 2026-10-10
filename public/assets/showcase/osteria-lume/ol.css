@@ -79,7 +79,7 @@ button { font: inherit; color: inherit; }
 /* ---- Hero ---- */
 .ol-hero { position: relative; height: 100vh; min-height: 620px; overflow: hidden; }
 .ol-hero canvas, .ol-hero__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.ol-hero__img { filter: brightness(.6); object-position: 62% 55%; }
+.ol-hero__img { filter: brightness(.6); object-position: 64% 64%; }
 html.ol-live .ol-hero__img { display: none; }
 .ol-hero__shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(14, 10, 8, .88) 0, rgba(14, 10, 8, .45) 45%, rgba(14, 10, 8, 0) 70%), linear-gradient(0deg, rgba(14, 10, 8, .9) 0, rgba(14, 10, 8, 0) 35%); }
 .ol-hero__copy { position: absolute; left: var(--pad); bottom: 12vh; max-width: 640px; }

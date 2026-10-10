@@ -2,7 +2,7 @@
 // rise and drift with the cursor like wind.
 import * as THREE from '/assets/vendor/three.min.js';
 
-const FIRE = [0.497, 0.42];   // the fire in texture space (0,0 = bottom-left)
+const FIRE = [0.503, 0.33];   // the fire in texture space (0,0 = bottom-left)
 const FOCUS = [0.5, 0.38];    // matches the <img> object-position (50% 62%)
 
 export function startFire(canvas, img, { mobile, dpr }) {
