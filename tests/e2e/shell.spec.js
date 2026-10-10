@@ -126,7 +126,8 @@ test.describe('mobile menu after scrolling (375px)', () => {
   test.use({ viewport: { width: 375, height: 800 } });
 
   test('panel keeps full height once the header is translucent', async ({ page }) => {
-    await page.goto('/');
+    // A plain page: the home page scrolls through Lenis, which is not what this test is about.
+    await page.goto('/about');
     await page.evaluate(() => window.scrollTo(0, 400));
     await expect(page.locator('#site-header .site-header')).toHaveClass(/is-scrolled/);
     await page.locator('#site-header [data-menu-toggle]').click();
@@ -170,11 +171,12 @@ test.describe('industries dropdown (1280px)', () => {
     const header = page.locator('#site-header .site-header');
     await expect(header).not.toHaveClass(/is-hidden/);
     // Hiding starts past the first screen, so the menu stays within reach near the top.
-    await page.evaluate(() => window.scrollTo(0, 1000));
-    await page.waitForTimeout(200);
-    await page.evaluate(() => window.scrollTo(0, 1500));
+    // The site scrolls smoothly, so each position is given time to arrive before the next move.
+    const arrive = async (y) => { await page.evaluate((y) => window.scrollTo(0, y), y); await expect.poll(() => page.evaluate(() => Math.round(scrollY)), { timeout: 5000 }).toBe(y); };
+    await arrive(1000);
+    await arrive(1500);
     await expect(header).toHaveClass(/is-hidden/);
-    await page.evaluate(() => window.scrollTo(0, 1300));
+    await arrive(1300);
     await expect(header).not.toHaveClass(/is-hidden/);
   });
 
