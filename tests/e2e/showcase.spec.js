@@ -98,7 +98,7 @@ test.describe('Osteria Lume showpiece', () => {
     await page.goto('/designs/restaurant');
     await expect(page.locator('[data-d="showcase"]')).toBeVisible();
     await expect(page.locator('[data-d="showcase"]')).toHaveAttribute('href', OL);
-    await page.goto('/designs/modern-church');
+    await page.goto('/designs/consulting-firm');
     await expect(page.locator('[data-d="showcase"]')).toBeHidden();
   });
 });
@@ -284,5 +284,121 @@ test.describe('Basecamp showpiece', () => {
     await page.goto('/designs/youth-ministry');
     await expect(page.locator('[data-d="showcase"]')).toBeVisible();
     await expect(page.locator('[data-d="showcase"]')).toHaveAttribute('href', BC);
+  });
+});
+
+const LW = '/showcase/lanternway';
+
+test.describe('Lanternway showpiece', () => {
+  test('loads live: one h1, the preloader hands over, no errors', async ({ page, browserName }) => {
+    const errors = collectErrors(page);
+    const res = await page.goto(LW);
+    expect(res.status()).toBe(200);
+    await expect(page.locator('h1')).toHaveCount(1);
+    await expect(page.locator('h1')).toHaveText('A place to belong.');
+    const mode = await page.locator('html').getAttribute('data-lw-mode');
+    if (browserName === 'webkit') expect(['live', 'nowebgl']).toContain(mode); else expect(mode).toBe('live');
+    await expect(page.locator('[data-pre]')).toHaveCount(0, { timeout: 10000 });
+    await expect(page.locator('a.lw-badge')).toHaveAttribute('href', '/designs/modern-church');
+    expect(errors).toEqual([]);
+  });
+
+  test('the sermon player plays, lights the transcript and seeks', async ({ page }) => {
+    await page.goto(`${LW}?still=1`);
+    await expect(page.locator('[data-time]')).toHaveText('0:00 / 38:00');
+    await page.getByRole('button', { name: 'Play sermon' }).click();
+    await expect(page.getByRole('button', { name: 'Pause sermon' })).toBeVisible();
+    await expect(page.locator('.tw.on').first()).toBeAttached({ timeout: 5000 });
+    await page.getByRole('button', { name: 'Pause sermon' }).click();
+    const wave = page.locator('[data-wave]'), box = await wave.boundingBox();
+    await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+    await expect(page.locator('[data-time]')).toHaveText(/^1[89]:\d\d \/ 38:00$/);
+  });
+
+  test('sermon library filters by series and search', async ({ page }) => {
+    await page.goto(`${LW}?still=1`);
+    const shown = page.locator('.lw-sermon:not([hidden])');
+    await expect(shown).toHaveCount(8);
+    await page.getByRole('button', { name: 'Romans' }).click();
+    await expect(shown).toHaveCount(3);
+    await page.getByRole('button', { name: 'All series' }).click();
+    await page.getByPlaceholder('Search sermons').fill('light');
+    await expect(shown).toHaveCount(1);
+    await expect(shown.locator('h3')).toHaveText('Light in the Dark');
+    await page.getByPlaceholder('Search sermons').fill('zzz');
+    await expect(page.locator('[data-sermon-empty]')).toBeVisible();
+  });
+
+  test('giving: monthly, one time and other amounts update the impact, then thank you', async ({ page }) => {
+    await page.goto(`${LW}?still=1`);
+    const go = page.locator('[data-give-go]');
+    await expect(go).toHaveText('Give $50 monthly');
+    await expect(page.locator('[data-yearly]')).toHaveText('$600');
+    await page.getByRole('switch', { name: 'Monthly' }).click();
+    await expect(go).toHaveText('Give $50');
+    await expect(page.locator('[data-share="0"]')).toHaveText('$25');
+    await expect(page.locator('[data-other]')).toBeHidden();
+    await page.getByRole('radio', { name: 'Other' }).click();
+    await expect(page.locator('[data-other]')).toBeVisible();
+    await page.locator('[data-other-in]').fill('120');
+    await expect(go).toHaveText('Give $120');
+    await go.click();
+    await expect(page.locator('[data-thanks]')).toBeVisible();
+    await expect(page.locator('[data-thanks-msg]')).toContainText('$120 gift to the General Fund');
+    await page.locator('[data-give-again]').click();
+    await expect(go).toBeVisible();
+  });
+
+  test('prayer request needs words, then confirms; events register', async ({ page }) => {
+    await page.goto(`${LW}?still=1`);
+    const send = page.locator('[data-prayer-go]');
+    await expect(send).toBeDisabled();
+    await page.locator('[data-prayer-text]').fill('For my mom, starting a new job.');
+    await page.getByRole('switch', { name: 'Keep this private' }).click();
+    await expect(page.getByRole('switch', { name: 'Keep this private' })).toHaveAttribute('aria-checked', 'true');
+    await send.click();
+    await expect(page.locator('[data-prayer-status]')).toContainText('Sent.');
+    await expect(page.locator('[data-prayer-text]')).toHaveValue('');
+    const reg = page.locator('[data-register]').first();
+    await reg.click();
+    await expect(reg).toHaveAttribute('aria-pressed', 'true');
+    await expect(reg).toHaveText('Registered ✓');
+  });
+
+  test('reduced motion: still version, accessible', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto(LW);
+    await expect(page.locator('html')).toHaveClass(/lw-static/);
+    await expect(page.locator('[data-pre]')).toHaveCount(0);
+    await expect(page.locator('[data-hero-img]')).toBeVisible();
+    await expect(page.locator('.lw-stops li').first()).toBeVisible();
+    const axe = await new AxeBuilder({ page }).analyze();
+    expect(axe.violations.filter((v) => ['serious', 'critical'].includes(v.impact))).toEqual([]);
+  });
+
+  test('no WebGL: the photo hero, and the rest still moves, no errors', async ({ page }) => {
+    await page.addInitScript(() => {
+      const get = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = function (t, ...a) { return /webgl/.test(t) ? null : get.call(this, t, ...a); };
+    });
+    const errors = collectErrors(page);
+    await page.goto(LW);
+    await expect(page.locator('html')).toHaveAttribute('data-lw-mode', 'nowebgl');
+    await expect(page.locator('[data-hero-img]')).toBeVisible();
+    await expect(page.locator('[data-hero]')).not.toHaveClass(/is-gl/);
+    expect(errors).toEqual([]);
+  });
+
+  test('no horizontal scroll on a phone', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto(LW);
+    await page.waitForTimeout(600);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  });
+
+  test('the modern church design page links to the live showpiece', async ({ page }) => {
+    await page.goto('/designs/modern-church');
+    await expect(page.locator('[data-d="showcase"]')).toBeVisible();
+    await expect(page.locator('[data-d="showcase"]')).toHaveAttribute('href', LW);
   });
 });

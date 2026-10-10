@@ -80,6 +80,24 @@ const SCRIPTS = {
     await glide(p, '#parents', '.bc-foot', 2200);
     await sweep([[200, 300], [1200, 500], [400, 600]], 2400); await wait(800);
   },
+  lanternway: async (p) => {
+    await wait(4200);                                             // the lantern draws, catches and fills the room
+    await circle(p, 900, 300, 300, 3600);                         // the light leans with the mouse
+    await glide(p, 0, '#visit', 5000);                            // dolly down the aisle: "Come as you are."
+    await glide(p, '#visit', '#watch', 8000);                     // the lantern walks your first Sunday
+    await p.click('[data-play]'); await wait(5200);               // the transcript lights as it plays
+    await glide(p, '#watch', '.lw-library', 1400);
+    for (const n of [2, 3, 4, 1]) { await p.click(`[data-series] button:nth-child(${n})`); await wait(1100); }
+    await glide(p, '.lw-library', '#events', 1400);
+    for (const y of [330, 420, 520, 620, 420]) { await p.mouse.move(600 + Math.random() * 300, y, { steps: 20 }); await wait(450); }
+    await glide(p, '#events', '#give', 1400);
+    for (const n of [1, 3, 2]) { await p.click(`[data-amounts] button:nth-child(${n})`); await wait(800); }
+    await p.click('[data-monthly]'); await wait(1000);
+    await glide(p, '#give', '#prayer', 1600);
+    await p.click('[data-prayer-text]'); await p.keyboard.type('For my mom, starting a new job on Monday.', { delay: 35 });
+    await p.click('[data-prayer-go]'); await wait(4200);           // the note folds into a lantern and rises
+    await glide(p, '#prayer', '.lw-foot', 1600); await wait(3600); // the windows light up
+  },
 };
 
 rmSync(TMP, { recursive: true, force: true }); mkdirSync(TMP, { recursive: true });
