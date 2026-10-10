@@ -2,6 +2,7 @@
   {
     "slug": "modern-church",
     "name": "Modern Church Platform",
+    "showcase": "/showcase/lanternway",
     "category": "church",
     "tags": [
       "church",
@@ -104,6 +105,7 @@
   {
     "slug": "youth-ministry",
     "name": "Youth Ministry",
+    "showcase": "/showcase/basecamp",
     "category": "church",
     "tags": [
       "church"
@@ -355,6 +357,7 @@
   {
     "slug": "real-estate",
     "name": "Real Estate",
+    "showcase": "/showcase/juniper-vale",
     "category": "business",
     "tags": [
       "business"
