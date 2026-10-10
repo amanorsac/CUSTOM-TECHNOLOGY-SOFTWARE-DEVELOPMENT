@@ -5,22 +5,24 @@ import * as THREE from '/assets/vendor/three.min.js';
 
 const IMG = '/assets/showcase/osteria-lume/img/';
 // Where things sit in the photo, in texture space (0,0 = bottom-left).
-const CANDLES = [[0.30, 0.94], [0.92, 0.94]];
-const STEAM = [0.6, 0.56];
+const CANDLES = [[0.90, 0.225], [0.73, 0.43]];
+const STEAM = [0.64, 0.31];
 // The point of the photo that stays in frame when the screen crops it (the bowl).
-const FOCUS = [0.62, 0.45];
+const FOCUS = [0.64, 0.36];
 
 export function startHero(canvas, { mobile, dpr }) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });
   renderer.setPixelRatio(mobile ? Math.min(dpr, 1.5) : dpr);
   const scene = new THREE.Scene(), camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
   const load = (f) => { const t = new THREE.TextureLoader().load(IMG + f); t.minFilter = THREE.LinearFilter; return t; };
-  const photo = load('hero.webp'); photo.colorSpace = THREE.SRGBColorSpace;
+  // The shader needs the photo's real proportions; read them once it has loaded.
+  const photo = new THREE.TextureLoader().load(IMG + 'hero.webp', (t) => uniforms.uImg.value.set(t.image.width, t.image.height));
+  photo.minFilter = THREE.LinearFilter; photo.colorSpace = THREE.SRGBColorSpace;
   const depth = load('hero-depth.webp');
 
   const uniforms = {
     uTex: { value: photo }, uDepth: { value: depth }, uTime: { value: 0 }, uIntro: { value: 0 },
-    uRes: { value: new THREE.Vector2(1, 1) }, uImg: { value: new THREE.Vector2(2400, 1147) },
+    uRes: { value: new THREE.Vector2(1, 1) }, uImg: { value: new THREE.Vector2(16, 9) },
     uMouse: { value: new THREE.Vector2(0.55, 0.45) }, uPower: { value: 1 },
     uFocus: { value: new THREE.Vector2(...FOCUS) }, uC1: { value: new THREE.Vector2(...CANDLES[0]) }, uC2: { value: new THREE.Vector2(...CANDLES[1]) }, uSteam: { value: new THREE.Vector2(...STEAM) },
   };
