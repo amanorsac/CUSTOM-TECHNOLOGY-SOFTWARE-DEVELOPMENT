@@ -115,7 +115,7 @@ test.describe('Explore Designs: load failure and no-JS', () => {
     expect(await dangling()).toEqual([]);
   });
 
-  test('fetch failure at 375px: visible error, no reserved blank space, retry recovers', async ({ page }) => {
+  test('fetch failure at 375px: visible error, the plain design links stay, retry recovers', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 800 });
     let fail = true;
     await page.route('**/data/designs.json', (route) => (fail ? route.abort() : route.continue()));
@@ -129,7 +129,8 @@ test.describe('Explore Designs: load failure and no-JS', () => {
     await expect(retry).toBeInViewport();
     const grid = page.locator('[data-design-grid]');
     await expect(grid).toHaveClass(/is-failed/);
-    expect((await grid.boundingBox()).height).toBeLessThan(10);
+    // The server-rendered links stay, so every design is still one tap away.
+    await expect(grid.locator('.shop-static a[href^="/designs/"]')).toHaveCount(12);
     // No dangling aria-labelledby when the tabs never rendered.
     const labelledby = await page.locator('#design-panel').getAttribute('aria-labelledby');
     if (labelledby) expect(await page.locator(`#${labelledby}`).count()).toBe(1);
@@ -145,11 +146,11 @@ test.describe('Explore Designs: load failure and no-JS', () => {
 
 test.describe('Explore Designs without JavaScript', () => {
   test.use({ javaScriptEnabled: false });
-  test('shows a noscript line linking to /start, without a huge blank grid', async ({ page }) => {
+  test('lists every design as a plain link, plus a noscript line linking to /start', async ({ page }) => {
     await page.goto('/designs');
     const link = page.locator('#design-panel a[href="/start"]');
     await expect(link).toBeVisible();
-    expect((await page.locator('[data-design-grid]').boundingBox()).height).toBeLessThan(10);
+    await expect(page.locator('[data-design-grid] .shop-static a[href^="/designs/"]')).toHaveCount(12);
     // No tabs exist without JS, so the panel must not be labelled by one.
     const labelledby = await page.locator('#design-panel').getAttribute('aria-labelledby');
     if (labelledby) expect(await page.locator(`#${labelledby}`).count()).toBe(1);
