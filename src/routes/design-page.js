@@ -3,7 +3,7 @@
 // Unknown slug -> 404 with the same template (the client shows "Design not
 //                found"), robots noindex kept.
 
-import { jsonLdTag, setSecurityHeaders } from '../lib/seo.js';
+import { jsonLdTag, setSecurityHeaders, withShell, publicUrl } from '../lib/seo.js';
 
 const PATH = /^\/designs\/([^/]+)\/?$/;
 
@@ -35,6 +35,10 @@ export const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
 })[c]);
 const meta = (attr, key, content) => `<meta ${attr}="${key}" content="${esc(content)}">`;
+const CATEGORY = { church: 'Church', education: 'Education', business: 'Business', software: 'Software' };
+// A list of escaped <li> items, optionally wrapped and classed.
+const items = (list, open = '', close = '', cls = '') => (Array.isArray(list) ? list : [])
+  .map((t) => `<li${cls ? ` class="${cls}"` : ''}>${open}${esc(t)}${close}</li>`).join('');
 const remove = { element: (el) => el.remove() };
 
 // Head tags that depend on the request are rebuilt here, always as absolute
@@ -74,7 +78,7 @@ function rewrite(res, design, url) {
     meta('name', 'twitter:image', image),
   ].join('\n');
 
-  const rw = new HTMLRewriter()
+  const rw = withShell(new HTMLRewriter())
     .on('title', { element: (el) => el.setInnerContent(title) })
     .on([
       'meta[name="description"]', 'meta[name="robots"]', 'link[rel="canonical"]',
@@ -97,9 +101,14 @@ function rewrite(res, design, url) {
       },
     })
     .on('main', { element: (el) => el.setAttribute('data-slug', design.slug) })
-    // Server-render the hero text so crawlers and no-JS visitors see it.
+    // Server-render the page's content so crawlers, link previews and no-JS visitors see it. The page
+    // script re-renders these same elements (replaceChildren / textContent), so nothing is doubled.
     .on('[data-d="name"]', { element: (el) => el.setInnerContent(design.name) })
-    .on('[data-d="tagline"]', { element: (el) => el.setInnerContent(description) });
+    .on('[data-d="tagline"]', { element: (el) => el.setInnerContent(description) })
+    .on('[data-d="cat"]', { element: (el) => el.setInnerContent(CATEGORY[design.category] || design.category || '') })
+    .on('[data-d="systems"]', { element: (el) => el.setInnerContent(items(design.systems), { html: true }) })
+    .on('[data-features]', { element: (el) => el.setInnerContent(items(design.features, '<span>', '</span>'), { html: true }) })
+    .on('[data-integrations]', { element: (el) => el.setInnerContent(items(design.integrations, '', '', 'd-chip'), { html: true }) });
 
   return rw.transform(new Response(res.body, { status: 200, headers }));
 }
@@ -120,7 +129,7 @@ export const designPageRoute = {
     ]);
     if (!page.ok) return page;
     const design = designs.find((d) => d && d.slug === slug) || null;
-    return rewrite(page, design, url);
+    return rewrite(page, design, publicUrl(url, env));
   },
 };
 

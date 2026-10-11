@@ -1,6 +1,19 @@
 // Shared SEO helpers: JSON-LD tags, the home page structured data, and the
 // generic "make head URLs absolute" HTML pass (Ruling K).
 
+import { headerHTML, footerHTML } from '../../public/assets/js/shell-markup.js';
+
+// Renders the site header and footer into a page's empty #site-header / #site-footer slots, so every
+// page has its navigation in the HTML (crawlers, no-JS visitors, first paint). The <body data-page>
+// value marks the current nav item; <body> always comes before the slots, so it is known in time.
+export function withShell(rw) {
+  let page = '';
+  return rw
+    .on('body', { element: (el) => { page = el.getAttribute('data-page') || ''; } })
+    .on('#site-header', { element: (el) => el.setInnerContent(headerHTML(page), { html: true }) })
+    .on('#site-footer', { element: (el) => el.setInnerContent(footerHTML(), { html: true }) });
+}
+
 // JSON-LD inside <script>: escape < > & so no value can close the tag.
 export function jsonLdTag(data) {
   const json = JSON.stringify(data).replace(/[<>&]/g, (c) => '\\u' + c.charCodeAt(0).toString(16).padStart(4, '0'));
@@ -57,9 +70,18 @@ const ABSOLUTIZE = [
 
 // Root-relative values become absolute against the request origin; anything
 // already absolute (or protocol-relative) is left alone.
+// The address public links point at: the SITE_ORIGIN setting when it holds a valid http(s) origin
+// (so the workers.dev test address never leaks into canonical links once the domain is live),
+// otherwise the address the request arrived on.
+export function publicUrl(url, env) {
+  let origin = '';
+  try { const o = new URL(env && env.SITE_ORIGIN); if (/^https?:$/.test(o.protocol)) origin = o.origin; } catch { /* unset or invalid */ }
+  return origin ? new URL(url.pathname + url.search, origin) : url;
+}
+
 export function absolutizeHtml(res, url, { home = false } = {}) {
   const abs = (v) => (v && v.startsWith('/') && !v.startsWith('//') ? new URL(v, url.origin).href : v);
-  let rw = new HTMLRewriter();
+  let rw = withShell(new HTMLRewriter());
   for (const [selector, attr] of ABSOLUTIZE) {
     rw = rw.on(selector, {
       element(el) {
