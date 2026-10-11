@@ -282,3 +282,9 @@ img[data-fb].is-loaded { opacity: 1; }
 @media (prefers-reduced-motion: reduce) {
   img[data-fb], .design-card, .design-card__cover, .design-card__alt, .shop-tab { transition: none; }
 }
+
+/* The plain list the worker pre-renders for crawlers and no-JS visitors (shop.js replaces it with cards). */
+.shop-static { grid-column: 1 / -1; }
+.shop-static a { display: block; padding: 16px 0; border-bottom: 1px solid var(--line-light); text-decoration: none; color: var(--ink); }
+.shop-static b { font-family: var(--font-head); font-weight: 600; font-size: 1.125rem; margin-right: .5em; }
+.shop-static span { color: var(--slate); }
