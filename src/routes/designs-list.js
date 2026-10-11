@@ -2,7 +2,7 @@
 // the grid, so crawlers, link previews and no-JS visitors see all twelve concepts. shop.js replaces the
 // list with the full cards (grid.replaceChildren), so nothing is doubled.
 import { asset, loadDesigns, esc } from './design-page.js';
-import { absolutizeHtml } from '../lib/seo.js';
+import { absolutizeHtml, publicUrl } from '../lib/seo.js';
 
 export const designsListRoute = {
   method: 'GET',
@@ -16,6 +16,6 @@ export const designsListRoute = {
     const filled = new HTMLRewriter()
       .on('[data-design-grid]', { element: (el) => el.setInnerContent(list, { html: true }) })
       .transform(page);
-    return absolutizeHtml(filled, url);
+    return absolutizeHtml(filled, publicUrl(url, env));
   },
 };

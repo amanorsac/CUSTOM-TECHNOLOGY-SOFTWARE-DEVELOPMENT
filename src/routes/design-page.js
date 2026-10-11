@@ -3,7 +3,7 @@
 // Unknown slug -> 404 with the same template (the client shows "Design not
 //                found"), robots noindex kept.
 
-import { jsonLdTag, setSecurityHeaders, withShell } from '../lib/seo.js';
+import { jsonLdTag, setSecurityHeaders, withShell, publicUrl } from '../lib/seo.js';
 
 const PATH = /^\/designs\/([^/]+)\/?$/;
 
@@ -129,7 +129,7 @@ export const designPageRoute = {
     ]);
     if (!page.ok) return page;
     const design = designs.find((d) => d && d.slug === slug) || null;
-    return rewrite(page, design, url);
+    return rewrite(page, design, publicUrl(url, env));
   },
 };
 

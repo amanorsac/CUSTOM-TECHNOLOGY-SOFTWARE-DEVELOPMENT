@@ -70,6 +70,15 @@ const ABSOLUTIZE = [
 
 // Root-relative values become absolute against the request origin; anything
 // already absolute (or protocol-relative) is left alone.
+// The address public links point at: the SITE_ORIGIN setting when it holds a valid http(s) origin
+// (so the workers.dev test address never leaks into canonical links once the domain is live),
+// otherwise the address the request arrived on.
+export function publicUrl(url, env) {
+  let origin = '';
+  try { const o = new URL(env && env.SITE_ORIGIN); if (/^https?:$/.test(o.protocol)) origin = o.origin; } catch { /* unset or invalid */ }
+  return origin ? new URL(url.pathname + url.search, origin) : url;
+}
+
 export function absolutizeHtml(res, url, { home = false } = {}) {
   const abs = (v) => (v && v.startsWith('/') && !v.startsWith('//') ? new URL(v, url.origin).href : v);
   let rw = withShell(new HTMLRewriter());

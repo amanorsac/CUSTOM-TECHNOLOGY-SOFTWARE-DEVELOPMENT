@@ -4,7 +4,7 @@
 import { designPageRoute, designPageHeadRoute } from './routes/design-page.js';
 import { designsListRoute } from './routes/designs-list.js';
 import { sitemapRoute, robotsRoute } from './routes/sitemap.js';
-import { absolutizeHtml } from './lib/seo.js';
+import { absolutizeHtml, publicUrl } from './lib/seo.js';
 import { leadRoute, uploadUrlRoute, leadMethodNotAllowedRoute } from './routes/lead.js';
 
 export const routes = [
@@ -40,6 +40,6 @@ export default {
     const noindex = (r) => { if (!draft) return r; const h = new Headers(r.headers); h.set('x-robots-tag', 'noindex, nofollow'); return new Response(r.body, { status: r.status, statusText: r.statusText, headers: h }); };
     // Redirects and non-HTML (images, fonts, JSON) pass straight through.
     if (!(res.headers.get('content-type') || '').includes('text/html')) return noindex(res);
-    return noindex(absolutizeHtml(res, url, { home: url.pathname === '/' }));
+    return noindex(absolutizeHtml(res, publicUrl(url, env), { home: url.pathname === '/' }));
   },
 };
