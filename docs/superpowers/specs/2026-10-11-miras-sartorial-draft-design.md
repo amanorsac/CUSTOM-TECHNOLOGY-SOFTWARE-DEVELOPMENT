@@ -1,6 +1,16 @@
 # Mira's Sartorial: draft store ("The Maison")
 
-Date: 2026-10-11. Status: approved in conversation, awaiting written-spec review.
+Date: 2026-10-11. Status: approved ("approved, build it").
+
+## Owner update at approval (overrides the sections below where they differ)
+
+- **Name.** The seller is Obaa Yaa Botchway. Her name replaces the name placeholder.
+- **WhatsApp is live.** Her public number, 055 701 8888, is her WhatsApp. `data-whatsapp` is set to `233557018888`. "Request on WhatsApp" builds the message, shows it, and opens `https://wa.me/233557018888?text=…` in a new tab.
+- **QR code.** The QR code is a real code for `https://wa.me/233557018888`, generated at build time as an SVG by `scripts/client-assets.mjs miras-sartorial` using the `qrcode` package.
+- **Bio.** CTSD drafts the bio from public facts only: her name, the label, her five services, and custom-only working. It invents no history, training, years or awards. The page shows it as written copy, and the owner gets it for her approval.
+- **Timeline.** The timeline line reads "Your timeline is agreed when you order." No duration is promised.
+- **Placeholders.** Only the three reels remain placeholders. The placeholder test expects exactly three `[data-placeholder="reel"]`.
+- **Sending.** The page still posts nothing and fetches nothing. The only way out is a WhatsApp link the visitor taps.
 
 ## Purpose
 
