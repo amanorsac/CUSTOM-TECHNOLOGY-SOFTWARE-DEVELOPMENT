@@ -30,6 +30,9 @@ export function startWall(canvas, videos, { mobile, dpr }) {
   // Software GL (no GPU, or a headless browser) renders at half size with no shadows so the page stays smooth.
   const gl = renderer.getContext(), info = gl.getExtension('WEBGL_debug_renderer_info');
   const soft = /swiftshader|llvmpipe|software|mesa/i.test(info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : '');
+  // No GPU: the 3D wall would crawl and drag the page with it, so hand back to the still wall instead
+  // (?forcegl=1 keeps the 3D path, for tests and for checking it on such machines).
+  if (soft && !/[?&]forcegl/.test(location.search)) { renderer.dispose(); throw new Error('software-gl'); }
   const lite = mobile || soft;
   renderer.setPixelRatio(soft ? 0.5 : lite ? Math.min(dpr, 1.5) : Math.min(dpr, 1.5));
   renderer.setClearColor(0x0A1322, 1);
@@ -37,7 +40,8 @@ export function startWall(canvas, videos, { mobile, dpr }) {
   mobile = lite;
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(FOV, 16 / 10, 0.1, 100);
-  const L = mobile ? PHONE : DESKTOP;
+  // On narrower desktops the camera slides left, so the screens sit further right, clear of the headline.
+  const L = mobile ? PHONE : DESKTOP; // on desktop the camera's x is then aimed past the headline (aim())
 
   // Panels: fabric-wrapped acoustic columns with slim shadow gaps between them
   const panelGeo = new THREE.BoxGeometry(0.56, 14, 0.34);
@@ -87,9 +91,23 @@ export function startWall(canvas, videos, { mobile, dpr }) {
   const ptr = new THREE.Vector2(L.cam[0] + 2.2, L.cam[1] + 0.6), target = ptr.clone();
   let lastMove = -1e4, visible = true, frozen = false;
 
+  // Aim the camera so the leftmost screen starts just past the end of the headline, whatever the width:
+  // the start pose slides sideways until that screen edge lands 48 px right of the copy.
+  const LEFT_EDGE = Math.min(...screens.map((s) => s.x - s.w / 2));
+  const aim = () => {
+    const title = !mobile && document.querySelector('#hero-title'); if (!title) return;
+    const W = canvas.clientWidth || innerWidth, r = title.getBoundingClientRect();
+    const range = document.createRange(); range.selectNodeContents(title);
+    const textRight = Math.max(...[...range.getClientRects()].map((q) => q.right), r.left);
+    const f = Math.min(0.72, (textRight + 48) / W);
+    const vw = 2 * start.z * Math.tan(THREE.MathUtils.degToRad(FOV / 2)) * camera.aspect;
+    const x = LEFT_EDGE - (f - 0.5) * vw;
+    start.x = x; look0.x = x;
+  };
   const resize = () => {
     const w = canvas.clientWidth || innerWidth, h = canvas.clientHeight || innerHeight; if (!w || !h) return;
     renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+    aim();
   };
   addEventListener('resize', resize); resize();
   // Pointer → a point on the wall plane at the camera's current distance
@@ -98,7 +116,14 @@ export function startWall(canvas, videos, { mobile, dpr }) {
     return [camera.position.x + (nx - 0.5) * vw, camera.position.y + (0.5 - ny) * vh];
   };
   addEventListener('pointermove', (e) => { if (frozen || e.pointerType !== 'mouse') return; const [x, y] = toWall(e.clientX / innerWidth, e.clientY / innerHeight); target.set(x, y); lastMove = performance.now(); }, { passive: true });
-  new IntersectionObserver(([en]) => { visible = en.isIntersecting; for (const v of videos) { if (visible) v.play().catch(() => {}); else v.pause(); } }).observe(canvas);
+  // The loops are shared with the reel and the industry cards: coming back into view, the wall takes its
+  // players back (they keep feeding the screen textures); leaving, it pauses only the ones it still holds.
+  const hero = canvas.closest('[data-hero]');
+  new IntersectionObserver(([en]) => {
+    visible = en.isIntersecting;
+    if (visible) { hero.querySelectorAll('[data-wall-screens] img[data-video]').forEach((img) => toVideo(img)); videos.forEach((v) => v.play().catch(() => {})); }
+    else videos.forEach((v) => { if (hero.contains(v)) v.pause(); });
+  }).observe(canvas);
 
   let stopped = false;
   return {
@@ -106,6 +131,7 @@ export function startWall(canvas, videos, { mobile, dpr }) {
     freeze(x, y) { frozen = true; ptr.set(x, y); target.set(x, y); },
     lighten() { renderer.shadowMap.enabled = false; lamp.castShadow = false; renderer.setPixelRatio(0.5); for (const s of screens) s.halo.visible = false; },
     stop() { stopped = true; },
+    hideScreens() { for (const s of screens) s.g.visible = false; },
     tick(t, dt) {
       if (!visible || stopped) return;
       const k = dolly * dolly * (3 - 2 * dolly);
@@ -138,13 +164,14 @@ export function bootWall() {
   const shot = /[?&]wallshot/.test(location.search);
   let wall;
   try { wall = startWall(canvas, videos, { mobile: MOBILE, dpr: devicePixelRatio || 1 }); }
-  catch (e) { document.documentElement.classList.add('home-nogl'); bootStillWall(); return null; }
+  catch (e) { if (e.message === 'software-gl') hero.dataset.wall = 'still'; else document.documentElement.classList.add('home-nogl'); bootStillWall(videos); return null; }
   // Show the scene once a loop can play, or after 2.5 s even if the videos never arrive.
   let shown = false;
   const show = () => { if (shown) return; shown = true; hero.classList.add('is-gl'); if (shot) requestAnimationFrame(() => { document.documentElement.dataset.wallReady = '1'; }); };
   for (const v of videos) { v.addEventListener('canplay', show, { once: true }); v.src = v.dataset.src; v.play().catch(() => {}); }
   setTimeout(show, 2500);
-  if (shot) { wall.freeze(3.4, 0.5); document.querySelector('[data-hero-copy]').style.visibility = 'hidden'; document.querySelector('.hero__scroll').style.visibility = 'hidden'; }
+  // The still is the bare wall: the page lays the screens over it, so they must not be baked in.
+  if (shot) { wall.hideScreens(); wall.freeze(3.4, 0.5); document.querySelector('[data-hero-copy]').style.visibility = 'hidden'; document.querySelector('.hero__scroll').style.visibility = 'hidden'; }
   // Frame-time watchdog: after a few seconds of slow frames, lighten; if still slow, give the hero back
   // to the still image (the screens keep playing over it).
   let frames = 0, slow = 0, stage = 0;

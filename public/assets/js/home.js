@@ -132,7 +132,7 @@ if (LIVE) {
   const copy = document.querySelector('[data-hero-copy]');
   let wall = null;
   ScrollTrigger.create({
-    trigger: '[data-hero]', pin: '.hero__stick', start: 'top top', end: '+=160%', scrub: true,
+    trigger: '[data-hero]', pin: '.hero__stick', start: 'top top', end: '+=80%', scrub: true,
     onUpdate: (s) => {
       const p = s.progress;
       if (wall) wall.setDolly(p); else gsap.set('.hero__img', { scale: 1 + p * 0.25 });
@@ -140,7 +140,8 @@ if (LIVE) {
       gsap.set('.hero__scroll', { opacity: Math.max(0, 1 - p * 5) });
     },
   });
-  if (GL) {
+  // Phones get the still wall with its loops: lighter, and the 3D adds little on a small screen.
+  if (GL && innerWidth >= 760) {
     import('/assets/home/wall.js').then((m) => {
       wall = m.bootWall();
       if (wall) { let last = performance.now() / 1000; gsap.ticker.add(() => { const t = performance.now() / 1000, dt = Math.min(0.05, t - last); last = t; wall.tick(t, dt); }); }

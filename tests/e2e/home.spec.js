@@ -83,7 +83,8 @@ test.describe('home page', () => {
     expect((await still.body()).length).toBeLessThanOrEqual(180 * 1024);
     await page.goto('/?still=1');
     expect(await page.locator('.hero__img').evaluate((i) => [i.naturalWidth, i.naturalHeight])).toEqual([1600, 1000]);
-    for (const t of imgs.filter((x) => !/hero__img/.test(x))) expect(t).toMatch(/loading="lazy"/);
+    // The header logo (rendered into the HTML by the worker) sits at the top of every page, so it loads eagerly.
+    for (const t of imgs.filter((x) => !/hero__img/.test(x) && !/alt="[^"]*, home"/.test(x))) expect(t).toMatch(/loading="lazy"/);
     // Videos never load ahead of time.
     for (const v of html.matchAll(/<video\b[^>]*>/g)) expect(v[0]).toMatch(/preload="none"/);
 
