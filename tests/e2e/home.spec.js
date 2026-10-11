@@ -266,3 +266,24 @@ for (const width of [375, 1280]) {
     });
   });
 }
+
+// Below 960 px the four screens stack above the copy; the hero is not pinned, so nothing overlaps or hides.
+for (const [w, h] of [[375, 667], [390, 844], [820, 1180]]) {
+  test.describe(`hero at ${w}x${h}`, () => {
+    test.use({ viewport: { width: w, height: h } });
+    test('the screens sit above the eyebrow, the 3D wall stays off, the buttons are reachable', async ({ page }) => {
+      await page.goto('/?forcegl=1');
+      await page.waitForTimeout(1500);
+      const { lowest, eyebrow } = await page.evaluate(() => ({
+        lowest: Math.max(...[...document.querySelectorAll('.wall-screens figure')].map((f) => f.getBoundingClientRect().bottom)),
+        eyebrow: document.querySelector('[data-hero-copy] .eyebrow').getBoundingClientRect().top,
+      }));
+      expect(eyebrow).toBeGreaterThan(lowest);
+      await expect(page.locator('[data-section="hero"]')).not.toHaveClass(/is-gl/);
+      const cta = page.locator('[data-hero-copy] .btn--primary');
+      await cta.scrollIntoViewIfNeeded();
+      await expect(cta).toBeInViewport();
+      await expect(cta).toHaveCSS('opacity', '1');
+    });
+  });
+}

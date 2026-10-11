@@ -14,7 +14,7 @@
 
 .fx { padding: clamp(40px, 6vw, 96px) 0 clamp(72px, 9vw, 128px); }
 .fx.section--ivory {
-  background-image: radial-gradient(50% 60% at 0% 0%, rgba(212, 175, 55, .12), transparent 70%);
+  background-image: radial-gradient(50% 60% at 0% 0%, rgba(94, 128, 176, .24), transparent 70%);
 }
 .fx__grid {
   display: grid;
