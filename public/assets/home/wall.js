@@ -4,7 +4,7 @@
 import * as THREE from '/assets/vendor/three.min.js';
 import { toVideo } from './video.js';
 
-const WARM = 0xFFC27A; // ember-tinted lamp light
+const WARM = 0xFFE9CC; // a near-white lamp with a touch of warmth; the ember lives in the halos
 const FOV = 35;
 // Screen centres on the wall (x, y) for wide screens, and stacked for phones. Size is width × height.
 const DESKTOP = { cam: [1.5, 0.2], size: [2.2, 1.375], at: [[1.9, 1.25], [4.6, 1.75], [2.2, -1.25], [4.9, -0.75]] };
@@ -15,7 +15,7 @@ const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a
 function fabricTexture() {
   const c = document.createElement('canvas'); c.width = 256; c.height = 1024;
   const x = c.getContext('2d');
-  x.fillStyle = '#16263F'; x.fillRect(0, 0, 256, 1024);
+  x.fillStyle = '#C3CEDD'; x.fillRect(0, 0, 256, 1024); // light weave; the navy comes from each panel's tint
   let seed = 11; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
   // warp and weft threads, then a little fibre noise so the light catches it
   for (let y = 0; y < 1024; y += 3) { x.fillStyle = `rgba(10,19,34,${0.18 + rnd() * 0.14})`; x.fillRect(0, y, 256, 1); }
@@ -48,7 +48,7 @@ export function startWall(canvas, videos, { mobile, dpr }) {
   for (let i = 0; i < 40; i++) {
     m.makeTranslation(-11.4 + i * 0.6, 0, -0.17 + (rnd() - 0.5) * 0.08);
     panels.setMatrixAt(i, m);
-    col.setHSL(0.6, 0.38, 0.42 + rnd() * 0.12); panels.setColorAt(i, col);
+    col.setHSL(0.61, 0.5, 0.17 + rnd() * 0.05); panels.setColorAt(i, col);
   }
   panels.receiveShadow = true; panels.castShadow = !mobile;
   scene.add(panels);
@@ -72,7 +72,7 @@ export function startWall(canvas, videos, { mobile, dpr }) {
   // Light: a dim ambient and the work lamp
   scene.add(new THREE.AmbientLight(0x6F86A8, 0.22));
   scene.add(new THREE.HemisphereLight(0x1F3A5F, 0x0A1322, 0.3));
-  const lamp = new THREE.SpotLight(WARM, 180, 40, 0.55, 0.8, 1.6);
+  const lamp = new THREE.SpotLight(WARM, 95, 40, 0.55, 0.8, 1.6);
   lamp.position.set(L.cam[0] + 2, L.cam[1] + 1, 6.5); lamp.castShadow = !mobile;
   lamp.shadow.mapSize.set(1024, 1024); lamp.shadow.bias = -0.0005;
   scene.add(lamp, lamp.target);

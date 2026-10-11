@@ -14,10 +14,10 @@ function files(dir, exts, out = []) {
   }
   return out;
 }
-const SITE = [...files('public/assets/css', ['.css']), ...files('public/assets/js', ['.js']), ...files('public/assets/home', ['.js'])];
+const SITE = [...files('public/assets/css', ['.css']), ...files('public/assets/js', ['.js']), ...files('public/assets/home', ['.js']), ...files('public/assets/brand', ['.svg'])];
 const PAGES = files('public', ['.html']);
 
-const BROWN_HEX = /#(2B1B18|3E2723|4E3626|5E4430|553B29|432D1F|6B4F32|C89B6B|4A3127|D6AE82|7A5634|5A4636|F7EFE4|D4AF37|556B2F)\b/i;
+const BROWN_HEX = /#(2B1B18|3E2723|4E3626|5E4430|553B29|432D1F|6B4F32|C89B6B|4A3127|D6AE82|7A5634|5A4636|F7EFE4|D4AF37|556B2F|E6C59C|8C6A45)\b/i;
 const BROWN_RGB = /rgba?\(\s*(62\s*,\s*39\s*,\s*35|43\s*,\s*27\s*,\s*24|200\s*,\s*155\s*,\s*107|107\s*,\s*79\s*,\s*50|247\s*,\s*239\s*,\s*228)\s*[,)]/;
 const WOOD_NAMES = /--(deep-brown|wood-brown|warm-tan|tan-ink|cream|gold|sage|charcoal|off-white|ink-muted)\b|section--(wood|cream)\b|\bslats\b/;
 
