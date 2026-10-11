@@ -454,6 +454,13 @@ button { font: inherit; color: inherit; }
   pointer-events: none; opacity: 0; transition: opacity .8s var(--ease-out); mix-blend-mode: screen;
 }
 .site-footer__lamp.is-on { opacity: 1; }
+/* Touch screens: every text link in the footer and the small "see more" links get a 44 px target. */
+@media (pointer: coarse) {
+  .site-footer__cols a, .site-footer__base a, .featured__all a, .reel__build, .ind-card__more, .d-link {
+    display: inline-flex; align-items: center; min-height: 44px;
+  }
+  .site-footer__cols ul { gap: 0; }
+}
 .site-footer .container { position: relative; z-index: 1; }
 .site-footer__big {
   margin: 0 0 var(--space-7);

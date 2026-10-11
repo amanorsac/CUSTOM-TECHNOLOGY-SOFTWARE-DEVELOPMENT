@@ -33,7 +33,7 @@ function reelItem(r, d, i) {
       </p>
     </div>
     <a class="reel__media" href="/showcase/${esc(r.slug)}" tabindex="-1" aria-hidden="true">
-      <img src="/assets/home/loops/${esc(r.slug)}.webp" data-video="/assets/home/loops/${esc(r.slug)}.mp4" width="640" height="400" loading="lazy" decoding="async" alt="">
+      <img src="/assets/home/loops/${esc(r.slug)}.webp" data-video="/assets/home/loops/${esc(r.slug)}.mp4" width="640" height="400" loading="lazy" decoding="async" alt="" role="presentation">
     </a>
   </div>`;
   return art;

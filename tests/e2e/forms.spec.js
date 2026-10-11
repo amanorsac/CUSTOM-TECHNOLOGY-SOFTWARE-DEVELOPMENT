@@ -498,13 +498,13 @@ test.describe('Free Mockup', () => {
   const logoInput = (page) => page.locator('input[type="file"][name="logo"]');
   const send = (page) => page.getByRole('button', { name: 'Get a free mockup' });
 
-  test('copy promises a free concept and no turnaround time', async ({ page }) => {
+  // The 2026-10-11 re-brand spec adds a stated turnaround (it replaces the earlier "no turnaround" rule).
+  test('copy promises a free concept and a 3-business-day turnaround', async ({ page }) => {
     await setup(page);
     await ready(page, '/mockup');
     await expect(page.locator('h1')).toHaveCount(1);
     const t = await page.locator('main').innerText();
-    expect(t).toContain("We'll design a homepage concept for your organization, free.");
-    expect(t).not.toMatch(/business days|within \d/i);
+    expect(t).toContain("We'll design a homepage concept for your organization, free, and send it within 3 business days.");
     const values = (name) => page.locator(`input[name="${name}"]`).evaluateAll((els) => els.map((e) => e.value));
     expect(await values('style')).toEqual(['modern', 'classic', 'bold', 'minimal']);
     expect(await values('org_type')).toEqual(['business', 'church', 'school', 'nonprofit', 'other']);
