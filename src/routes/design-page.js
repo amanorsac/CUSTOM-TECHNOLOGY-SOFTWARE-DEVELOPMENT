@@ -3,7 +3,7 @@
 // Unknown slug -> 404 with the same template (the client shows "Design not
 //                found"), robots noindex kept.
 
-import { jsonLdTag, setSecurityHeaders } from '../lib/seo.js';
+import { jsonLdTag, setSecurityHeaders, withShell } from '../lib/seo.js';
 
 const PATH = /^\/designs\/([^/]+)\/?$/;
 
@@ -78,7 +78,7 @@ function rewrite(res, design, url) {
     meta('name', 'twitter:image', image),
   ].join('\n');
 
-  const rw = new HTMLRewriter()
+  const rw = withShell(new HTMLRewriter())
     .on('title', { element: (el) => el.setInnerContent(title) })
     .on([
       'meta[name="description"]', 'meta[name="robots"]', 'link[rel="canonical"]',

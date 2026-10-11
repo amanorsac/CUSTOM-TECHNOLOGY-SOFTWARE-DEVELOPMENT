@@ -14,7 +14,10 @@ export function startMotion({ lenis }) {
   // Measure now, and again once fonts and images have settled the layout. The page counts as ready
   // only after that second measure, since a refresh restores the scroll position it recorded.
   ScrollTrigger.refresh();
-  const settle = () => { ScrollTrigger.refresh(); document.documentElement.dataset.homeMotion = '1'; };
+  // Failsafe: any entrance whose trigger is already on or above the screen but hasn't played (a stalled
+  // or throttled tab) is finished, so no content is ever left invisible.
+  const unstick = () => { for (const st of ScrollTrigger.getAll()) { const a = st.animation; if (a && !st.vars.scrub && !st.vars.pin && st.start <= scrollY + innerHeight && a.progress() === 0) a.progress(1); } };
+  const settle = () => { ScrollTrigger.refresh(); document.documentElement.dataset.homeMotion = '1'; setTimeout(unstick, 2500); };
   if (document.readyState === 'complete') setTimeout(settle, 300);
   else addEventListener('load', () => setTimeout(settle, 300));
 }
@@ -130,7 +133,7 @@ function industries() {
     card.addEventListener('pointerenter', play); card.addEventListener('focus', play);
     card.addEventListener('pointerleave', stop); card.addEventListener('blur', stop);
   }
-  gsap.from('.ind-grid > li', { y: 60, opacity: 0, duration: 0.9, stagger: 0.08, ease: 'expo.out', scrollTrigger: { trigger: '.ind-grid', start: 'top 85%' } });
+  // The cards are revealed by the site-wide .reveal observer (with its failsafe), not hidden twice here.
 }
 
 // ---- Process: a line draws through the steps and lights each one it reaches ----
