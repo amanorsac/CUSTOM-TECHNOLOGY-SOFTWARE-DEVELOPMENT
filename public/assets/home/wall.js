@@ -1,29 +1,26 @@
-// The workshop wall: dark walnut slats under a warm work lamp, with the four showpieces hanging as live
-// screens. The lamp follows the pointer, the screens glow brighter as it nears them, and scrolling dollies
-// the camera into the first screen. Without WebGL the screens sit over the still as plain videos.
+// The studio wall: deep navy acoustic panels under an ember work lamp, with the four showpieces hanging as
+// live screens. The lamp follows the pointer, the screens glow brighter as it nears them, and scrolling
+// dollies the camera into the first screen. Without WebGL the screens sit over the still as plain videos.
 import * as THREE from '/assets/vendor/three.min.js';
 import { toVideo } from './video.js';
 
-const WARM = 0xFFD9A0;
+const WARM = 0xFFC27A; // ember-tinted lamp light
 const FOV = 35;
 // Screen centres on the wall (x, y) for wide screens, and stacked for phones. Size is width × height.
 const DESKTOP = { cam: [1.5, 0.2], size: [2.2, 1.375], at: [[1.9, 1.25], [4.6, 1.75], [2.2, -1.25], [4.9, -0.75]] };
 const PHONE = { cam: [0, 1.4], size: [1.7, 1.0625], at: [[-1.0, 2.5], [1.0, 3.1], [-1.0, 1.0], [1.0, 1.6]] };
 const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
 
-// Procedural walnut: vertical grain drawn once to a canvas, tiled down every slat.
-function grainTexture() {
+// Procedural acoustic fabric: a fine navy weave drawn once to a canvas, tiled down every panel.
+function fabricTexture() {
   const c = document.createElement('canvas'); c.width = 256; c.height = 1024;
   const x = c.getContext('2d');
-  x.fillStyle = '#5E4430'; x.fillRect(0, 0, 256, 1024);
+  x.fillStyle = '#16263F'; x.fillRect(0, 0, 256, 1024);
   let seed = 11; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-  for (let i = 0; i < 160; i++) {
-    const w = 1 + rnd() * 5, px = rnd() * 256, dark = rnd() < 0.5;
-    x.strokeStyle = dark ? `rgba(43,27,24,${0.18 + rnd() * 0.3})` : `rgba(200,155,107,${0.05 + rnd() * 0.12})`;
-    x.lineWidth = w; x.beginPath(); x.moveTo(px, 0);
-    for (let y = 0; y <= 1024; y += 64) x.lineTo(px + Math.sin(y / 140 + i) * 6, y);
-    x.stroke();
-  }
+  // warp and weft threads, then a little fibre noise so the light catches it
+  for (let y = 0; y < 1024; y += 3) { x.fillStyle = `rgba(10,19,34,${0.18 + rnd() * 0.14})`; x.fillRect(0, y, 256, 1); }
+  for (let px = 0; px < 256; px += 3) { x.fillStyle = `rgba(148,170,204,${0.03 + rnd() * 0.04})`; x.fillRect(px, 0, 1, 1024); }
+  for (let i = 0; i < 2200; i++) { x.fillStyle = rnd() < 0.5 ? 'rgba(10,19,34,.35)' : 'rgba(148,170,204,.08)'; x.fillRect(rnd() * 256, rnd() * 1024, 1, 1 + rnd() * 2); }
   const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace;
   return t;
 }
@@ -35,46 +32,46 @@ export function startWall(canvas, videos, { mobile, dpr }) {
   const soft = /swiftshader|llvmpipe|software|mesa/i.test(info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : '');
   const lite = mobile || soft;
   renderer.setPixelRatio(soft ? 0.5 : lite ? Math.min(dpr, 1.5) : Math.min(dpr, 1.5));
-  renderer.setClearColor(0x2B1B18, 1);
+  renderer.setClearColor(0x0A1322, 1);
   renderer.shadowMap.enabled = !lite; renderer.shadowMap.type = THREE.PCFShadowMap;
   mobile = lite;
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(FOV, 16 / 10, 0.1, 100);
   const L = mobile ? PHONE : DESKTOP;
 
-  // Slats
-  const slatGeo = new THREE.BoxGeometry(0.56, 14, 0.34);
-  const slatMat = new THREE.MeshStandardMaterial({ map: grainTexture(), roughness: 0.78, metalness: 0.04 });
-  const slats = new THREE.InstancedMesh(slatGeo, slatMat, 40);
+  // Panels: fabric-wrapped acoustic columns with slim shadow gaps between them
+  const panelGeo = new THREE.BoxGeometry(0.56, 14, 0.34);
+  const panelMat = new THREE.MeshStandardMaterial({ map: fabricTexture(), roughness: 0.92, metalness: 0 });
+  const panels = new THREE.InstancedMesh(panelGeo, panelMat, 40);
   const m = new THREE.Matrix4(), col = new THREE.Color();
   let seed = 3; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
   for (let i = 0; i < 40; i++) {
     m.makeTranslation(-11.4 + i * 0.6, 0, -0.17 + (rnd() - 0.5) * 0.08);
-    slats.setMatrixAt(i, m);
-    col.setHSL(0.07, 0.42, 0.2 + rnd() * 0.1); slats.setColorAt(i, col);
+    panels.setMatrixAt(i, m);
+    col.setHSL(0.6, 0.38, 0.42 + rnd() * 0.12); panels.setColorAt(i, col);
   }
-  slats.receiveShadow = true; slats.castShadow = !mobile;
-  scene.add(slats);
+  panels.receiveShadow = true; panels.castShadow = !mobile;
+  scene.add(panels);
 
   // Screens: a dark bezel, then the video plane. Each is self-lit, scaled by the lamp's nearness.
   const screens = videos.map((video, i) => {
     const [w, h] = L.size, [x, y] = L.at[i];
     const g = new THREE.Group(); g.position.set(x, y, 0.08);
-    const bezel = new THREE.Mesh(new THREE.BoxGeometry(w + 0.14, h + 0.14, 0.09), new THREE.MeshStandardMaterial({ color: 0x1B110E, roughness: 0.5, metalness: 0.3 }));
+    const bezel = new THREE.Mesh(new THREE.BoxGeometry(w + 0.14, h + 0.14, 0.09), new THREE.MeshStandardMaterial({ color: 0x070D18, roughness: 0.5, metalness: 0.3 }));
     bezel.castShadow = !mobile; g.add(bezel);
     const tex = new THREE.VideoTexture(video); tex.colorSpace = THREE.SRGBColorSpace; tex.minFilter = THREE.LinearFilter;
     const mat = new THREE.MeshBasicMaterial({ map: tex, color: 0xffffff, toneMapped: false });
     const plane = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat); plane.position.z = 0.05; g.add(plane);
-    // A soft halo on the wood behind the screen
-    const halo = new THREE.Mesh(new THREE.PlaneGeometry(w * 1.6, h * 1.7), new THREE.MeshBasicMaterial({ color: 0xC89B6B, transparent: true, opacity: 0.08, depthWrite: false, blending: THREE.AdditiveBlending }));
+    // A soft ember halo on the panels behind the screen
+    const halo = new THREE.Mesh(new THREE.PlaneGeometry(w * 1.6, h * 1.7), new THREE.MeshBasicMaterial({ color: 0xF2A23A, transparent: true, opacity: 0.08, depthWrite: false, blending: THREE.AdditiveBlending }));
     halo.position.z = -0.06; g.add(halo);
     scene.add(g);
     return { g, mat, halo, x, y, w, h };
   });
 
   // Light: a dim ambient and the work lamp
-  scene.add(new THREE.AmbientLight(0xC89B6B, 0.22));
-  scene.add(new THREE.HemisphereLight(0x6B4F32, 0x1A1A1A, 0.25));
+  scene.add(new THREE.AmbientLight(0x6F86A8, 0.22));
+  scene.add(new THREE.HemisphereLight(0x1F3A5F, 0x0A1322, 0.3));
   const lamp = new THREE.SpotLight(WARM, 180, 40, 0.55, 0.8, 1.6);
   lamp.position.set(L.cam[0] + 2, L.cam[1] + 1, 6.5); lamp.castShadow = !mobile;
   lamp.shadow.mapSize.set(1024, 1024); lamp.shadow.bias = -0.0005;

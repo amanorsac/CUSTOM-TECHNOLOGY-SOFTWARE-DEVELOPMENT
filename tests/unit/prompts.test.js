@@ -66,7 +66,7 @@ describe('make-thumbs path mapping', () => {
     expect(size('images/site/hero.png')).toEqual([1440, 1200]);
     expect(size('images/site/admin-hero.png')).toEqual([1600, 1000]);
     expect(size('images/site/industry-church.png')).toEqual([2400, 1600]);
-    expect(size('images/site/texture-wood-slats.png')).toEqual([1600, 1600]);
+    expect(size('images/site/texture-wood-panels.png')).toEqual([1600, 1600]);
   });
 
   it('phone screens extend, desktop screens crop from the top, scenes crop from the centre', () => {

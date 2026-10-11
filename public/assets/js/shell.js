@@ -83,7 +83,7 @@ function headerHTML(page) {
 function footerHTML() {
   const list = (arr) => arr.map((l) => `<li><a href="${l.href}">${esc(l.label)}</a></li>`).join('');
   const year = new Date().getFullYear();
-  return `<footer class="site-footer section--wood">
+  return `<footer class="site-footer section--dark">
   <div class="site-footer__lamp" data-foot-lamp aria-hidden="true"></div>
   <div class="container">
     <p class="site-footer__big">Let's build <em>yours.</em></p>
