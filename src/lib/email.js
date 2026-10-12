@@ -51,13 +51,13 @@ export function ownerEmail(lead) {
   const list = rows(lead);
 
   const html = '<div style="font-family:Arial,sans-serif;color:#1A1A1A;max-width:640px">'
-    + `<h2 style="color:#3E2723;margin:0 0 12px">${escapeHtml(subject)}</h2>`
+    + `<h2 style="color:#0F1B2D;margin:0 0 12px">${escapeHtml(subject)}</h2>`
     + '<table cellpadding="6" style="border-collapse:collapse">'
     + list.map(([label, v]) => '<tr>'
-      + `<th align="left" valign="top" style="color:#6B4F32;white-space:nowrap">${escapeHtml(label)}</th>`
+      + `<th align="left" valign="top" style="color:#1F3A5F;white-space:nowrap">${escapeHtml(label)}</th>`
       + `<td style="white-space:pre-wrap">${escapeHtml(v)}</td></tr>`).join('')
     + '</table>'
-    + '<p style="color:#6B4F32;font-size:13px">Reply to this email to answer the visitor directly.</p>'
+    + '<p style="color:#1F3A5F;font-size:13px">Reply to this email to answer the visitor directly.</p>'
     + '</div>';
 
   const text = `${subject}\n\n`

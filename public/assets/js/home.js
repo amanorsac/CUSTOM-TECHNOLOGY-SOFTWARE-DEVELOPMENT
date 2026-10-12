@@ -33,7 +33,7 @@ function reelItem(r, d, i) {
       </p>
     </div>
     <a class="reel__media" href="/showcase/${esc(r.slug)}" tabindex="-1" aria-hidden="true">
-      <img src="/assets/home/loops/${esc(r.slug)}.webp" data-video="/assets/home/loops/${esc(r.slug)}.mp4" width="640" height="400" loading="lazy" decoding="async" alt="">
+      <img src="/assets/home/loops/${esc(r.slug)}.webp" data-video="/assets/home/loops/${esc(r.slug)}.mp4" width="640" height="400" loading="lazy" decoding="async" alt="" role="presentation">
     </a>
   </div>`;
   return art;
@@ -127,12 +127,14 @@ if (LIVE) {
   gsap.ticker.add((t) => lenis.raf(t * 1000)); gsap.ticker.lagSmoothing(0);
   document.querySelectorAll('a[href^="#"]').forEach((a) => a.addEventListener('click', (e) => { const t = document.querySelector(a.getAttribute('href')); if (!t) return; e.preventDefault(); lenis.scrollTo(t, { duration: 1.4 }); }));
 
+  // Phones and tablets skip the pin: their hero is taller than the screen (the screens sit above the copy), so it
+  // scrolls like any section and the buttons stay reachable.
   // The hero pin is created now, in document order, so the pins that follow measure the page as it
   // really is. The WebGL wall arrives later and simply takes over the dolly from the still.
   const copy = document.querySelector('[data-hero-copy]');
   let wall = null;
-  ScrollTrigger.create({
-    trigger: '[data-hero]', pin: '.hero__stick', start: 'top top', end: '+=160%', scrub: true,
+  if (innerWidth >= 960) ScrollTrigger.create({
+    trigger: '[data-hero]', pin: '.hero__stick', start: 'top top', end: '+=80%', scrub: true,
     onUpdate: (s) => {
       const p = s.progress;
       if (wall) wall.setDolly(p); else gsap.set('.hero__img', { scale: 1 + p * 0.25 });
@@ -140,7 +142,8 @@ if (LIVE) {
       gsap.set('.hero__scroll', { opacity: Math.max(0, 1 - p * 5) });
     },
   });
-  if (GL) {
+  // Phones and tablets get the still wall with its loops: lighter, and the stacked screens read better there.
+  if (GL && innerWidth >= 960) {
     import('/assets/home/wall.js').then((m) => {
       wall = m.bootWall();
       if (wall) { let last = performance.now() / 1000; gsap.ticker.add(() => { const t = performance.now() / 1000, dt = Math.min(0.05, t - last); last = t; wall.tick(t, dt); }); }

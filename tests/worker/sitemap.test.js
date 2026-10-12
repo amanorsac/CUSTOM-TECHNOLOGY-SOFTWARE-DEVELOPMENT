@@ -66,13 +66,13 @@ describe('client drafts under /preview/ stay out of search', () => {
 
 describe('absolute head URLs on static HTML', () => {
   it('/, /designs and /about get absolute canonical, og:url, og:image, twitter:image', async () => {
-    for (const [path, canon] of [['/', 'https://ctsd.example/'], ['/designs', 'https://ctsd.example/designs'], ['/about', 'https://ctsd.example/about']]) {
+    for (const [path, canon, img] of [['/', 'https://ctsd.example/', 'brand/og-default'], ['/designs', 'https://ctsd.example/designs', 'og/designs'], ['/about', 'https://ctsd.example/about', 'og/about']]) {
       const res = await get(path);
       expect(res.status).toBe(200);
       const html = await res.text();
       expect(attr(html, /<link rel="canonical" href="([^"]*)"/)).toBe(canon);
-      expect(attr(html, /<meta property="og:image" content="([^"]*)"/)).toBe('https://ctsd.example/assets/brand/og-default.jpg');
-      expect(attr(html, /<meta name="twitter:image" content="([^"]*)"/)).toBe('https://ctsd.example/assets/brand/og-default.jpg');
+      expect(attr(html, /<meta property="og:image" content="([^"]*)"/)).toBe(`https://ctsd.example/assets/${img}.jpg`);
+      expect(attr(html, /<meta name="twitter:image" content="([^"]*)"/)).toBe(`https://ctsd.example/assets/${img}.jpg`);
       expect(attr(html, /<meta property="og:url" content="([^"]*)"/)).toBe(canon);
     }
   });

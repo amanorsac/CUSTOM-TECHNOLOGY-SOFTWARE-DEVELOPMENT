@@ -15,7 +15,8 @@ test.describe('home: the workshop wall', () => {
   test('live: the wall canvas is drawn', async ({ page, browserName }) => {
     test.skip(browserName !== 'chromium', 'WebGL is only reliable in headless Chromium');
     const errors = collectErrors(page);
-    await page.goto('/');
+    // Headless browsers render WebGL in software, where the page skips the 3D wall; force it on here.
+    await page.goto('/?forcegl=1');
     await expect(page.locator('html')).toHaveClass(/home-live/);
     await expect(page.locator('[data-section="hero"]')).toHaveClass(/is-gl/, { timeout: 8000 });
     await expect.poll(() => page.locator('[data-wall-canvas]').evaluate((c) => Number(getComputedStyle(c).opacity)), { timeout: 8000 }).toBeGreaterThan(0.9);
@@ -46,7 +47,7 @@ test.describe('home: the workshop wall', () => {
     test.skip(browserName !== 'chromium', 'WebGL is only reliable in headless Chromium');
     await page.route('**/assets/home/loops/*.mp4', (route) => route.fulfill({ status: 404, body: '' }));
     const errors = collectErrors(page);
-    await page.goto('/');
+    await page.goto('/?forcegl=1');
     await expect(page.locator('.hero__img')).toBeVisible();
     // The scene shows 2.5 s after boot even with no video; allow for a slow first WebGL frame under load.
     await expect(page.locator('[data-section="hero"]')).toHaveClass(/is-gl/, { timeout: 15000 });
@@ -101,6 +102,16 @@ test.describe('home: the workshop wall', () => {
     // Lenis glides to a programmatic position rather than jumping; give it time to arrive.
     await page.waitForTimeout(2200);
     await expect(page.locator('[data-section="process"] .steps li.is-on')).toHaveCount(6);
+  });
+
+  test('no GPU: the still wall with its screens playing, not the 3D wall', async ({ page, browserName }) => {
+    test.skip(browserName !== 'chromium', 'headless Chromium renders WebGL in software');
+    const errors = collectErrors(page);
+    await page.goto('/');
+    await expect(page.locator('[data-hero]')).toHaveAttribute('data-wall', 'still', { timeout: 8000 });
+    await expect(page.locator('[data-section="hero"]')).not.toHaveClass(/is-gl/);
+    await expect.poll(() => page.locator('.wall-screens video').evaluateAll((l) => l.filter((v) => !v.paused).length), { timeout: 8000 }).toBe(4);
+    expect(errors).toEqual([]);
   });
 
   test('hero videos pause off-screen', async ({ page }) => {

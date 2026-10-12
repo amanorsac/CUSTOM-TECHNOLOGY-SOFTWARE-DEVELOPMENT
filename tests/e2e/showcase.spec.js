@@ -3,6 +3,14 @@ import AxeBuilder from '@axe-core/playwright';
 
 const OL = '/showcase/osteria-lume';
 
+test('every showpiece says, visibly, that the organization is fictional', async ({ page }) => {
+  for (const slug of ['osteria-lume', 'juniper-vale', 'basecamp', 'lanternway']) {
+    await page.goto(`/showcase/${slug}?still=1`);
+    await expect(page.locator('a[class$="-badge"]')).toContainText('Fictional organization');
+    await expect(page.locator('a[class$="-badge"]')).toBeVisible();
+  }
+});
+
 function collectErrors(page) {
   const errors = [];
   page.on('console', (m) => { if (m.type() === 'error' && !/GL_|WebGL|GPU stall|swiftshader/i.test(m.text())) errors.push(m.text()); });

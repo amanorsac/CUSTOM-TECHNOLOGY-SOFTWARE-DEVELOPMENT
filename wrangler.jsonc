@@ -11,7 +11,10 @@
   "vars": {
     "LEAD_EMAIL": "amanorsac@gmail.com",
     "SUPABASE_URL": "https://bmqvkjgqicmatloztpcz.supabase.co",
-    "MAIL_FROM": ""
+    "MAIL_FROM": "",
+    // The public address, e.g. "https://www.example.com". When set, canonical links, share URLs,
+    // the sitemap and robots.txt use it instead of the address the request arrived on. Empty = request address.
+    "SITE_ORIGIN": ""
   },
   // Branch and pull-request previews (Cloudflare Worker Previews).
   // SUPABASE_URL stays empty so previews never write leads into the
@@ -20,7 +23,8 @@
     "vars": {
       "LEAD_EMAIL": "amanorsac@gmail.com",
       "SUPABASE_URL": "",
-      "MAIL_FROM": ""
+      "MAIL_FROM": "",
+      "SITE_ORIGIN": ""
     }
   }
 }

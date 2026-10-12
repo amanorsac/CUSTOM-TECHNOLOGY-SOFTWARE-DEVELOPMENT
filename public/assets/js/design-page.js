@@ -57,8 +57,8 @@ const el = (tag, cls, text) => {
 function retone() {
   $$('[data-tone]').filter((s) => !s.hidden).forEach((s, i) => {
     const wood = i % 2 === 1;
-    s.classList.toggle('section--wood', wood);
-    s.classList.toggle('section--cream', !wood);
+    s.classList.toggle('section--dark', wood);
+    s.classList.toggle('section--ivory', !wood);
   });
 }
 
@@ -237,7 +237,7 @@ function fill(design, designs) {
 // Not found (unknown slug) and load failure share one layout; only the words differ.
 function message({ title, heading, lead, action }) {
   document.title = `${title} | CTSD`;
-  root.innerHTML = `<section class="d-hero d-missing section--wood" aria-labelledby="d-missing">
+  root.innerHTML = `<section class="d-hero d-missing section--dark" aria-labelledby="d-missing">
   <div class="container d-missing__inner">
     <p class="eyebrow">Explore Designs</p>
     <h1 id="d-missing">${heading}</h1>

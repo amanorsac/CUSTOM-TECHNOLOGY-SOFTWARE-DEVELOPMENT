@@ -10,8 +10,8 @@
 .sec-head .lead { margin-top: 18px; }
 .sec-head--center { margin-inline: auto; text-align: center; }
 .sec-head--center .lead { margin-inline: auto; }
-.section--cream .sec-head h2 { color: var(--deep-brown); }
-.section--wood .sec-head h2 { color: var(--cream); }
+.section--ivory .sec-head h2 { color: var(--navy); }
+.section--dark .sec-head h2 { color: var(--ivory); }
 
 /* =====================================================================
    7. Process
@@ -19,9 +19,9 @@
 .process { padding: clamp(80px, 10vw, 140px) 0; }
 .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 clamp(24px, 4vw, 56px); list-style: none; padding: 0; margin: 0; counter-reset: none; }
 .steps li { padding: 28px 0 40px; border-top: 1px solid var(--line-dark); }
-.steps__n { display: block; font-family: var(--font-head); font-weight: 600; font-size: 2.5rem; line-height: 1; letter-spacing: -.03em; color: var(--warm-tan); }
-.steps h3 { margin-top: 18px; color: var(--cream); }
-.steps p { margin-top: 10px; font-size: .9375rem; line-height: 1.6; color: var(--cream-muted); max-width: 34ch; }
+.steps__n { display: block; font-family: var(--font-head); font-weight: 600; font-size: 2.5rem; line-height: 1; letter-spacing: -.03em; color: var(--ember); }
+.steps h3 { margin-top: 18px; color: var(--ivory); }
+.steps p { margin-top: 10px; font-size: .9375rem; line-height: 1.6; color: var(--ivory-muted); max-width: 34ch; }
 
 /* =====================================================================
    8. Integrations wall
@@ -41,11 +41,11 @@
   font-family: var(--font-label); font-weight: 500;
   font-size: clamp(.9375rem, .85rem + .35vw, 1.125rem);
   letter-spacing: -.01em; text-align: center;
-  color: var(--ink-muted);
+  color: var(--slate);
   transition: color .3s var(--ease-out), background-color .3s var(--ease-out);
 }
-.wall li:hover { color: var(--deep-brown); background: var(--off-white); }
-.wall__note { margin-top: 20px; text-align: center; font-size: .8125rem; color: var(--ink-muted); }
+.wall li:hover { color: var(--navy); background: var(--paper); }
+.wall__note { margin-top: 20px; text-align: center; font-size: .8125rem; color: var(--slate); }
 
 /* =====================================================================
    9. Final CTA
@@ -53,11 +53,11 @@
 .final { padding: clamp(96px, 12vw, 168px) 0; text-align: center; }
 .final::before {
   content: ""; position: absolute; inset: 0;
-  background: radial-gradient(60% 70% at 50% 45%, rgba(43, 27, 24, .78), rgba(43, 27, 24, .92));
+  background: radial-gradient(60% 70% at 50% 45%, rgba(10, 19, 34, .78), rgba(10, 19, 34, .92));
 }
 .final__in { position: relative; }
 .final__mark { width: 56px; height: auto; margin: 0 auto 28px; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .45)); }
-.final h2 { margin: 0 auto; max-width: 18ch; color: var(--cream); font-size: clamp(2rem, 1.3rem + 3vw, 3.5rem); }
+.final h2 { margin: 0 auto; max-width: 18ch; color: var(--ivory); font-size: clamp(2rem, 1.3rem + 3vw, 3.5rem); }
 .final .lead { margin: 20px auto 0; }
 .final__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: 36px; }
 

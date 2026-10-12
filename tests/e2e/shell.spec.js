@@ -197,6 +197,17 @@ test.describe('industries dropdown (1280px)', () => {
   });
 });
 
+test.describe('touch targets (375px, touch screen)', () => {
+  test.use({ viewport: { width: 375, height: 812 }, hasTouch: true, isMobile: true });
+
+  test('footer links and small "more" links are at least 44 px tall', async ({ page }) => {
+    await page.goto('/?still=1');
+    const small = await page.locator('.site-footer__cols a, .site-footer__base a, .featured__all a').evaluateAll(
+      (links) => links.map((a) => [a.textContent.trim(), Math.round(a.getBoundingClientRect().height)]).filter(([, h]) => h < 44));
+    expect(small).toEqual([]);
+  });
+});
+
 test.describe('mobile menu keeps the header (375px)', () => {
   test.use({ viewport: { width: 375, height: 800 } });
 
