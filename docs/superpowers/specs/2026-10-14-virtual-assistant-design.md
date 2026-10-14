@@ -152,3 +152,12 @@ Errors keep everything typed and offer the existing email fallback, the same way
   - **Navigation.** "Virtual Assistant" is in the Solutions menu and on the home page.
   - **Layout.** At 375 and 1280 px there's no horizontal scroll and no serious axe violations.
   - **Secrets.** No secret appears in any page source.
+
+## Rulings made while building (2026-10-14)
+
+- **Separate sign-up endpoint and table.** Sign-ups use `/api/va-signup` and a `va_signups` table, not `/api/lead` with a new kind. The fields have nothing in common with project leads, and the `leads` table's checks would reject them. It also gives the coming back office a clean client list. The SQL is in `supabase/virtual-assistant.sql`.
+- **Separate menu storage.** Menus go to their own private bucket, `va-menus` (PDF, JPG or PNG, up to 10 MB), through `/api/va-upload-url`. The logo bucket keeps its rules.
+- **Spam protection.** The sign-up and event endpoints use the hidden honeypot field only. If Turnstile is turned on site-wide later, add it here too.
+- **Solutions menu.** Solutions became a dropdown with "All solutions" and "Virtual Assistant". The dropdown code in `shell.js` now handles any number of dropdowns.
+- **Pricing estimator.** It gains a typed "Minutes a month" box, so exact figures like 1,000 minutes can be checked.
+- **Local server address.** `npm run dev` and the Playwright server pass `SITE_ORIGIN=http://localhost:8787`, so canonical and sitemap URLs match the local address. Production uses ctsdstudio.com.

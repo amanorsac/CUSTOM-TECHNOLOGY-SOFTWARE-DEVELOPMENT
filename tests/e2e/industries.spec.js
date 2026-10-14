@@ -98,7 +98,7 @@ test.describe('solutions', () => {
     await expect(page.locator('#crm a[href="/designs/custom-crm"]')).toHaveCount(1);
     await expect(page.locator('#booking a[href="/designs/booking-system"]')).toHaveCount(1);
     await expect(page.locator('#portals a[href="/designs/client-portal"]')).toHaveCount(1);
-    await expect(page.locator('#site-header a[aria-current="page"]')).toHaveText('Solutions');
+    await expect(page.locator('#site-header a[aria-current="page"]')).toHaveText('All solutions');
     const cta = page.locator('[data-section="cta"]');
     await expect(cta.locator('a[href="/start"]')).toHaveCount(1);
     expect(errors).toEqual([]);

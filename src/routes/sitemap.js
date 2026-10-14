@@ -4,7 +4,7 @@ import { loadDesigns, esc } from './design-page.js';
 import { publicUrl } from '../lib/seo.js';
 
 const STATIC_PAGES = [
-  '/', '/solutions',
+  '/', '/solutions', '/virtual-assistant', '/virtual-assistant/pricing',
   '/industries/business', '/industries/church', '/industries/education', '/industries/nonprofit',
   '/designs', '/demo/', '/about', '/start', '/mockup',
   '/lab/', '/lab/particles', '/lab/workshop', '/lab/gallery', '/lab/playground',

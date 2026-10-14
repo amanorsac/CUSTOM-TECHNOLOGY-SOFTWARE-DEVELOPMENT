@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
+    "dev": "wrangler dev --var SITE_ORIGIN:http://localhost:8787",
     "test": "vitest run",
     "test:e2e": "playwright test"
   },

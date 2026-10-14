@@ -19,30 +19,35 @@ function initHeader(root) {
   const header = root.querySelector('[data-header]');
   const toggle = root.querySelector('[data-menu-toggle]');
   const menu = root.querySelector('[data-menu]');
-  const subBtn = root.querySelector('[data-sub-toggle]');
-  const sub = root.querySelector('[data-industries]');
-
-  const setSub = (open) => {
-    subBtn.setAttribute('aria-expanded', String(open));
-    sub.hidden = !open;
+  // Dropdowns (Solutions, Industries): each toggle button controls the list named by its aria-controls.
+  const subs = [...root.querySelectorAll('[data-sub-toggle]')].map((btn) => ({ btn, list: root.querySelector(`#${btn.getAttribute('aria-controls')}`) }));
+  const setSub = (s, open) => {
+    s.btn.setAttribute('aria-expanded', String(open));
+    s.list.hidden = !open;
   };
+  const closeSubs = (except) => subs.forEach((s) => { if (s !== except) setSub(s, false); });
   const menuOpen = () => toggle.getAttribute('aria-expanded') === 'true';
   const setMenu = (open, { focusToggle = false } = {}) => {
     toggle.setAttribute('aria-expanded', String(open));
     menu.classList.toggle('is-open', open);
     document.documentElement.classList.toggle('menu-open', open);
-    if (!open) setSub(false);
+    if (!open) closeSubs();
     if (open) focusables(menu)[0]?.focus();
     if (!open && focusToggle) toggle.focus();
   };
 
   toggle.addEventListener('click', () => setMenu(!menuOpen()));
-  subBtn.addEventListener('click', () => setSub(subBtn.getAttribute('aria-expanded') !== 'true'));
+  subs.forEach((s) => s.btn.addEventListener('click', () => {
+    const open = s.btn.getAttribute('aria-expanded') !== 'true';
+    closeSubs(s);
+    setSub(s, open);
+  }));
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       if (menuOpen()) { setMenu(false, { focusToggle: true }); return; }
-      if (!sub.hidden) { setSub(false); subBtn.focus(); }
+      const open = subs.find((s) => !s.list.hidden);
+      if (open) { setSub(open, false); open.btn.focus(); }
       return;
     }
     // Focus trap while the mobile menu is open: toggle + menu contents.
@@ -58,11 +63,11 @@ function initHeader(root) {
 
   // Close the desktop dropdown when focus or a click leaves it.
   document.addEventListener('click', (e) => {
-    if (!sub.hidden && !subBtn.parentElement.contains(e.target)) setSub(false);
+    subs.forEach((s) => { if (!s.list.hidden && !s.btn.parentElement.contains(e.target)) setSub(s, false); });
   });
-  subBtn.parentElement.addEventListener('focusout', (e) => {
-    if (!MOBILE.matches && !subBtn.parentElement.contains(e.relatedTarget)) setSub(false);
-  });
+  subs.forEach((s) => s.btn.parentElement.addEventListener('focusout', (e) => {
+    if (!MOBILE.matches && !s.btn.parentElement.contains(e.relatedTarget)) setSub(s, false);
+  }));
 
   // Leaving mobile layout resets the menu.
   MOBILE.addEventListener('change', () => { if (!MOBILE.matches && menuOpen()) setMenu(false); });

@@ -95,11 +95,11 @@ test.describe('mobile menu (375px)', () => {
     const menu = page.locator('#site-header [data-menu]');
     await expect(toggle).toBeVisible();
     await expect(toggle).toHaveAttribute('aria-expanded', 'false');
-    await expect(menu.getByRole('link', { name: 'Solutions' })).toBeHidden();
+    await expect(menu.getByRole('button', { name: /Solutions/ })).toBeHidden();
 
     await toggle.click();
     await expect(toggle).toHaveAttribute('aria-expanded', 'true');
-    await expect(menu.getByRole('link', { name: 'Solutions' })).toBeVisible();
+    await expect(menu.getByRole('button', { name: /Solutions/ })).toBeVisible();
 
     const ind = menu.getByRole('button', { name: /Industries/ });
     await ind.click();
@@ -117,7 +117,7 @@ test.describe('mobile menu (375px)', () => {
 
     await page.keyboard.press('Escape');
     await expect(toggle).toHaveAttribute('aria-expanded', 'false');
-    await expect(menu.getByRole('link', { name: 'Solutions' })).toBeHidden();
+    await expect(menu.getByRole('button', { name: /Solutions/ })).toBeHidden();
     await expect(toggle).toBeFocused();
   });
 });

@@ -23,6 +23,8 @@ const PAGES = {
   'mockup.html': ['mockup', 'Free mockup', 'See your new site before you commit.'],
   'start.html': ['start', 'Start a project', 'Tell us what you need to build.'],
   'privacy.html': ['privacy', 'Privacy policy', 'How we handle your information.'],
+  'virtual-assistant.html': ['virtual-assistant', 'Virtual Assistant', 'Every missed call is a missed table.'],
+  'virtual-assistant/pricing.html': ['virtual-assistant-pricing', 'Virtual Assistant pricing', 'Pick how you pay. Switch any month.'],
   'demo/index.html': ['demo', 'Live demo', 'Try a real admin dashboard.'],
   'industries/business.html': ['business', 'Business', 'Technology that runs the way your business does.'],
   'industries/church.html': ['church', 'Church', 'Technology that serves your congregation.'],

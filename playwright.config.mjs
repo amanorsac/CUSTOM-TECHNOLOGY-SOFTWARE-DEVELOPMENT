@@ -14,7 +14,8 @@ export default defineConfig({
       : []),
   ],
   webServer: {
-    command: 'npx wrangler dev --port 8787',
+    // Local runs answer as localhost, not the real domain set in wrangler.jsonc.
+    command: 'npx wrangler dev --port 8787 --var SITE_ORIGIN:http://localhost:8787',
     url: 'http://localhost:8787',
     reuseExistingServer: true,
     timeout: 120000,

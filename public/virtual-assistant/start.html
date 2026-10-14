@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get Started with the Virtual Assistant | CTSD</title>
+<meta name="description" content="Sign up your restaurant for the CTSD Virtual Assistant. About ten minutes, then about a week to go live.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0F1B2D">
+<link rel="canonical" href="/virtual-assistant/start">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CTSD — Custom Technology &amp; Software Development">
+<meta property="og:title" content="Get started | Virtual Assistant | CTSD">
+<meta property="og:url" content="/virtual-assistant/start">
+<meta property="og:image" content="/assets/og/virtual-assistant.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="/assets/og/virtual-assistant.jpg">
+<link rel="icon" href="/assets/brand/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/fonts/montserrat-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="/assets/css/site.css">
+<link rel="stylesheet" href="/assets/css/sections.css">
+<link rel="stylesheet" href="/assets/css/pages.css">
+<link rel="stylesheet" href="/assets/css/forms.css">
+<link rel="stylesheet" href="/assets/css/va.css">
+</head>
+<body data-page="virtual-assistant">
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="site-header"></div>
+
+<main id="main" tabindex="-1">
+  <section class="page-hero page-hero--single section--dark" aria-labelledby="hero-title">
+    <div class="container">
+      <p class="eyebrow">Virtual Assistant · Get started</p>
+      <h1 id="hero-title">Put your assistant on the line.</h1>
+      <p class="lead">Tell us about your restaurant. It takes about ten minutes. After you sign up you pay the one-time $499 setup fee, and most restaurants go live in about a week.</p>
+    </div>
+  </section>
+
+  <section class="band section--ivory" aria-labelledby="form-title">
+    <div class="container">
+      <h2 id="form-title" class="sr-only">Sign-up form</h2>
+      <noscript><p class="lead">This form needs JavaScript. You can also email your restaurant's details to amanorsac@gmail.com.</p></noscript>
+      <form class="va-form" id="va-form" novalidate data-fallback="amanorsac@gmail.com">
+        <p class="field__hint">All fields are required unless marked optional.</p>
+        <div class="sr-only" aria-hidden="true"><label for="website_hp">Leave this empty</label><input id="website_hp" name="website_hp" tabindex="-1" autocomplete="off"></div>
+
+        <fieldset>
+          <legend>Your restaurant</legend>
+          <div class="field" data-field="restaurant"><label class="field__label" for="restaurant">Restaurant name</label><input class="input" id="restaurant" name="restaurant" autocomplete="organization" maxlength="160"><p class="field__error" id="err-restaurant" hidden></p></div>
+          <div class="va-grid2">
+            <div class="field" data-field="owner_name"><label class="field__label" for="owner_name">Owner name</label><input class="input" id="owner_name" name="owner_name" autocomplete="name" maxlength="120"><p class="field__error" id="err-owner_name" hidden></p></div>
+            <div class="field" data-field="mobile"><label class="field__label" for="mobile">Owner mobile number</label><input class="input" id="mobile" name="mobile" type="tel" autocomplete="tel" maxlength="40"><p class="field__error" id="err-mobile" hidden></p></div>
+          </div>
+          <div class="field" data-field="email"><label class="field__label" for="email">Email</label><input class="input" id="email" name="email" type="email" autocomplete="email" maxlength="254"><p class="field__error" id="err-email" hidden></p></div>
+          <div class="field" data-field="address"><label class="field__label" for="address">Restaurant address</label><input class="input" id="address" name="address" autocomplete="street-address" maxlength="300"><p class="field__error" id="err-address" hidden></p></div>
+          <div class="field" data-field="current_phone"><label class="field__label" for="current_phone">The phone number customers call today</label><input class="input" id="current_phone" name="current_phone" type="tel" maxlength="40"><p class="field__error" id="err-current_phone" hidden></p></div>
+        </fieldset>
+
+        <fieldset data-field="hours">
+          <legend>Opening hours</legend>
+          <p class="field__hint">One line per day, for example "11am–10pm" or "Closed".</p>
+          <div class="va-hours">
+            <div class="field"><label class="field__label" for="hours_mon">Monday</label><input class="input" id="hours_mon" name="hours_mon" maxlength="80"></div>
+            <div class="field"><label class="field__label" for="hours_tue">Tuesday</label><input class="input" id="hours_tue" name="hours_tue" maxlength="80"></div>
+            <div class="field"><label class="field__label" for="hours_wed">Wednesday</label><input class="input" id="hours_wed" name="hours_wed" maxlength="80"></div>
+            <div class="field"><label class="field__label" for="hours_thu">Thursday</label><input class="input" id="hours_thu" name="hours_thu" maxlength="80"></div>
+            <div class="field"><label class="field__label" for="hours_fri">Friday</label><input class="input" id="hours_fri" name="hours_fri" maxlength="80"></div>
+            <div class="field"><label class="field__label" for="hours_sat">Saturday</label><input class="input" id="hours_sat" name="hours_sat" maxlength="80"></div>
+            <div class="field"><label class="field__label" for="hours_sun">Sunday</label><input class="input" id="hours_sun" name="hours_sun" maxlength="80"></div>
+          </div>
+          <p class="field__error" id="err-hours" hidden></p>
+        </fieldset>
+
+        <fieldset data-field="menu">
+          <legend>Your menu</legend>
+          <p class="field__hint">Upload it, or paste a link. One of the two is enough.</p>
+          <div class="va-grid2">
+            <div class="field"><label class="field__label" for="menu_file">Upload (PDF, JPG or PNG, up to 10 MB)</label><input class="input" id="menu_file" name="menu_file" type="file" accept="application/pdf,image/jpeg,image/png"></div>
+            <div class="field"><label class="field__label" for="menu_link">Or a link to it</label><input class="input" id="menu_link" name="menu_link" type="url" placeholder="https://" maxlength="500"></div>
+          </div>
+          <p class="field__error" id="err-menu" hidden></p>
+        </fieldset>
+
+        <fieldset>
+          <legend>Reservations and pickup</legend>
+          <div class="field" data-field="reservations" role="radiogroup" aria-labelledby="res-label">
+            <span class="field__label" id="res-label">Do you take reservations?</span>
+            <div class="va-choices">
+              <label class="va-choice"><input type="radio" name="reservations" value="yes"><span>Yes</span></label>
+              <label class="va-choice"><input type="radio" name="reservations" value="no"><span>No</span></label>
+            </div>
+            <p class="field__error" id="err-reservations" hidden></p>
+          </div>
+          <div class="va-grid2" id="res-extra" hidden>
+            <div class="field" data-field="party_max"><label class="field__label" for="party_max">Largest party she can book online <span class="field__opt">(optional)</span></label><input class="input" id="party_max" name="party_max" type="number" min="1" max="100" inputmode="numeric"><p class="field__error" id="err-party_max" hidden></p></div>
+            <div class="field" data-field="booking_system"><label class="field__label" for="booking_system">Booking system you use</label><select class="input" id="booking_system" name="booking_system"><option value="">Choose one</option><option>OpenTable</option><option>Resy</option><option>None</option><option>Other</option></select><p class="field__error" id="err-booking_system" hidden></p></div>
+          </div>
+          <div class="field" data-field="pickup" role="radiogroup" aria-labelledby="pickup-label">
+            <span class="field__label" id="pickup-label">Do you take pickup orders?</span>
+            <div class="va-choices">
+              <label class="va-choice"><input type="radio" name="pickup" value="yes"><span>Yes</span></label>
+              <label class="va-choice"><input type="radio" name="pickup" value="no"><span>No</span></label>
+            </div>
+            <p class="field__error" id="err-pickup" hidden></p>
+          </div>
+          <div class="field" data-field="ready_time" id="pickup-extra" hidden><label class="field__label" for="ready_time">Typical ready time</label><input class="input" id="ready_time" name="ready_time" placeholder="About 25 minutes" maxlength="60"><p class="field__error" id="err-ready_time" hidden></p></div>
+          <div class="field" data-field="transfer_phone"><label class="field__label" for="transfer_phone">Staff number she transfers calls to</label><input class="input" id="transfer_phone" name="transfer_phone" type="tel" maxlength="40"><p class="field__error" id="err-transfer_phone" hidden></p></div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Your plan</legend>
+          <div class="field" data-field="plan" role="radiogroup" aria-labelledby="plan-label">
+            <span class="field__label" id="plan-label">Plan <a class="field__opt" href="/virtual-assistant/pricing">Compare plans</a></span>
+            <div class="va-choices">
+              <label class="va-choice"><input type="radio" name="plan" value="monthly" checked><span>Monthly · $497/month</span></label>
+              <label class="va-choice"><input type="radio" name="plan" value="payg"><span>Pay as you go · $149 + $0.40/min</span></label>
+              <label class="va-choice"><input type="radio" name="plan" value="cap"><span>Cap · $149 + $0.45/min, max $649</span></label>
+            </div>
+            <p class="field__error" id="err-plan" hidden></p>
+          </div>
+          <div class="field" data-field="answer_mode" role="radiogroup" aria-labelledby="mode-label">
+            <span class="field__label" id="mode-label">Which calls should she answer?</span>
+            <div class="va-choices">
+              <label class="va-choice"><input type="radio" name="answer_mode" value="all"><span>All calls</span></label>
+              <label class="va-choice"><input type="radio" name="answer_mode" value="missed"><span>Only calls staff miss</span></label>
+            </div>
+            <p class="field__error" id="err-answer_mode" hidden></p>
+          </div>
+          <div class="field" data-field="assistant_name"><label class="field__label" for="assistant_name">Assistant name <span class="field__opt">(optional, we can suggest one)</span></label><input class="input" id="assistant_name" name="assistant_name" maxlength="60"><p class="field__error" id="err-assistant_name" hidden></p></div>
+          <div class="field" data-field="notes"><label class="field__label" for="notes">Notes <span class="field__opt">(optional)</span></label><textarea class="input input--area" id="notes" name="notes" maxlength="2000" placeholder="Busy times, house rules, anything she should know"></textarea><p class="field__error" id="err-notes" hidden></p></div>
+        </fieldset>
+
+        <div class="field" data-field="consent">
+          <label class="va-consent"><input type="checkbox" id="consent" name="consent"><span>By signing up you agree that calls to your restaurant may be answered and recorded by an AI assistant.</span></label>
+          <p class="field__error" id="err-consent" hidden></p>
+        </div>
+
+        <div>
+          <button class="btn btn--primary" type="submit">Sign up and pay the $499 setup fee <span class="arrow" aria-hidden="true">→</span></button>
+          <p class="field__hint">Payment is handled securely by Stripe. Your monthly plan starts on the day you go live.</p>
+        </div>
+        <p class="va-form__status" id="va-status" role="status"></p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<div id="site-footer"></div>
+<script type="module" src="/assets/js/shell.js"></script>
+<script type="module" src="/assets/js/va-start.js"></script>
+</body>
+</html>

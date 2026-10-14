@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-const SECTIONS = ['hero', 'featured', 'services', 'journey', 'manage', 'industries', 'lab', 'process', 'integrations', 'cta'];
+const SECTIONS = ['hero', 'virtual-assistant', 'featured', 'services', 'journey', 'manage', 'industries', 'lab', 'process', 'integrations', 'cta'];
 // The showpiece reel, in order: [showcase slug, design slug]
 const REEL = [['osteria-lume', 'restaurant'], ['juniper-vale', 'real-estate'], ['basecamp', 'youth-ministry'], ['lanternway', 'modern-church']];
 const SERVICES = ['Web Development', 'Mobile Apps', 'CRM', 'Client Portals', 'Business Systems', 'Automation', 'Integrations'];
@@ -23,7 +23,7 @@ async function designsBySlug(request) {
 }
 
 test.describe('home page', () => {
-  test('the 10 sections are in spec order', async ({ page }) => {
+  test('the 11 sections are in spec order', async ({ page }) => {
     await page.goto('/');
     const ids = await page.locator('main > section').evaluateAll((s) => s.map((n) => n.dataset.section));
     expect(ids).toEqual(SECTIONS);
