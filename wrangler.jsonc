@@ -14,8 +14,14 @@
     "MAIL_FROM": "",
     // The public address, e.g. "https://www.example.com". When set, canonical links, share URLs,
     // the sitemap and robots.txt use it instead of the address the request arrived on. Empty = request address.
-    "SITE_ORIGIN": ""
+    "SITE_ORIGIN": "https://ctsdstudio.com"
   },
+  // The real domain. Both names must be on this Cloudflare account before this deploys,
+  // or the deploy fails. www forwards to the bare domain (src/worker.js).
+  "routes": [
+    { "pattern": "ctsdstudio.com", "custom_domain": true },
+    { "pattern": "www.ctsdstudio.com", "custom_domain": true }
+  ],
   // Branch and pull-request previews (Cloudflare Worker Previews).
   // SUPABASE_URL stays empty so previews never write leads into the
   // production database; their forms show the email fallback instead.
