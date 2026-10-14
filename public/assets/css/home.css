@@ -524,3 +524,9 @@ img[data-fb].is-loaded, .manage__img.is-loaded { opacity: 1; }
 .va-promo h2 { margin: 6px 0 12px; }
 .va-promo__actions { display: grid; gap: 12px; justify-items: start; }
 @media (max-width: 899.98px) { .va-promo__in { grid-template-columns: 1fr; } }
+
+/* Announcement link above the hero headline: the Virtual Assistant. */
+.hero__new { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; margin-bottom: 18px; padding: 6px 16px 6px 6px; border: 1px solid rgba(242, 162, 58, .45); border-radius: 999px; background: rgba(10, 19, 34, .55); color: var(--ivory); font-size: .92rem; text-decoration: none; backdrop-filter: blur(6px); transition: border-color .2s, background-color .2s; }
+.hero__new:hover { border-color: var(--ember); background: rgba(10, 19, 34, .75); }
+.hero__new-tag { padding: 4px 10px; border-radius: 999px; background: var(--ember); color: var(--navy-950); font-weight: 700; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; }
+@media (max-width: 479.98px) { .hero__new { font-size: .84rem; } }

@@ -192,3 +192,11 @@ for (const width of [375, 1280]) {
     }
   });
 }
+
+test('the home hero announces the Virtual Assistant', async ({ page }) => {
+  await page.goto('/?still=1');
+  const link = page.locator('[data-hero-copy] a.hero__new');
+  await expect(link).toHaveAttribute('href', '/virtual-assistant');
+  await expect(link).toContainText('Virtual Assistant');
+  await expect(link).toBeInViewport();
+});
