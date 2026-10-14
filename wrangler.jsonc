@@ -2,6 +2,10 @@
   "name": "custom-technology-software-development",
   "main": "src/worker.js",
   "compatibility_date": "2026-09-01",
+  // Keep the workers.dev address and the per-branch preview links working alongside the custom domain.
+  // (Adding custom domains otherwise switches both off.)
+  "workers_dev": true,
+  "preview_urls": true,
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
