@@ -55,7 +55,7 @@ async function readJson(request) {
   }
 }
 
-async function bodyOrError(request) {
+export async function bodyOrError(request) {
   const body = await readJson(request);
   if (body === tooLarge) return { error: json({ ok: false, error: 'too_large' }, 413) };
   if (body === badJson) return { error: json({ ok: false, error: 'bad_json' }, 400) };
@@ -81,13 +81,13 @@ async function captchaOk(env, body, request) {
   return verifyTurnstile(env, body.turnstile, request);
 }
 
-function honeypotFilled(v) {
+export function honeypotFilled(v) {
   if (v === undefined || v === null) return false;
   return String(v).trim() !== '';
 }
 
 // Runs after the response when the runtime allows it; otherwise awaited.
-async function background(ctx, promise) {
+export async function background(ctx, promise) {
   if (ctx && typeof ctx.waitUntil === 'function') ctx.waitUntil(promise);
   else await promise;
 }

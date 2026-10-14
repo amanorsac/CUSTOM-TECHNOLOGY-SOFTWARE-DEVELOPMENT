@@ -1,3 +1,6 @@
+import { PLANS, SETUP_FEE } from '../../public/assets/js/va-plans.js';
+import { DAYS } from '../../public/assets/js/va-schema.js';
+
 // Lead emails, sent through Resend (same fetch pattern as amanorsac.studio).
 // Every interpolated value in HTML goes through escapeHtml; subjects lose
 // CR/LF; the text versions contain no HTML.
@@ -116,4 +119,59 @@ export async function sendEmail(env, { from, to, reply_to, subject, html, text }
     console.error(`[lead] ${label} failed: ${e && e.message}`);
     return false;
   }
+}
+
+// ---- Virtual Assistant sign-ups ------------------------------------------------------------------
+const yes = (b) => (b ? 'Yes' : 'No');
+
+function vaRows(s) {
+  const hours = DAYS.map(([k, label]) => `${label}: ${s.hours[k] || 'not given'}`).join('\n');
+  return [
+    ['Restaurant', s.restaurant],
+    ['Owner', s.owner_name],
+    ['Mobile', s.mobile],
+    ['Email', s.email],
+    ['Address', s.address],
+    ['Number customers call today', s.current_phone],
+    ['Opening hours', hours],
+    ['Menu link', s.menu_link],
+    ['Menu file (private storage path, va-menus)', s.menu_path],
+    ['Reservations', s.reservations === undefined ? '' : yes(s.reservations)],
+    ['Max online party size', s.party_max],
+    ['Booking system', s.booking_system],
+    ['Pickup orders', s.pickup === undefined ? '' : yes(s.pickup)],
+    ['Typical ready time', s.ready_time],
+    ['Staff transfer number', s.transfer_phone],
+    ['Plan', PLANS[s.plan] ? PLANS[s.plan].label : s.plan],
+    ['Answer mode', s.answer_mode === 'missed' ? 'Missed calls only' : 'All calls'],
+    ['Assistant name', s.assistant_name],
+    ['Notes', s.notes],
+    ['Consent to AI answering and recording', 'Yes'],
+  ].filter(([, v]) => v !== undefined && v !== null && v !== '').map(([k, v]) => [k, String(v)]);
+}
+
+export function vaOwnerEmail(s) {
+  const subject = cleanSubject(`Virtual Assistant sign-up: ${s.restaurant}`);
+  const list = vaRows(s);
+  const html = '<div style="font-family:Arial,sans-serif;color:#1A1A1A;max-width:640px">'
+    + `<h2 style="color:#0F1B2D;margin:0 0 12px">${escapeHtml(subject)}</h2>`
+    + '<table cellpadding="6" style="border-collapse:collapse">'
+    + list.map(([label, v]) => `<tr><th align="left" valign="top" style="color:#1F3A5F;white-space:nowrap">${escapeHtml(label)}</th><td style="white-space:pre-wrap">${escapeHtml(v)}</td></tr>`).join('')
+    + '</table>'
+    + `<p style="color:#1F3A5F;font-size:13px">Setup fee: $${SETUP_FEE}. Reply to this email to reach the owner.</p></div>`;
+  const text = `${subject}\n\n${list.map(([label, v]) => `${label}: ${v}`).join('\n')}\n\nSetup fee: $${SETUP_FEE}. Reply to this email to reach the owner.\n`;
+  return { subject, html, text };
+}
+
+// No visitor-supplied content: the address is unverified (same rule as visitorEmail).
+export function vaVisitorEmail() {
+  const subject = 'Your Virtual Assistant sign-up';
+  const lines = [
+    'Hello,',
+    'Thank you for signing up for the CTSD Virtual Assistant. Your sign-up reached us.',
+    'What happens next: we load your menu and rules, set up your assistant and her number, and test calls with you. Most restaurants go live in about a week.',
+    'If you need to add anything, just reply to this email.',
+    'CTSD Studio · Charlottesville, VA',
+  ];
+  return { subject, html: `<div style="font-family:Arial,sans-serif;color:#1A1A1A;max-width:640px">${lines.map((l) => `<p>${escapeHtml(l)}</p>`).join('')}</div>`, text: lines.join('\n\n') + '\n' };
 }

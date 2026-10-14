@@ -4,7 +4,14 @@
 // ---- Navigation data (single source of truth) -------------------------
 export const NAV = [
   { id: 'home', label: 'Home', href: '/' },
-  { id: 'solutions', label: 'Solutions', href: '/solutions' },
+  {
+    id: 'solutions-menu',
+    label: 'Solutions',
+    children: [
+      { id: 'solutions', label: 'All solutions', href: '/solutions' },
+      { id: 'virtual-assistant', label: 'Virtual Assistant', href: '/virtual-assistant' },
+    ],
+  },
   {
     id: 'industries',
     label: 'Industries',
@@ -23,6 +30,7 @@ export const NAV = [
 ];
 
 export const SERVICES = [
+  { label: 'Virtual Assistant', href: '/virtual-assistant' },
   { label: 'Websites', href: '/solutions#websites' },
   { label: 'Mobile Apps', href: '/solutions#mobile-apps' },
   { label: 'CRM Systems', href: '/solutions#crm' },
@@ -54,8 +62,8 @@ export function headerHTML(page) {
         .map((c) => `<li><a href="${c.href}"${current(c.id, page)}>${esc(c.label)}</a></li>`)
         .join('');
       return `<li class="nav-item has-sub${inSection ? ' is-current' : ''}">`
-        + `<button type="button" class="nav-link nav-sub-toggle" aria-expanded="false" aria-controls="nav-industries" data-sub-toggle>${esc(item.label)}${CHEVRON}</button>`
-        + `<ul class="nav-sub" id="nav-industries" data-industries hidden>${links}</ul></li>`;
+        + `<button type="button" class="nav-link nav-sub-toggle" aria-expanded="false" aria-controls="nav-${item.id}" data-sub-toggle>${esc(item.label)}${CHEVRON}</button>`
+        + `<ul class="nav-sub" id="nav-${item.id}" data-sub data-${item.id} hidden>${links}</ul></li>`;
     }
     if (item.cta) {
       return `<li class="nav-item nav-cta"><a class="btn btn--primary btn--sm" href="${item.href}"${current(item.id, page)}>${esc(item.label)}</a></li>`;

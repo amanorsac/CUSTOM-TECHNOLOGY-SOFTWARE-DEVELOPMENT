@@ -18,7 +18,10 @@
     "MAIL_FROM": "",
     // The public address, e.g. "https://www.example.com". When set, canonical links, share URLs,
     // the sitemap and robots.txt use it instead of the address the request arrived on. Empty = request address.
-    "SITE_ORIGIN": "https://ctsdstudio.com"
+    "SITE_ORIGIN": "https://ctsdstudio.com",
+    // Virtual Assistant: the owner's Stripe Payment Link for the $499 setup fee (https://buy.stripe.com/...).
+    // Not a secret. Empty = sign-ups go straight to the welcome page.
+    "VA_SETUP_LINK": ""
   },
   // The real domain. Both names must be on this Cloudflare account before this deploys,
   // or the deploy fails. www forwards to the bare domain (src/worker.js).
@@ -34,7 +37,8 @@
       "LEAD_EMAIL": "amanorsac@gmail.com",
       "SUPABASE_URL": "",
       "MAIL_FROM": "",
-      "SITE_ORIGIN": ""
+      "SITE_ORIGIN": "",
+      "VA_SETUP_LINK": ""
     }
   }
 }

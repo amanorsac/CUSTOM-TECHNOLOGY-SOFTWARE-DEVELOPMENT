@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtual Assistant Pricing | CTSD</title>
+<meta name="description" content="Virtual Assistant plans: Monthly at $497 with 1,000 minutes, Pay as you go at $149 + $0.40/min, or Pay as you go with a $649 cap. One-time $499 setup, month to month.">
+<meta name="theme-color" content="#0F1B2D">
+<link rel="canonical" href="/virtual-assistant/pricing">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CTSD — Custom Technology &amp; Software Development">
+<meta property="og:title" content="Virtual Assistant Pricing | CTSD">
+<meta property="og:description" content="Three plans, month to month. Estimate your bill from your call volume.">
+<meta property="og:url" content="/virtual-assistant/pricing">
+<meta property="og:image" content="/assets/og/virtual-assistant-pricing.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="/assets/og/virtual-assistant-pricing.jpg">
+<link rel="icon" href="/assets/brand/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/fonts/montserrat-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="/assets/css/site.css">
+<link rel="stylesheet" href="/assets/css/sections.css">
+<link rel="stylesheet" href="/assets/css/pages.css">
+<link rel="stylesheet" href="/assets/css/va.css">
+</head>
+<body data-page="virtual-assistant">
+<a class="skip-link" href="#main">Skip to content</a>
+<div id="site-header"></div>
+
+<main id="main" tabindex="-1">
+  <section class="page-hero page-hero--single section--dark" aria-labelledby="hero-title">
+    <div class="container">
+      <p class="eyebrow">Virtual Assistant pricing</p>
+      <h1 id="hero-title">Pick how you pay. Switch any month.</h1>
+      <p class="lead">Every plan includes setup with your menu, hours and rules, a text after every call, and your bookings and orders on a dashboard. Month to month, no contract.</p>
+      <div class="page-hero__actions">
+        <a class="btn btn--primary" href="/virtual-assistant/start">Get started <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="btn btn--ghost" href="tel:+14348383287" data-call>Call our demo: (434) 838-3287</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="band section--ivory" aria-labelledby="plans-title">
+    <div class="container">
+      <h2 id="plans-title" class="sr-only">The three plans</h2>
+      <div class="va-plans">
+        <article class="va-plan is-lead" data-plan="monthly">
+          <span class="va-badge">Most restaurants</span>
+          <h3>Monthly</h3>
+          <p class="va-plan__price">$497<small>/month</small></p>
+          <ul><li>1,000 minutes included, then $0.35 a minute</li><li>Texts you at 80% and 100% of your included minutes</li></ul>
+          <p>Your estimate: <span class="va-plan__est" id="est-monthly">$573/month</span></p>
+          <a class="btn btn--primary btn--sm" href="/virtual-assistant/start?plan=monthly">Choose Monthly</a>
+        </article>
+        <article class="va-plan" data-plan="payg">
+          <h3>Pay as you go</h3>
+          <p class="va-plan__price">$149<small>/month + $0.40/min</small></p>
+          <ul><li>No minute limit</li><li>Texts you when the bill passes $300 and $500</li></ul>
+          <p>Your estimate: <span class="va-plan__est" id="est-payg">$635/month</span></p>
+          <a class="btn btn--ghost btn--sm" href="/virtual-assistant/start?plan=payg">Choose Pay as you go</a>
+        </article>
+        <article class="va-plan" data-plan="cap">
+          <h3>Pay as you go with a cap</h3>
+          <p class="va-plan__price">$149<small>/month + $0.45/min</small></p>
+          <ul><li>Never more than $649 a month; calls after the cap are free</li><li>Texts you at 50%, 80% and 100% of the cap</li></ul>
+          <p>Your estimate: <span class="va-plan__est" id="est-cap">$649/month</span></p>
+          <a class="btn btn--ghost btn--sm" href="/virtual-assistant/start?plan=cap">Choose the cap</a>
+        </article>
+      </div>
+      <p class="va-fee">Every plan adds a one-time <strong>$499 setup fee</strong>. Month to month, no contract.</p>
+    </div>
+  </section>
+
+  <section class="band section--dark" aria-labelledby="est-title">
+    <div class="container va-calc">
+      <div>
+        <p class="eyebrow">Estimate your bill</p>
+        <h2 id="est-title">How many calls does she answer?</h2>
+        <div class="va-sliders">
+          <div class="va-slider"><label for="cpd">Calls answered per day <output id="cpd-out" for="cpd">20</output></label><input type="range" id="cpd" min="3" max="80" step="1" value="20"></div>
+          <div class="va-slider"><label for="len">Average call length <output id="len-out" for="len">2 min</output></label><input type="range" id="len" min="1" max="5" step="1" value="2"></div>
+          <div class="va-slider va-minutes"><label for="minutes">Minutes a month</label><input type="number" id="minutes" min="0" max="100000" step="1" value="1216" inputmode="numeric"></div>
+        </div>
+      </div>
+      <div class="va-result">
+        <p>Each plan's estimate is shown on its card above, and the cheapest one for your calls is marked "lowest".</p>
+        <p>Minutes a month = calls a day × call length × 30.4.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="band section--ivory" aria-labelledby="faq-title">
+    <div class="container">
+      <div class="sec-head"><p class="eyebrow">Billing</p><h2 id="faq-title">How billing works</h2></div>
+      <div class="va-faq">
+        <details><summary>When does my plan start?</summary><p>You pay the $499 setup fee when you sign up. Your monthly plan starts on the day your assistant goes live, about a week later.</p></details>
+        <details><summary>What if I go over my minutes?</summary><p>On Monthly, minutes past 1,000 are $0.35 each and are added to that month's invoice. We text you at 80% and 100% so it's never a surprise.</p></details>
+        <details><summary>How does the cap work?</summary><p>You pay $149 plus $0.45 a minute until your bill reaches $649. Every call after that, for the rest of the month, is free.</p></details>
+        <details><summary>Can I switch plans or cancel?</summary><p>Yes. Switch any month, or cancel any time. There's no contract.</p></details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="site-footer"></div>
+<script type="module" src="/assets/js/shell.js"></script>
+<script type="module" src="/assets/js/va-pricing.js"></script>
+</body>
+</html>

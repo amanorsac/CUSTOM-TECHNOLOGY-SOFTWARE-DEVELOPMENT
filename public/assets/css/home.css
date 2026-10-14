@@ -517,3 +517,10 @@ img[data-fb].is-loaded, .manage__img.is-loaded { opacity: 1; }
 @media (prefers-reduced-motion: reduce) {
   .ind-card, .tile__links .chev, img[data-fb], .hero__img, .manage__img { transition: none; }
 }
+
+/* New product band: the Virtual Assistant, right after the hero. */
+.va-promo { padding-block: clamp(48px, 7vw, 88px); }
+.va-promo__in { display: grid; grid-template-columns: minmax(0, 1.4fr) auto; gap: 24px 48px; align-items: center; border: 1px solid var(--line-light); border-left: 4px solid var(--ember); border-radius: 18px; padding: clamp(24px, 4vw, 48px); background: var(--paper); }
+.va-promo h2 { margin: 6px 0 12px; }
+.va-promo__actions { display: grid; gap: 12px; justify-items: start; }
+@media (max-width: 899.98px) { .va-promo__in { grid-template-columns: 1fr; } }

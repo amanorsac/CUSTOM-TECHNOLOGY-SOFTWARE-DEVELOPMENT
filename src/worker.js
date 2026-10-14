@@ -6,11 +6,13 @@ import { designsListRoute } from './routes/designs-list.js';
 import { sitemapRoute, robotsRoute } from './routes/sitemap.js';
 import { absolutizeHtml, publicUrl } from './lib/seo.js';
 import { leadRoute, uploadUrlRoute, leadMethodNotAllowedRoute } from './routes/lead.js';
+import { vaSignupRoute, vaUploadRoute, eventRoute, vaMethodNotAllowedRoute } from './routes/va.js';
 
 export const routes = [
   designPageRoute, designPageHeadRoute, designsListRoute,
   sitemapRoute, robotsRoute,
   leadRoute, uploadUrlRoute, leadMethodNotAllowedRoute,
+  vaSignupRoute, vaUploadRoute, eventRoute, vaMethodNotAllowedRoute,
 ];
 
 function json(body, status = 200) {
