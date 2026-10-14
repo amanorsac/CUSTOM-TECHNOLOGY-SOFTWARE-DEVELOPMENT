@@ -24,6 +24,12 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
+    // The www address forwards to the real domain (SITE_ORIGIN), keeping the path and query.
+    const site = publicUrl(url, env);
+    if (site !== url && url.hostname === `www.${site.hostname}`) {
+      return Response.redirect(`${site.origin}${url.pathname}${url.search}`, 301);
+    }
+
     for (const route of routes) {
       if ((route.method === request.method || route.method === '*') && route.test(url)) {
         return route.handle(request, env, ctx, url);

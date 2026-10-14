@@ -13,7 +13,11 @@ export default defineConfig({
         },
       },
       {
-        plugins: [cloudflareTest({ wrangler: { configPath: './wrangler.jsonc' } })],
+        plugins: [cloudflareTest({
+          wrangler: { configPath: './wrangler.jsonc' },
+          // Tests run against the request address; the site-origin tests set SITE_ORIGIN themselves.
+          miniflare: { bindings: { SITE_ORIGIN: '' } },
+        })],
         test: {
           name: 'worker',
           include: ['tests/worker/**/*.test.js'],
