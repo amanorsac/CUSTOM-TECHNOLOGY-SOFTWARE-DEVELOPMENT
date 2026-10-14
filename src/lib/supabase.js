@@ -32,31 +32,34 @@ function headers(env, extra = {}) {
   };
 }
 
-// Inserts one validated lead row. Returns true on 2xx; logs and returns false otherwise.
-export async function insertLead(env, row) {
+// Inserts one row into a table. Returns true on 2xx; logs (without the row) and returns false otherwise.
+export async function insertRow(env, table, row, label = table) {
   try {
-    const res = await fetch(`${base(env)}/rest/v1/leads`, {
+    const res = await fetch(`${base(env)}/rest/v1/${table}`, {
       method: 'POST',
       headers: headers(env, { 'content-type': 'application/json', Prefer: 'return=minimal' }),
       body: JSON.stringify(row),
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
     if (!res.ok) {
-      console.error(`[lead] insert failed: ${await errorSummary(res)}`);
+      console.error(`[${label}] insert failed: ${await errorSummary(res)}`);
       return false;
     }
     return true;
   } catch (e) {
-    console.error(`[lead] insert failed: ${e && e.message}`);
+    console.error(`[${label}] insert failed: ${e && e.message}`);
     return false;
   }
 }
 
-// Creates a signed upload URL for BUCKET/path. Returns the absolute URL or null.
-export async function signUpload(env, path) {
+// Inserts one validated lead row.
+export const insertLead = (env, row) => insertRow(env, 'leads', row, 'lead');
+
+// Creates a signed upload URL for bucket/path (the lead logo bucket by default). Returns the absolute URL or null.
+export async function signUpload(env, path, bucket = BUCKET) {
   const root = `${base(env)}/storage/v1`;
   try {
-    const res = await fetch(`${root}/object/upload/sign/${BUCKET}/${path}`, {
+    const res = await fetch(`${root}/object/upload/sign/${bucket}/${path}`, {
       method: 'POST',
       headers: headers(env, { 'content-type': 'application/json' }),
       body: '{}',
