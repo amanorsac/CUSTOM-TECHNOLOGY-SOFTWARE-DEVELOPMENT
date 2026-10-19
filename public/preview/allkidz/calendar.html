@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calendar | Allkidz Christian Childcare, Charlottesville</title>
+<meta name="description" content="This year's closings, holidays, breaks and family events at Allkidz Christian Childcare. Add them all to your phone's calendar.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#FFF8EC">
+<link rel="icon" href="/images/preview/allkidz/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/preview/allkidz/fonts/montserrat-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/preview/allkidz/ak.css">
+</head>
+<body>
+<div data-head></div>
+
+<main id="main">
+
+<section class="hero sub" style="--k:var(--sun)">
+  <p class="kick">Calendar</p>
+  <h1>Closings &amp; <em>holidays.</em></h1>
+  <p class="tag">Plan ahead: every day Allkidz is closed this year, the breaks, and the days families are invited in.</p>
+  <div class="ctas">
+    <button class="btn" type="button" id="ics">Add all to my calendar</button>
+    <a class="btn line" href="/preview/allkidz/handbook#closings">How closings are billed</a>
+  </div>
+  <p class="fine">Downloads one file that works with iPhone, Google and Outlook calendars.</p>
+  <div class="sp"></div>
+</section>
+
+<section class="paper pad" style="padding-top:clamp(56px,9vh,100px)">
+  <div class="closings rise" data-closings></div>
+  <p class="center mt" style="color:var(--ink-2);font-size:14.5px;padding:0 var(--gut)">The provider also takes up to three weeks of vacation each year, announced ahead of time in the parent portal.</p>
+</section>
+
+<section class="bg-dark">
+  <div class="room-h rise">
+    <p class="kick" style="--k:var(--sun)">How closings work</p>
+    <h2>No surprises.</h2>
+    <p>The handbook in brief. Enrolled families get a reminder in the portal a week before every closing.</p>
+  </div>
+  <div class="tiles rise">
+    <div class="tile" style="--k:var(--pink)"><h3>Holidays and short closings</h3><p>Closed one or two days in a week, or for a holiday? The weekly payment is still due in full.</p></div>
+    <div class="tile" style="--k:var(--sky)"><h3>Three days or more</h3><p>If Allkidz is closed three days or more in a week, that week&rsquo;s rate is prorated.</p></div>
+    <div class="tile" style="--k:var(--lime)"><h3>Your vacations</h3><p>Give two weeks&rsquo; notice. The weekly fee holds your child&rsquo;s space while you are away.</p></div>
+  </div>
+  <div class="sp"></div>
+</section>
+
+<section class="band-cta" style="--k:var(--sun)">
+  <div class="bars" aria-hidden="true"><i style="height:50%"></i><i style="height:80%"></i><i style="height:40%"></i><i style="height:65%"></i><i style="height:100%"></i><i style="height:45%"></i><i style="height:70%"></i><i style="height:30%"></i><i style="height:85%"></i><i style="height:55%"></i></div>
+  <h2>See you at the Christmas party.</h2>
+  <p>Enrolled families see every date, reminder and photo in the parent portal.</p>
+  <a class="btn" href="/preview/allkidz/login">Parent sign in</a>
+</section>
+
+</main>
+<div data-foot></div>
+<script src="/assets/preview/allkidz/store.js"></script>
+<script src="/assets/preview/allkidz/ak.js"></script>
+<script>
+(function(){
+  /* one .ics file with every closing and event, all-day */
+  document.getElementById('ics').addEventListener('click', function(){
+    var y = String(new Date().getFullYear()), d = function(s){ return s.replace(/-/g, ''); };
+    var next = function(s){ var x = Store.addDays(Store.parse(s), 1); return Store.iso(x).replace(/-/g, ''); };
+    var lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Allkidz Christian Childcare//Calendar//EN','CALSCALE:GREGORIAN','X-WR-CALNAME:Allkidz'];
+    Store.events().filter(function(e){ return e.date.slice(0,4) === y; }).forEach(function(e){
+      lines.push('BEGIN:VEVENT','UID:' + e.id + '-' + y + '@allkidzchildcare.org','DTSTAMP:' + y + '0101T000000Z',
+        'DTSTART;VALUE=DATE:' + d(e.date),'DTEND;VALUE=DATE:' + next(e.end || e.date),
+        'SUMMARY:' + (e.type === 'event' ? '' : 'Allkidz closed: ') + e.title.replace(/[,;]/g, '\\$&'),
+        'DESCRIPTION:' + (e.note || '').replace(/[,;]/g, '\\$&'),'END:VEVENT');
+    });
+    lines.push('END:VCALENDAR');
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([lines.join('\r\n')], { type:'text/calendar' }));
+    a.download = 'allkidz-' + y + '.ics';
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+})();
+</script>
+</body>
+</html>

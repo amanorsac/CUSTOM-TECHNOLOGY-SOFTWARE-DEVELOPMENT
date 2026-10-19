@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in | Allkidz Christian Childcare</title>
+<meta name="description" content="Sign in to the Allkidz parent and staff portal: daily reports, photos, messages, billing and check-in.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#FFF8EC">
+<link rel="icon" href="/images/preview/allkidz/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/preview/allkidz/fonts/montserrat-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/preview/allkidz/ak.css">
+<link rel="stylesheet" href="/assets/preview/allkidz/app.css">
+</head>
+<body>
+<div data-head></div>
+
+<main id="main" class="auth">
+  <div class="auth-card">
+    <div class="mark-big" id="mark"></div>
+    <h1 id="title">Welcome back.</h1>
+    <p id="lede">Sign in to your child&rsquo;s day: reports, photos, messages and billing.</p>
+    <div class="tabs" role="tablist">
+      <button type="button" class="on" data-tab="in" role="tab" aria-selected="true">Sign in</button>
+      <button type="button" data-tab="up" role="tab" aria-selected="false">Create account</button>
+    </div>
+    <form class="f" id="auth" novalidate>
+      <p class="err" id="err" role="alert"></p>
+      <label data-up hidden>Your name<input name="name" autocomplete="name"></label>
+      <label>Email<input name="email" type="email" autocomplete="email" required></label>
+      <label data-up hidden>Mobile phone<input name="phone" type="tel" autocomplete="tel"></label>
+      <label>Password<input name="password" type="password" autocomplete="current-password" required minlength="4"></label>
+      <label data-up hidden>Your child&rsquo;s name<input name="child" placeholder="So we can match you to your family"></label>
+      <button class="btn" type="submit" id="go">Sign in</button>
+    </form>
+    <p class="small" id="note">Forgot your password? Call or text 434-327-7205 and we&rsquo;ll reset it.</p>
+
+    <div class="demo-in" id="demo">
+      <p>Draft preview &middot; sign in as</p>
+      <button type="button" data-as="u_hannah"><span class="avatar" style="--k:var(--violet)">HA</span><span><b>Director</b><small>Hannah: everything, including billing and enrollment</small></span></button>
+      <button type="button" data-as="u_abena"><span class="avatar" style="--k:var(--lime)">AO</span><span><b>Teacher</b><small>Abena: check-in, daily reports, lessons</small></span></button>
+      <button type="button" data-as="u_p1"><span class="avatar" style="--k:var(--orange)">SM</span><span><b>Parent</b><small>Sarah Mitchell: Noah and Lily&rsquo;s day, bills, messages</small></span></button>
+    </div>
+  </div>
+</main>
+
+<script src="/assets/preview/allkidz/store.js"></script>
+<script src="/assets/preview/allkidz/ak.js"></script>
+<script src="/assets/preview/allkidz/app.js"></script>
+<script>
+(function(){
+  var $ = App.$, $$ = App.$$, mode = 'in';
+  $('#mark').innerHTML = App.MARK;
+  var params = new URLSearchParams(location.search);
+  function land(){ location.href = App.BASE + 'portal'; }
+  if(Store.session()) land();
+
+  function setMode(m){
+    mode = m;
+    $$('.tabs button').forEach(function(b){ var on = b.getAttribute('data-tab') === m; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
+    $$('[data-up]').forEach(function(el){ el.hidden = m !== 'up'; });
+    $('#title').textContent = m === 'up' ? 'Join the portal.' : 'Welcome back.';
+    $('#lede').textContent = m === 'up'
+      ? 'For enrolled families. Miss Hannah will match your account to your child and switch it on.'
+      : 'Sign in to your child’s day: reports, photos, messages and billing.';
+    $('#go').textContent = m === 'up' ? 'Create my account' : 'Sign in';
+    $('input[name=password]').autocomplete = m === 'up' ? 'new-password' : 'current-password';
+    $('#err').classList.remove('show');
+  }
+  $$('.tabs button').forEach(function(b){ b.addEventListener('click', function(){ setMode(b.getAttribute('data-tab')); }); });
+  if(params.get('mode') === 'join') setMode('up');
+
+  $$('[data-as]').forEach(function(b){ b.addEventListener('click', function(){ Store.signInAs(b.getAttribute('data-as')); land(); }); });
+
+  $('#auth').addEventListener('submit', function(e){
+    e.preventDefault();
+    var d = App.formData(this), err = $('#err');
+    err.classList.remove('show');
+    try {
+      if(mode === 'up'){
+        if(!d.name || !d.email || !d.password) throw new Error('Please fill in your name, email and a password.');
+        if(Store.where('users', function(u){ return u.email.toLowerCase() === d.email.trim().toLowerCase(); }).length) throw new Error('There is already an account with that email. Try signing in.');
+        var u = Store.save('users', { role:'parent', name:d.name.trim(), email:d.email.trim(), phone:d.phone, password:d.password, status:'pending', note: d.child ? 'Child: ' + d.child : '', created: Store.now() });
+        Store.log(u.name + ' created a parent account and is waiting for approval.', 'pink', 'userplus');
+        Store.signInAs(u.id);
+      } else {
+        Store.signIn(d.email, d.password);
+      }
+      land();
+    } catch(x){ err.textContent = x.message; err.classList.add('show'); }
+  });
+})();
+</script>
+</body>
+</html>
