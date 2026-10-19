@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev --var SITE_ORIGIN:http://localhost:8787",
+    "dev": "wrangler dev --local-upstream localhost:8787 --var SITE_ORIGIN:http://localhost:8787 --var ADMIN_DEV_EMAIL:dev@ctsd.local",
     "test": "vitest run",
     "test:e2e": "playwright test"
   },
