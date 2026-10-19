@@ -176,3 +176,19 @@ Secrets are set as above. Previews get none of them, so the back office answers 
 - Multi-restaurant changes to the Adelaide backend. That's the owner's open question in the handoff; the back office reads whatever clients the backend lists.
 - Accounting exports beyond Stripe's own.
 - Staff accounts beyond the owner.
+
+## Addition, 2026-10-19: proposals and quotes (owner approved the spec with this added)
+
+- **Projects carry a proposal.** Each project holds:
+  - its scope text
+  - line items (description and amount, with a negative line for a discount such as the 50% launch offer)
+  - a deposit percentage, 40% by default
+  - a valid-until date
+- **Proposal view.** The project page has **Proposal**, which opens `/admin/proposal.html?id=<project>`. It's a print-styled, branded page:
+  - the CTSD header, the client and the scope
+  - the line items and total, with the payment schedule (40% deposit, 30% at design approval, 30% at launch)
+  - the terms and an acceptance block
+
+  **Save as PDF** uses the browser's own print-to-PDF. The Worker cannot run a browser, so this is how a proposal becomes a PDF.
+- **Invoice the deposit.** This creates a Stripe invoice for the deposit percentage of the total, sent by Stripe. Later milestones use **New invoice** with their own lines.
+- **Client pricing card.** The card itself lives in `docs/business/pricing-card.html`, and `scripts/business-pdfs.mjs` renders it to PDF.

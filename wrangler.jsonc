@@ -21,8 +21,15 @@
     "SITE_ORIGIN": "https://ctsdstudio.com",
     // Virtual Assistant: the owner's Stripe Payment Link for the $499 setup fee (https://buy.stripe.com/...).
     // Not a secret. Empty = sign-ups go straight to the welcome page.
-    "VA_SETUP_LINK": ""
+    "VA_SETUP_LINK": "",
+    // Back office (/admin). Secrets STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET and ADELAIDE_ADMIN_KEY are set with
+    // `wrangler secret put`, never here. ACCESS_TEAM and ACCESS_AUD come from the Cloudflare Access app (docs/back-office-setup.md).
+    "ADELAIDE_BASE": "https://virtual-assistant-adeliade.amanorsac.workers.dev",
+    "ACCESS_TEAM": "",
+    "ACCESS_AUD": ""
   },
+  // Every hour: report each live restaurant's new minutes to Stripe.
+  "triggers": { "crons": ["0 * * * *"] },
   // The real domain. Both names must be on this Cloudflare account before this deploys,
   // or the deploy fails. www forwards to the bare domain (src/worker.js).
   "routes": [
@@ -38,7 +45,10 @@
       "SUPABASE_URL": "",
       "MAIL_FROM": "",
       "SITE_ORIGIN": "",
-      "VA_SETUP_LINK": ""
+      "VA_SETUP_LINK": "",
+      "ADELAIDE_BASE": "",
+      "ACCESS_TEAM": "",
+      "ACCESS_AUD": ""
     }
   }
 }

@@ -7,12 +7,16 @@ import { sitemapRoute, robotsRoute } from './routes/sitemap.js';
 import { absolutizeHtml, publicUrl } from './lib/seo.js';
 import { leadRoute, uploadUrlRoute, leadMethodNotAllowedRoute } from './routes/lead.js';
 import { vaSignupRoute, vaUploadRoute, eventRoute, vaMethodNotAllowedRoute } from './routes/va.js';
+import { adminRoute } from './routes/admin.js';
+import { stripeWebhookRoute } from './routes/stripe-webhook.js';
+import { reportUsage } from './lib/usage.js';
 
 export const routes = [
   designPageRoute, designPageHeadRoute, designsListRoute,
   sitemapRoute, robotsRoute,
   leadRoute, uploadUrlRoute, leadMethodNotAllowedRoute,
   vaSignupRoute, vaUploadRoute, eventRoute, vaMethodNotAllowedRoute,
+  stripeWebhookRoute, adminRoute,
 ];
 
 function json(body, status = 200) {
@@ -23,6 +27,11 @@ function json(body, status = 200) {
 }
 
 export default {
+  // Hourly: send each live restaurant's new minutes to Stripe (src/lib/usage.js).
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(reportUsage(env, new Date(event.scheduledTime)).then((r) => console.log('[usage]', JSON.stringify(r))).catch((e) => console.error('[usage]', e.message)));
+  },
+
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
