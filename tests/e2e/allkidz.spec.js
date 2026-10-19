@@ -47,6 +47,18 @@ test.describe('Allkidz draft: website', () => {
     expect(r.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id)).toEqual([]);
   });
 
+  test('the hero toy cube mixes and solves itself', async ({ page }) => {
+    await page.goto(AK);
+    const toy = page.locator('[data-toy]');
+    // WebGL may be missing on some test machines; then the toy stays hidden, which is the intended fallback
+    try { await expect(toy).toBeVisible({ timeout: 10000 }); } catch { test.skip(true, 'no WebGL here'); }
+    await expect(toy).toHaveAttribute('data-state', 'solved');
+    await toy.getByRole('button', { name: 'Mix it up' }).click();
+    await expect(toy).toHaveAttribute('data-state', 'mixed', { timeout: 6000 });
+    await toy.getByRole('button', { name: 'Solve it' }).click();
+    await expect(toy).toHaveAttribute('data-state', 'solved', { timeout: 8000 });
+  });
+
   test('the calendar lists this year’s closings from the shared data', async ({ page }) => {
     await page.goto(AK + 'calendar');
     await expect(page.locator('[data-closings] .slot')).toHaveCount(14);

@@ -100,6 +100,13 @@ var AK = {
     $$('.rise').forEach(function(el){ io.observe(el); });
   } else { $$('.rise').forEach(function(el){ el.classList.add('in-view'); }); }
 
+  /* ---- the toy cube in the home hero: three.js loads only once the page is idle ---- */
+  var toy = $('[data-toy]');
+  if(toy){
+    var go = function(){ import('/assets/preview/allkidz/toy-cube.js').then(function(m){ return (document.fonts ? document.fonts.load('800 170px Montserrat') : Promise.resolve()).then(function(){ m.mount(toy); }); }).catch(function(){}); };
+    if('requestIdleCallback' in window) requestIdleCallback(go, { timeout:2000 }); else setTimeout(go, 600);
+  }
+
   /* ---- the calendar page: the year's closings, from the same list the dashboard edits ---- */
   var cal = $('[data-closings]');
   if(cal && window.Store){
