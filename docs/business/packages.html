@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CTSD Packages</title>
+<!-- Client packages: page 1 the four packages (a ladder from a $500 site to website + dashboard + app),
+     page 2 add-ons, care plans and how upgrading works. Render: node scripts/business-pdfs.mjs -->
+<style>
+@font-face { font-family: Montserrat; font-weight: 700; src: url(../../public/fonts/montserrat-latin-700-normal.woff2); }
+@font-face { font-family: Montserrat; font-weight: 600; src: url(../../public/fonts/montserrat-latin-600-normal.woff2); }
+@font-face { font-family: Inter; font-weight: 400; src: url(../../public/fonts/inter-latin-400-normal.woff2); }
+@font-face { font-family: Inter; font-weight: 500; src: url(../../public/fonts/inter-latin-500-normal.woff2); }
+@font-face { font-family: Inter; font-weight: 600; src: url(../../public/fonts/inter-latin-600-normal.woff2); }
+@page { size: Letter; margin: 0; }
+:root { --navy: #0F1B2D; --navy-950: #0A1322; --navy-700: #1F3A5F; --ember: #F2A23A; --ember-ink: #9A5B0A; --ivory: #F7F4EE; --paper: #FBFAF7; --ink: #111826; --slate: #4E5D73; --line: rgba(15, 27, 45, .12); --teal: #2F7D6B; }
+* { box-sizing: border-box; margin: 0; }
+html, body { background: #fff; color: var(--ink); font: 400 10pt/1.45 Inter, Arial, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.page { width: 8.5in; height: 11in; position: relative; overflow: hidden; break-after: page; display: flex; flex-direction: column; }
+.page:last-child { break-after: auto; }
+h1, h2, h3 { font-family: Montserrat, Arial, sans-serif; font-weight: 700; letter-spacing: -.01em; }
+.top { background: var(--navy); color: var(--ivory); padding: .4in .55in .32in; position: relative; }
+.top::after { content: ""; position: absolute; right: -1.2in; top: -1.5in; width: 4in; height: 4in; border-radius: 50%; background: radial-gradient(circle, rgba(94, 128, 176, .35), rgba(94, 128, 176, 0) 70%); }
+.top__row { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1; }
+.top img { height: .46in; }
+.tag { font: 600 7.8pt/1 Inter; letter-spacing: .18em; text-transform: uppercase; color: var(--ember); }
+.top h1 { margin-top: .2in; font-size: 22pt; line-height: 1.1; position: relative; z-index: 1; }
+.top p { margin-top: .08in; color: rgba(247, 244, 238, .82); max-width: 6in; position: relative; z-index: 1; }
+.body { padding: .24in .55in .14in; flex: 1; display: flex; flex-direction: column; gap: .14in; }
+.label { font: 600 7.6pt/1.2 Inter; letter-spacing: .18em; text-transform: uppercase; color: var(--ember-ink); margin-bottom: .08in; }
+.offer { display: flex; align-items: center; gap: .14in; padding: .09in .16in; border-radius: 10px; background: #FFF4E3; border: 1px solid rgba(242, 162, 58, .55); font-size: 9.5pt; }
+.offer b { background: var(--ember); color: var(--navy-950); font: 700 7.6pt/1 Inter; letter-spacing: .12em; text-transform: uppercase; padding: 5px 9px; border-radius: 999px; white-space: nowrap; }
+
+/* The ladder: four packages, each builds on the one before */
+.ladder { display: grid; grid-template-columns: repeat(2, 1fr); gap: .13in; }
+.pkg { border: 1px solid var(--line); border-radius: 12px; padding: .14in .16in .12in; background: var(--paper); display: flex; flex-direction: column; gap: .05in; position: relative; }
+.pkg.is-pop { border: 1.6px solid var(--ember); background: #fff; }
+.pkg__top { display: flex; align-items: baseline; justify-content: space-between; gap: .1in; }
+.step { display: inline-grid; place-items: center; width: .26in; height: .26in; border-radius: 50%; background: var(--navy); color: var(--ivory); font: 700 8.5pt Montserrat; flex: none; }
+.pkg h3 { font-size: 12pt; line-height: 1.2; flex: 1; }
+.badge { position: absolute; top: -.1in; right: .16in; background: var(--ember); color: var(--navy-950); font: 700 7pt/1 Inter; letter-spacing: .1em; text-transform: uppercase; padding: 4px 8px; border-radius: 999px; }
+.price { font: 700 18pt/1.05 Montserrat; color: var(--navy); }
+.price s { font: 500 9.5pt Inter; color: var(--slate); margin-left: 6px; }
+.price small { font: 500 8.5pt Inter; color: var(--slate); }
+.for { font-size: 9pt; color: var(--slate); }
+.pkg ul { padding-left: 1.05em; font-size: 9pt; color: var(--ink); display: grid; gap: 1px; }
+.pkg li::marker { color: var(--ember-ink); }
+.meta { display: flex; justify-content: space-between; gap: .1in; margin-top: auto; padding-top: .05in; border-top: 1px dashed var(--line); font-size: 8.3pt; color: var(--navy-700); font-weight: 600; }
+.plus { font-size: 8.5pt; color: var(--slate); font-style: italic; }
+.how { display: grid; grid-template-columns: repeat(3, 1fr); gap: .13in; font-size: 8.8pt; color: var(--slate); }
+.how b { display: block; color: var(--ink); font-family: Montserrat; font-size: 9.4pt; margin-bottom: 1px; }
+
+/* Page 2 */
+.addons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 .3in; }
+.addons div { display: flex; justify-content: space-between; gap: .1in; padding: .055in 0; border-bottom: 1px solid var(--line); font-size: 9.3pt; }
+.addons span { color: var(--slate); }
+.addons b { font-weight: 600; white-space: nowrap; }
+.care { display: grid; grid-template-columns: repeat(4, 1fr); gap: .12in; }
+.care .c { border: 1px solid var(--line); border-radius: 12px; padding: .12in .14in; background: #fff; display: flex; flex-direction: column; gap: .04in; }
+.care .c.is-pop { border: 1.6px solid var(--ember); }
+.care h3 { font-size: 10.5pt; }
+.care .price { font-size: 15pt; }
+.care ul { padding-left: 1em; font-size: 8.6pt; color: var(--slate); }
+.care .fit { font-size: 8pt; color: var(--navy-700); font-weight: 600; margin-top: auto; }
+.credit { display: grid; grid-template-columns: auto 1fr; gap: .16in; align-items: center; padding: .14in .18in; border-radius: 12px; background: var(--navy); color: var(--ivory); }
+.credit .big { font: 700 22pt/1 Montserrat; color: var(--ember); }
+.credit p { color: rgba(247, 244, 238, .86); font-size: 9.3pt; }
+.credit b { color: #fff; }
+.va { display: flex; justify-content: space-between; align-items: center; gap: .2in; padding: .12in .16in; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); font-size: 9.2pt; }
+.va b { font-family: Montserrat; color: var(--navy); }
+.terms { display: grid; grid-template-columns: repeat(3, 1fr); gap: .13in; font-size: 8.6pt; color: var(--slate); }
+.terms b { display: block; color: var(--ink); font-family: Montserrat; font-size: 9pt; margin-bottom: 1px; }
+.foot { margin-top: auto; padding: .16in .55in .26in; display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid var(--line); font-size: 8.6pt; color: var(--slate); }
+.foot strong { color: var(--navy); font-family: Montserrat; font-size: 10pt; display: block; }
+.foot .contact { text-align: right; }
+</style>
+</head>
+<body>
+
+<section class="page" id="page-packages">
+  <header class="top">
+    <div class="top__row"><img src="../../public/assets/brand/logo-horizontal-reverse.svg" alt="CTSD, Custom Technology &amp; Software Development"><span class="tag">Packages · 2026</span></div>
+    <h1>Start small. Grow when you're ready.</h1>
+    <p>Every package builds on the one before it, and what you've paid counts toward the next step. Begin with what you need today; add a dashboard or an app when your organization does.</p>
+  </header>
+  <div class="body">
+    <div class="offer"><b>Launch offer</b><span>Launch prices on packages 2, 3 and 4: about half off for a limited time.</span></div>
+
+    <div class="ladder">
+      <article class="pkg">
+        <div class="pkg__top"><span class="step">1</span><h3>Starter Website</h3></div>
+        <p class="price">$500</p>
+        <p class="for">For getting online fast: a new business, ministry or side project.</p>
+        <ul><li>1–3 pages from a CTSD starter design</li><li>Your logo, colors, photos and words</li><li>Contact form and click-to-call</li><li>Works on phones; basic Google setup</li><li>1 round of changes</li></ul>
+        <p class="meta"><span>Live in about 7 days</span><span>+ Starter Care $29/mo</span></p>
+      </article>
+      <article class="pkg is-pop"><span class="badge">Most popular</span>
+        <div class="pkg__top"><span class="step">2</span><h3>Business Website</h3></div>
+        <p class="price">$1,750<s>$3,500</s></p>
+        <p class="for">For organizations that want a site built around them.</p>
+        <ul><li>5–12 custom-designed pages</li><li>An editing backend your staff can use</li><li>Forms, events or menus, and a blog</li><li>SEO setup and Google Business Profile</li><li>2 rounds of changes</li></ul>
+        <p class="meta"><span>3–5 weeks</span><span>+ care from $99/mo</span></p>
+      </article>
+      <article class="pkg">
+        <div class="pkg__top"><span class="step">3</span><h3>Website + Dashboard</h3></div>
+        <p class="price">$4,000<s>$8,000</s></p>
+        <p class="for">For running the work, not just showing it: a site plus your own CRM.</p>
+        <ul><li>Everything in Business Website</li><li>Admin dashboard: contacts, leads, bookings</li><li>Member or client login area</li><li>Payments, giving or invoices connected</li><li>Email notifications and simple reports</li></ul>
+        <p class="meta"><span>6–10 weeks</span><span>+ care from $249/mo</span></p>
+      </article>
+      <article class="pkg">
+        <div class="pkg__top"><span class="step">4</span><h3>Complete: Website + Dashboard + App</h3></div>
+        <p class="price"><small>from </small>$9,500<s>$18,000</s></p>
+        <p class="for">For organizations that live on their customers' and members' phones.</p>
+        <ul><li>Everything in Website + Dashboard</li><li>iPhone and Android app, your brand</li><li>Push notifications, logins, giving or booking</li><li>App store submission handled for you</li><li>One dashboard runs the site and the app</li></ul>
+        <p class="meta"><span>2–4 months</span><span>+ care from $499/mo</span></p>
+      </article>
+    </div>
+    <p class="plus">Need just one piece? A stand-alone dashboard or CRM starts at $3,000, a stand-alone app at $7,500, and connecting tools you already use at $1,500.</p>
+
+    <div class="how">
+      <div><b>Your payments count</b>Upgrade within 6 months and everything you paid comes off the next package.</div>
+      <div><b>Free homepage mockup</b>See your new homepage before you commit. No cost, no obligation.</div>
+      <div><b>Quoted in writing</b>Fixed price and scope after a free discovery call. No surprises.</div>
+    </div>
+  </div>
+  <footer class="foot">
+    <div><strong>Technology built around your organization.</strong>Custom Technology &amp; Software Development</div>
+    <div class="contact"><strong>ctsdstudio.com</strong>amanorsac@gmail.com · Charlottesville, VA</div>
+  </footer>
+</section>
+
+<section class="page" id="page-extras">
+  <header class="top">
+    <div class="top__row"><img src="../../public/assets/brand/logo-horizontal-reverse.svg" alt="CTSD, Custom Technology &amp; Software Development"><span class="tag">Add-ons and care · 2026</span></div>
+    <h1>Add what you need, when you need it.</h1>
+    <p>Every package can grow piece by piece. Pick an add-on today or later, and keep your site fast, safe and up to date on a care plan.</p>
+  </header>
+  <div class="body">
+    <div>
+      <p class="label">Add-ons · one-time</p>
+      <div class="addons">
+        <div><span>Extra page</span><b>$150</b></div>
+        <div><span>Online booking or appointments</span><b>$300</b></div>
+        <div><span>Online payments or donations</span><b>$250</b></div>
+        <div><span>Blog, news or sermons section</span><b>$200</b></div>
+        <div><span>Events calendar with sign-ups</span><b>$300</b></div>
+        <div><span>Online store (up to 25 products)</span><b>$600</b></div>
+        <div><span>Copywriting, per page</span><b>$100</b></div>
+        <div><span>Logo and brand kit</span><b>$350</b></div>
+        <div><span>Email newsletter setup</span><b>$250</b></div>
+        <div><span>Google Business Profile setup</span><b>$150</b></div>
+        <div><span>Member or client login area</span><b>$800</b></div>
+        <div><span>Connect a tool you already use</span><b>from $500</b></div>
+      </div>
+    </div>
+
+    <div>
+      <p class="label">Care plans · monthly, cancel any time</p>
+      <div class="care">
+        <div class="c"><h3>Starter Care</h3><p class="price">$29<small>/mo</small></p><ul><li>Hosting and security</li><li>SSL and backups</li><li>Uptime checks</li></ul><p class="fit">For Starter Websites</p></div>
+        <div class="c"><h3>Essential</h3><p class="price">$99<small>/mo</small></p><ul><li>Everything in Starter Care</li><li>Software and security updates</li><li>Email support</li></ul><p class="fit">For Business Websites</p></div>
+        <div class="c is-pop"><h3>Growth</h3><p class="price">$249<small>/mo</small></p><ul><li>Everything in Essential</li><li>3 hours of edits</li><li>Monthly report</li></ul><p class="fit">For Website + Dashboard</p></div>
+        <div class="c"><h3>Partner</h3><p class="price">$499<small>/mo</small></p><ul><li>Everything in Growth</li><li>8 hours of work</li><li>Priority support, app updates</li></ul><p class="fit">For Complete packages</p></div>
+      </div>
+    </div>
+
+    <div class="credit">
+      <span class="big">100%</span>
+      <p><b>Start with a $500 Starter Website and upgrade later at no loss.</b> If you move up to a Business Website within 6 months, the $500 you paid comes off the price, so you only pay the difference. The same goes for every step up the ladder.</p>
+    </div>
+
+    <div class="va"><span><b>Restaurant?</b> Add the Virtual Assistant: an AI that answers your phone 24/7, books tables and takes pickup orders. From $149/month plus a $499 setup.</span><span style="white-space:nowrap;font-weight:600;color:var(--navy)">(434) 838-3287</span></div>
+
+    <div class="terms">
+      <div><b>Starter Website</b>50% to begin, 50% when your site goes live.</div>
+      <div><b>All other packages</b>40% deposit, 30% at design approval, 30% at launch.</div>
+      <div><b>Churches and nonprofits</b>10% off full-price packages for registered organizations.</div>
+    </div>
+  </div>
+  <footer class="foot">
+    <div><strong>Every project is quoted in writing.</strong>Prices are starting points; your fixed quote follows a free discovery call.</div>
+    <div class="contact"><strong>ctsdstudio.com</strong>amanorsac@gmail.com · Charlottesville, VA</div>
+  </footer>
+</section>
+</body>
+</html>
