@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
 
+// The server this run uses (playwright.config.mjs: PW_PORT, default 8787).
+const ORIGIN = `http://localhost:${process.env.PW_PORT || 8787}`;
+
 const PAGES = ['/', '/solutions', '/industries/business', '/industries/church', '/industries/education',
   '/industries/nonprofit', '/designs', '/demo/', '/about', '/start', '/mockup', '/privacy',
   '/lab/', '/lab/particles', '/lab/workshop', '/lab/gallery', '/lab/playground', '/showcase/osteria-lume', '/showcase/juniper-vale', '/showcase/basecamp', '/showcase/lanternway'];
@@ -24,8 +27,8 @@ test('every indexable page has unique title + description, canonical and og:imag
     expect(descs.has(desc), `${p} dup description`).toBe(false);
     titles.add(title);
     descs.add(desc);
-    expect(html, p).toMatch(/<link rel="canonical" href="http:\/\/localhost:8787\//);
-    expect(html, p).toMatch(/<meta property="og:image" content="http:\/\/localhost:8787\/[^"]+"/);
+    expect(html, p).toMatch(new RegExp(`<link rel="canonical" href="${ORIGIN}/`));
+    expect(html, p).toMatch(new RegExp(`<meta property="og:image" content="${ORIGIN}/[^"]+"`));
     expect(html, p).not.toContain('noindex');
   }
 });
@@ -53,9 +56,9 @@ test('design page JSON-LD: BreadcrumbList', async ({ page }) => {
 test('sitemap and robots over HTTP', async ({ request }) => {
   const sm = await request.get('/sitemap.xml');
   expect(sm.headers()['content-type']).toContain('application/xml');
-  expect(await sm.text()).toContain('<loc>http://localhost:8787/designs/restaurant</loc>');
+  expect(await sm.text()).toContain(`<loc>${ORIGIN}/designs/restaurant</loc>`);
   const rb = await request.get('/robots.txt');
-  expect(await rb.text()).toContain('Sitemap: http://localhost:8787/sitemap.xml');
+  expect(await rb.text()).toContain(`Sitemap: ${ORIGIN}/sitemap.xml`);
 });
 
 test('analytics beacon is absent while the token is empty', async ({ page }) => {

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>CTSD Back Office</title>
+<link rel="icon" href="/assets/brand/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/admin/admin.css">
+<script type="module" src="/assets/admin/admin.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="shell">
+  <aside class="side">
+    <a class="side__brand" href="#/"><img src="/assets/brand/mark-reverse.svg" alt="" width="28" height="31"><span>CTSD <b>Back Office</b></span></a>
+    <nav aria-label="Back office">
+      <a href="#/" data-nav="overview">Overview</a>
+      <a href="#/inbox" data-nav="inbox">Inbox <span class="count" id="inbox-count" hidden></span></a>
+      <a href="#/clients" data-nav="clients">Clients</a>
+      <a href="#/billing" data-nav="billing">Billing</a>
+      <a href="#/settings" data-nav="settings">Settings</a>
+    </nav>
+    <p class="side__who" id="who"></p>
+  </aside>
+  <main id="main" class="main" tabindex="-1" aria-live="polite">
+    <p class="muted">Loading…</p>
+  </main>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+</body>
+</html>

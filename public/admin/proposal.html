@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>CTSD Proposal</title>
+<style>
+@font-face { font-family: Montserrat; font-weight: 700; src: url(/fonts/montserrat-latin-700-normal.woff2) format('woff2'); }
+@font-face { font-family: Inter; font-weight: 400; src: url(/fonts/inter-latin-400-normal.woff2) format('woff2'); }
+@font-face { font-family: Inter; font-weight: 600; src: url(/fonts/inter-latin-600-normal.woff2) format('woff2'); }
+@page { size: Letter; margin: 0.6in 0.65in; }
+:root { --navy: #0F1B2D; --ember: #F2A23A; --ember-ink: #9A5B0A; --ink: #111826; --slate: #4E5D73; --line: rgba(15, 27, 45, .14); }
+* { box-sizing: border-box; }
+body { margin: 0; background: #E9ECF1; color: var(--ink); font: 400 10.5pt/1.55 Inter, Arial, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.bar { position: sticky; top: 0; display: flex; justify-content: center; gap: 10px; padding: 12px; background: var(--navy); }
+.bar button { min-height: 40px; padding: 0 18px; border-radius: 8px; border: 0; font: 600 10.5pt Inter; cursor: pointer; background: var(--ember); color: #0A1322; }
+.bar a { color: #F7F4EE; align-self: center; font-size: 10pt; }
+.sheet { width: 8.5in; min-height: 11in; margin: 20px auto; background: #fff; padding: .6in .65in; box-shadow: 0 10px 30px rgba(15, 27, 45, .15); }
+header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 18px; border-bottom: 3px solid var(--ember); }
+header img { height: 46px; }
+header .doc { text-align: right; font-size: 9.5pt; color: var(--slate); }
+header .doc b { display: block; font: 700 18pt Montserrat; color: var(--navy); letter-spacing: -.01em; }
+h1 { font: 700 19pt/1.15 Montserrat; color: var(--navy); margin: 16px 0 2px; }
+h2 { font: 700 11pt Montserrat; color: var(--navy); margin: 16px 0 6px; }
+.for { color: var(--slate); }
+.scope { white-space: pre-wrap; }
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; font-size: 8.5pt; letter-spacing: .08em; text-transform: uppercase; color: var(--slate); border-bottom: 1px solid var(--line); padding: 6px 0; }
+td { padding: 6px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; padding-left: 16px; }
+.neg { color: var(--ember-ink); }
+tfoot td { border-bottom: 0; font-weight: 600; }
+tfoot .total td { font: 700 13pt Montserrat; color: var(--navy); padding-top: 12px; }
+.schedule { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.schedule div { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.schedule b { display: block; font: 700 12pt Montserrat; color: var(--navy); }
+.terms { font-size: 9pt; color: var(--slate); }
+.terms li { margin-bottom: 3px; }
+.sign { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; margin-top: 30px; }
+.sign div { border-top: 1px solid var(--ink); padding-top: 6px; font-size: 9pt; color: var(--slate); }
+.keep { break-inside: avoid; }
+footer { margin-top: 20px; font-size: 8.5pt; color: var(--slate); display: flex; justify-content: space-between; }
+@media print { body { background: #fff; } .bar { display: none; } .sheet { margin: 0; padding: 0; width: auto; min-height: 0; box-shadow: none; } }
+</style>
+</head>
+<body>
+<div class="bar"><button type="button" id="print">Save as PDF</button><a href="/admin/">Back office</a></div>
+<article class="sheet" id="sheet"><p>Loading…</p></article>
+<script type="module">
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const money = (n) => `$${Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+// A date-only value (YYYY-MM-DD) is a calendar day, not UTC midnight: read it in local time so it never shifts a day.
+const day = (v) => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || ''); const d = m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(v); return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }); };
+document.getElementById('print').addEventListener('click', () => window.print());
+const id = new URLSearchParams(location.search).get('id') || '';
+const sheet = document.getElementById('sheet');
+try {
+  const res = await fetch(`/api/admin/projects/${encodeURIComponent(id)}`);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Not found');
+  const { project: p, client: c } = data;
+  const total = Number(p.quote_total);
+  const deposit = Math.round(total * p.deposit_pct) / 100;
+  const rest = total - deposit;
+  const number = `P-${p.created_at.slice(0, 10).replace(/-/g, '')}-${p.id.slice(0, 4).toUpperCase()}`;
+  document.title = `Proposal ${number} · ${c.name}`;
+  sheet.innerHTML = `
+    <header><img src="/assets/brand/logo-horizontal.svg" alt="CTSD, Custom Technology &amp; Software Development"><div class="doc"><b>Proposal</b>${esc(number)}<br>${day(p.created_at)}${p.valid_until ? `<br>Valid until ${day(p.valid_until)}` : ''}</div></header>
+    <h1>${esc(p.title)}</h1>
+    <p class="for">Prepared for <b>${esc(c.name)}</b>${c.contact_name ? `, attention ${esc(c.contact_name)}` : ''}${c.email ? ` · ${esc(c.email)}` : ''}</p>
+    ${p.scope ? `<h2>Scope</h2><div class="scope">${esc(p.scope)}</div>` : ''}
+    <h2>Investment</h2>
+    <table><thead><tr><th>Item</th><th class="num">Amount</th></tr></thead>
+      <tbody>${(p.line_items || []).map((l) => `<tr><td>${esc(l.description)}</td><td class="num${l.amount < 0 ? ' neg' : ''}">${l.amount < 0 ? '−' : ''}${money(Math.abs(l.amount))}</td></tr>`).join('')}</tbody>
+      <tfoot><tr class="total"><td>Total</td><td class="num">${money(total)}</td></tr></tfoot></table>
+    <h2>Payment schedule</h2>
+    <div class="schedule">
+      <div><b>${money(deposit)}</b>${p.deposit_pct}% deposit to begin</div>
+      <div><b>${money(Math.round(rest * 50) / 100)}</b>At design approval</div>
+      <div><b>${money(rest - Math.round(rest * 50) / 100)}</b>At launch</div>
+    </div>
+    <h2>Terms</h2>
+    <ul class="terms">
+      <li>Work begins when the deposit is paid. Invoices are sent by Stripe and payable by card or bank transfer within 7 days.</li>
+      <li>The scope above is fixed. Changes are quoted in writing before any extra work starts.</li>
+      <li>On final payment you own your site's content and design. CTSD keeps the right to reuse its own general code and tools.</li>
+      <li>Ongoing care (hosting, updates, backups, edits) is available on a monthly care plan, from $99 a month.</li>
+      ${p.valid_until ? `<li>This proposal is valid until ${day(p.valid_until)}.</li>` : ''}
+    </ul>
+    <div class="keep"><h2>Acceptance</h2>
+    <div class="sign"><div>Signature and date, ${esc(c.name)}</div><div>Signature and date, CTSD</div></div>
+    <footer><span>CTSD · Custom Technology &amp; Software Development · Charlottesville, VA</span><span>ctsdstudio.com · amanorsac@gmail.com</span></footer></div>`;
+} catch (e) {
+  sheet.innerHTML = `<p>Could not load this proposal: ${esc(e.message)}</p>`;
+}
+</script>
+</body>
+</html>
