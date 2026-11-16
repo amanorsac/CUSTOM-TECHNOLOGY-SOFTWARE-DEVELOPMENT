@@ -30,7 +30,7 @@ Kingsley Anyenor is a Ghanaian gospel minister, worship leader and songwriter ba
 
 ## Identity
 
-- **Colours:** altar black `#0D0A0A`, deep crimson `#8E1616`, crimson glow `#C8281E` (stage wash, used in gradients and rules), amber `#E8A03A` (buttons and highlights), cream `#F4EBDD` (text on dark), blush grey `#E6DEDB` (light sections on Ministry), muted `#A89C92`.
+- **Colours:** altar black `#0D0A0A`, deep crimson `#8E1616`, crimson glow `#C8281E` (stage wash, used in gradients and rules), amber `#E8A03A` (buttons and highlights), cream `#F4EBDD` (text on dark), blush grey `#E6DEDB` (light sections on The Refined), muted `#A89C92`.
 - **Type (self-hosted):** Fraunces for headings and the big quote, Inter for body and UI.
 - **Feel:** a dark stage lit in crimson with warm spotlights. Full-bleed live photos. Motion is slow and calm: fades and gentle rises of 300–500 ms, respecting `prefers-reduced-motion`. Nothing bouncy.
 - **Logo:** a text lockup "KA | THE REFINED" set in type until he supplies the real file.
@@ -39,16 +39,19 @@ Kingsley Anyenor is a Ghanaian gospel minister, worship leader and songwriter ba
 
 All pages share a header (wordmark, menu, icons for YouTube, Spotify, Apple Music, Instagram), a footer, and the persistent player bar.
 
-Menu: **Home · Music · Ministry · The Refined · Events · Book · Contact**
+Menu: **Home · Music · The Refined · Events · Book · Contact**
+
+The ministry *is* The Refined, so there is one page for both, not two.
 
 ### 1. Home (`/preview/kingsley/`)
-1. **Hero.** One full-screen portrait or stage photo, the wordmark and "Revived to revive". Two buttons: "Listen now" (scrolls to Latest Release) and "Book Kingsley".
+1. **Hero carousel.** A full-screen, edge-to-edge carousel of wide stage photos, led by `_MG_9033` (choir in white on the crimson stage) and followed by three or four similar frames (`_MG_9032`–`9035`, `AMH_5848`–`5851`). Slides cross-fade every 6 seconds with a slow zoom; arrows, dots and swipe let visitors move by hand; it pauses on hover and focus, and under reduced motion it shows the first slide only. The wordmark, "Revived to revive" and two buttons sit over a dark gradient at the bottom left: "Listen now" (scrolls to Latest Release) and "Book Kingsley". The first slide is in the HTML and preloaded; the rest load after.
 2. **Latest Release.** The newest YouTube upload, filled in from `/api/kingsley/latest`: thumbnail with a play button, title, release date, and "Listen on Spotify / Apple Music / YouTube" buttons. Play loads the video into the player.
 3. **Popular.** Three fixed picks: Deeper Worship 3.0, Ghana Worship Medley, Ghana Praise Medley.
 4. **Quote band.** His quote, alone, in large Fraunces on altar black.
-5. **Pillars.** Revival, Consecration, Restoration with the brief's one-line descriptions.
-6. **Spotify artist player.** The official artist embed, loaded on click.
-7. **Events strip.** One slim line: "The Refined Experience 2027 · coming soon", linking to Events.
+5. **Live video band.** A full-width, edge-to-edge band directly under the quote, as on joemettlemusic.com: a wide performance image with a single play button. Clicking it plays the newest live video in the player, expanded. In the draft the band is a still stage photo. When he supplies a 10–15 second clip, it becomes a muted, looping, self-hosted video (paused under reduced motion), with the same play button.
+6. **Pillars.** Revival, Consecration, Restoration with the brief's one-line descriptions, linking to The Refined.
+7. **Spotify artist player.** The official artist embed, loaded on click.
+8. **Events strip.** One slim line: "The Refined Experience 2027 · coming soon", linking to Events.
 
 ### 2. Music (`/preview/kingsley/music/`)
 - **Deeper Worship** as numbered cards, Vol. 1 to 6.0, newest first.
@@ -58,23 +61,20 @@ Menu: **Home · Music · Ministry · The Refined · Events · Book · Contact**
 ### 3. Release page (`/preview/kingsley/music/<slug>/`)
 One per release in the catalogue. Cover or thumbnail, title, type, year, featured artists, credits where known, the YouTube video (click to load), a Spotify embed where the release has a Spotify link, and the three streaming buttons. Buttons without a known link are left out, not shown as dead links.
 
-### 4. Ministry (`/preview/kingsley/ministry/`)
-His story from the brief, the three pillars in full, the worship philosophy ("a natural response to the greatness of God"), a studio portrait, and the awards nomination. Light blush-grey sections break up the dark.
+### 4. The Refined (`/preview/kingsley/the-refined/`)
+The ministry page. In order: what The Refined is and "Revived to revive" (Malachi 3:1–3); Kingsley's story with a studio portrait; the three pillars in full; the worship philosophy ("a natural response to the greatness of God"); the band and choir with the four credited collaborators and their roles; a gallery of stage photos; the awards nomination. Light blush-grey sections break up the dark.
 
-### 5. The Refined (`/preview/kingsley/the-refined/`)
-The band and choir: what The Refined is, the four credited collaborators with their roles, and a gallery of stage photos.
-
-### 6. Events (`/preview/kingsley/events/`)
+### 5. Events (`/preview/kingsley/events/`)
 - **Upcoming / Past** tabs.
 - Upcoming holds one card: "The Refined Experience 2027 · coming soon · Accra", with no date and no RSVP.
 - Past holds The Refined Experience gatherings with photo galleries from the Drive subfolders "REFINED NEW" and "REFIENED EX OLD". No dates are stated unless he supplies them.
 - New Wineskin is named as a flagship gathering in the intro text.
 - **RSVP is out of scope for this build** (see Later phases).
 
-### 7. Book (`/preview/kingsley/book/`)
+### 6. Book (`/preview/kingsley/book/`)
 A booking form for churches and programmes: organiser type (church, conference, campus, other), organisation name, contact name, phone (defaults to +233), email, host pastor or minister, event name, date, start time, expected length of ministration, other ministers, venue and city, country, notes.
 
-### 8. Contact (`/preview/kingsley/contact/`)
+### 7. Contact (`/preview/kingsley/contact/`)
 A short message form (name, email, message) and the social and streaming links. No address, phone or email is printed until he supplies them.
 
 ## How it works
@@ -112,7 +112,7 @@ Drive photos are downloaded once, resized to at most 2000 px wide, and saved as 
 
 - **Unit (vitest):** the feed parser (normal feed, empty feed, malformed XML, Shorts skipped), the fallback path, and catalogue validation (unique slugs, every entry has a `youtubeId`).
 - **Worker tests:** `/api/kingsley/latest` returns 200 with the right shape on feed success and on feed failure, and sets cache headers. `/preview/kingsley/` responses carry `X-Robots-Tag: noindex, nofollow`.
-- **End to end (Playwright):** home shows a latest release with the feed mocked and with it failing; the Music page lists every catalogue entry; a release page loads its embed only after a click; music keeps playing across a page change; Book form validation and success state; no horizontal scroll at 375 px.
+- **End to end (Playwright):** the hero carousel advances, responds to arrows and stops under reduced motion; the video band play button starts the player; home shows a latest release with the feed mocked and with it failing; the Music page lists every catalogue entry; a release page loads its embed only after a click; music keeps playing across a page change; Book form validation and success state; no horizontal scroll at 375 px.
 - **Checks:** keyboard access to the player and menu, visible focus, colour contrast of cream and amber on black, reduced-motion honoured.
 
 ## Later phases (not in this build)
@@ -129,3 +129,4 @@ Drive photos are downloaded once, resized to at most 2000 px wide, and saved as 
 4. Dates and names for the past gatherings in the two photo folders.
 5. Contact details he wants public, if any.
 6. Any release missing from Spotify or Apple Music, and his preferred "popular" three.
+7. A 10–15 second live clip for the home video band, and which photos he wants in the hero carousel.
