@@ -11,6 +11,12 @@ const CLIENTS = {
     ['@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2', 'plex-mono-400.woff2'],
     ['@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-500-normal.woff2', 'plex-mono-500.woff2'],
   ],
+  kingsley: [
+    ['@fontsource/fraunces/files/fraunces-latin-400-normal.woff2', 'fraunces-400.woff2'],
+    ['@fontsource/fraunces/files/fraunces-latin-500-normal.woff2', 'fraunces-500.woff2'],
+    ['@fontsource/inter/files/inter-latin-400-normal.woff2', 'inter-400.woff2'],
+    ['@fontsource/inter/files/inter-latin-500-normal.woff2', 'inter-500.woff2'],
+  ],
 };
 
 const slug = process.argv[2] || 'kezia-woods';
