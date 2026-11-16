@@ -37,7 +37,7 @@ Kingsley Anyenor is a Ghanaian gospel minister, worship leader and songwriter ba
   - **Split-line headings.** Section headings reveal line by line, each line rising out of a mask (500 ms, 80 ms stagger).
   - **Angled image reveal.** Release covers and photos wipe in from the left through a slanted edge (`clip-path` polygon, 700 ms), then settle.
   - **Fade-up.** Body text and buttons rise 16 px and fade in as they enter the screen.
-  - **Slow zoom.** Hero carousel slides scale from 1.08 to 1 over each 6-second slide.
+  - **Settle.** An incoming hero slide eases from 1.04 to 1 as it fades in.
   - **Parallax band.** The live video band and the events band move at a slower rate than the page behind an ember-to-mahogany tint.
   - **Video row.** On the home page, recent live videos sit in a horizontal row that drags and swipes, with dots and a "More videos" link to Music.
 - **Logo:** a text lockup "KA | THE REFINED" set in type until he supplies the real file.
@@ -51,7 +51,7 @@ Menu: **Home · Music · The Refined · Events · Book · Contact**
 The ministry *is* The Refined, so there is one page for both, not two.
 
 ### 1. Home (`/preview/kingsley/`)
-1. **Hero carousel.** A full-screen, edge-to-edge carousel of wide stage photos, led by `_MG_9033` (choir in white on the crimson stage) and followed by three or four similar frames (`_MG_9032`–`9035`, `AMH_5848`–`5851`). Slides cross-fade every 6 seconds with a slow zoom; arrows, dots and swipe let visitors move by hand; it pauses on hover and focus, and under reduced motion it shows the first slide only. The wordmark, "Revived to revive" and two buttons sit over a dark gradient at the bottom left: "Listen now" (scrolls to Latest Release) and "Book Kingsley". The first slide is in the HTML and preloaded; the rest load after.
+1. **Hero carousel.** A full-screen, edge-to-edge carousel that moves **only by hand** (arrows, dots, swipe, arrow keys; no auto-advance — owner decision 2026-11-16). Slide 1 is a muted, looping live video from a Refined night (owner's Drive clip, 43 s, re-encoded without sound at 1920 and 960 px wide, with a poster frame); it plays only while its slide is showing, and under reduced motion it waits for a visible play button. Then photo slides `_MG_9033`, `_MG_9032`, `_MG_9034`, `AMH_5849`, `AMH_5851`. Slides cross-fade. The wordmark, "Revived to revive" and two buttons sit over a dark gradient at the bottom left: "Listen now" (scrolls to Latest Release) and "Book Kingsley". The first slide is in the HTML and preloaded; the rest load after.
 2. **Latest Release.** The newest YouTube upload, filled in from `/api/kingsley/latest`: thumbnail with a play button, title, release date, and "Listen on Spotify / Apple Music / YouTube" buttons. Play loads the video into the player.
 3. **Video row.** The six newest live videos from the catalogue in a swipeable row, each a thumbnail with a play button, plus "More videos". Popular picks (Deeper Worship 3.0, Ghana Worship Medley, Ghana Praise Medley) lead the row until he chooses his own.
 4. **Quote band.** A split panel: his quote large in Fraunces on wood on one half, a short "Revived to revive" intro and "About The Refined" link on the other.
@@ -119,7 +119,7 @@ Drive photos are downloaded once, resized to at most 2000 px wide, and saved as 
 
 - **Unit (vitest):** the feed parser (normal feed, empty feed, malformed XML, Shorts skipped), the fallback path, and catalogue validation (unique slugs, every entry has a `youtubeId`).
 - **Worker tests:** `/api/kingsley/latest` returns 200 with the right shape on feed success and on feed failure, and sets cache headers. `/preview/kingsley/` responses carry `X-Robots-Tag: noindex, nofollow`.
-- **End to end (Playwright):** the hero carousel advances, responds to arrows and stops under reduced motion; the video band play button starts the player; the video row swipes; reveal animations are skipped under reduced motion; home shows a latest release with the feed mocked and with it failing; the Music page lists every catalogue entry; a release page loads its embed only after a click; music keeps playing across a page change; Book form validation and success state; no horizontal scroll at 375 px.
+- **End to end (Playwright):** the hero carousel stays put until moved by hand, responds to arrows, and its video plays only on its own slide; the video band play button starts the player; the video row swipes; reveal animations are skipped under reduced motion; home shows a latest release with the feed mocked and with it failing; the Music page lists every catalogue entry; a release page loads its embed only after a click; music keeps playing across a page change; Book form validation and success state; no horizontal scroll at 375 px.
 - **Checks:** keyboard access to the player and menu, visible focus, colour contrast of cream and ember on stage black, and stage black on ember, reduced-motion honoured.
 
 ## Later phases (not in this build)
