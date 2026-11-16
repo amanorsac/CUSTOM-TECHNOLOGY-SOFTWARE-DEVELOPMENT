@@ -1,4 +1,4 @@
-# Kingsley Anyenor: draft artist website ("Crimson altar")
+# Kingsley Anyenor: draft artist website ("Refined wood")
 
 **Status:** design approved in chat on 2026-11-16. This is a **draft to pitch to him**. Branch `build/kingsley`. Do not merge to `main` without asking.
 
@@ -18,7 +18,7 @@ Kingsley Anyenor is a Ghanaian gospel minister, worship leader and songwriter ba
 
 **Success:** a visitor can play his newest release within one click of landing, and can reach any song in the catalogue in two. Kingsley sees it and wants it.
 
-**Starting point:** joemettlemusic.com, for its structure only (simple menu, portrait hero, one big quote, a page per release, band page, events tabs, detailed booking form). Not a copy: our look, layout, copy and code are our own, and we add music to the home page, which that site lacks.
+**Starting points:** joemettlemusic.com for structure, dunsinoyekan.com for motion and the video row, both (simple menu, portrait hero, one big quote, a page per release, band page, events tabs, detailed booking form). Not a copy: our look, layout, copy and code are our own, and we add music to the home page, which that site lacks.
 
 ## Guardrails
 
@@ -30,9 +30,16 @@ Kingsley Anyenor is a Ghanaian gospel minister, worship leader and songwriter ba
 
 ## Identity
 
-- **Colours:** altar black `#0D0A0A`, deep crimson `#8E1616`, crimson glow `#C8281E` (stage wash, used in gradients and rules), amber `#E8A03A` (buttons and highlights), cream `#F4EBDD` (text on dark), blush grey `#E6DEDB` (light sections on The Refined), muted `#A89C92`.
+- **Colours ("Refined wood"):** sampled from the carousel photo `_MG_9033` (the wooden stage under crimson light) and the REFINED NEW set (the ember-orange stage panels). Stage black `#0E0F14` (page), mahogany `#3B1C1F` (raised sections, player bar), wood `#653231` (cards, quote band), clay `#8B4740` (rules, hover), ember `#EC8746` (buttons and highlights, with stage-black text), rose sand `#D4ACA2` (secondary text, light sections on The Refined), cream `#F4EBDD` (text on dark).
 - **Type (self-hosted):** Fraunces for headings and the big quote, Inter for body and UI.
-- **Feel:** a dark stage lit in crimson with warm spotlights. Full-bleed live photos. Motion is slow and calm: fades and gentle rises of 300–500 ms, respecting `prefers-reduced-motion`. Nothing bouncy.
+- **Feel:** a dark wooden stage with warm ember light. Full-bleed live photos.
+- **Motion** (ideas from dunsinoyekan.com, built our own way; all of it is plain CSS and IntersectionObserver, stops under `prefers-reduced-motion`, and never delays content from being readable):
+  - **Split-line headings.** Section headings reveal line by line, each line rising out of a mask (500 ms, 80 ms stagger).
+  - **Angled image reveal.** Release covers and photos wipe in from the left through a slanted edge (`clip-path` polygon, 700 ms), then settle.
+  - **Fade-up.** Body text and buttons rise 16 px and fade in as they enter the screen.
+  - **Slow zoom.** Hero carousel slides scale from 1.08 to 1 over each 6-second slide.
+  - **Parallax band.** The live video band and the events band move at a slower rate than the page behind an ember-to-mahogany tint.
+  - **Video row.** On the home page, recent live videos sit in a horizontal row that drags and swipes, with dots and a "More videos" link to Music.
 - **Logo:** a text lockup "KA | THE REFINED" set in type until he supplies the real file.
 
 ## Pages
@@ -46,8 +53,8 @@ The ministry *is* The Refined, so there is one page for both, not two.
 ### 1. Home (`/preview/kingsley/`)
 1. **Hero carousel.** A full-screen, edge-to-edge carousel of wide stage photos, led by `_MG_9033` (choir in white on the crimson stage) and followed by three or four similar frames (`_MG_9032`–`9035`, `AMH_5848`–`5851`). Slides cross-fade every 6 seconds with a slow zoom; arrows, dots and swipe let visitors move by hand; it pauses on hover and focus, and under reduced motion it shows the first slide only. The wordmark, "Revived to revive" and two buttons sit over a dark gradient at the bottom left: "Listen now" (scrolls to Latest Release) and "Book Kingsley". The first slide is in the HTML and preloaded; the rest load after.
 2. **Latest Release.** The newest YouTube upload, filled in from `/api/kingsley/latest`: thumbnail with a play button, title, release date, and "Listen on Spotify / Apple Music / YouTube" buttons. Play loads the video into the player.
-3. **Popular.** Three fixed picks: Deeper Worship 3.0, Ghana Worship Medley, Ghana Praise Medley.
-4. **Quote band.** His quote, alone, in large Fraunces on altar black.
+3. **Video row.** The six newest live videos from the catalogue in a swipeable row, each a thumbnail with a play button, plus "More videos". Popular picks (Deeper Worship 3.0, Ghana Worship Medley, Ghana Praise Medley) lead the row until he chooses his own.
+4. **Quote band.** A split panel: his quote large in Fraunces on wood on one half, a short "Revived to revive" intro and "About The Refined" link on the other.
 5. **Live video band.** A full-width, edge-to-edge band directly under the quote, as on joemettlemusic.com: a wide performance image with a single play button. Clicking it plays the newest live video in the player, expanded. In the draft the band is a still stage photo. When he supplies a 10–15 second clip, it becomes a muted, looping, self-hosted video (paused under reduced motion), with the same play button.
 6. **Pillars.** Revival, Consecration, Restoration with the brief's one-line descriptions, linking to The Refined.
 7. **Spotify artist player.** The official artist embed, loaded on click.
@@ -112,8 +119,8 @@ Drive photos are downloaded once, resized to at most 2000 px wide, and saved as 
 
 - **Unit (vitest):** the feed parser (normal feed, empty feed, malformed XML, Shorts skipped), the fallback path, and catalogue validation (unique slugs, every entry has a `youtubeId`).
 - **Worker tests:** `/api/kingsley/latest` returns 200 with the right shape on feed success and on feed failure, and sets cache headers. `/preview/kingsley/` responses carry `X-Robots-Tag: noindex, nofollow`.
-- **End to end (Playwright):** the hero carousel advances, responds to arrows and stops under reduced motion; the video band play button starts the player; home shows a latest release with the feed mocked and with it failing; the Music page lists every catalogue entry; a release page loads its embed only after a click; music keeps playing across a page change; Book form validation and success state; no horizontal scroll at 375 px.
-- **Checks:** keyboard access to the player and menu, visible focus, colour contrast of cream and amber on black, reduced-motion honoured.
+- **End to end (Playwright):** the hero carousel advances, responds to arrows and stops under reduced motion; the video band play button starts the player; the video row swipes; reveal animations are skipped under reduced motion; home shows a latest release with the feed mocked and with it failing; the Music page lists every catalogue entry; a release page loads its embed only after a click; music keeps playing across a page change; Book form validation and success state; no horizontal scroll at 375 px.
+- **Checks:** keyboard access to the player and menu, visible focus, colour contrast of cream and ember on stage black, and stage black on ember, reduced-motion honoured.
 
 ## Later phases (not in this build)
 
