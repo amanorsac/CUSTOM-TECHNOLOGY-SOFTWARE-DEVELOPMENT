@@ -34,6 +34,8 @@ export function render({ layout, img }) {
     `<p class="ka-up" id="up">This paragraph fades up when it scrolls into view.</p>` +
     `<div class="ka-wedge" id="wedge">${img('amh-5849', { alt: 'Worship night', sizes: '(max-width: 1200px) 100vw, 1200px' })}</div>` +
     `</div></section>` +
+    `<section class="ka-section"><div class="ka-wrap"><div class="ka-up" id="tall" style="height:750vh;border-left:2px solid var(--ka-clay)">` +
+    `<p>A block taller than seven viewports.</p></div></div></section>` +
     `<section class="ka-parallax" id="parallax"><div class="ka-parallax__bg">${img('mg-9032', { alt: '', sizes: '100vw' })}</div>` +
     `<div class="ka-wrap"><h2>Parallax band</h2></div></section>` +
     `<section class="ka-section"><div class="ka-wrap">` +

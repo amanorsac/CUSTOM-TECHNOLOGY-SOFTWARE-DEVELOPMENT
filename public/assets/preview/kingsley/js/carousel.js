@@ -72,7 +72,12 @@ export function initCarousel(el) {
       const play = isActive && want.get(v) && tabVisible && onScreen;
       if (play) {
         const p = v.play();
-        if (p && p.catch) p.catch(() => {});
+        // A refused play (not one cut short by pause()) flips the toggle back to "Play".
+        if (p && p.catch) p.catch((err) => {
+          if (err && err.name === 'AbortError') return;
+          want.set(v, false);
+          sync();
+        });
       } else if (!v.paused) {
         v.pause();
       }

@@ -356,6 +356,17 @@ html.ka-motion .ka-wedge:not(.is-in) > * { clip-path: polygon(0 0, 0 0, -15% 100
 html.ka-motion .ka-up { transition: opacity .7s var(--ka-ease), transform .7s var(--ka-ease); }
 html.ka-motion .ka-up:not(.is-in) { opacity: 0; transform: translateY(16px); }
 
+/* Print and PDF: every reveal in its final state, scrolled to or not. */
+@media print {
+  html.ka-motion .ka-split,
+  html.ka-motion .ka-split .ka-line__inner,
+  html.ka-motion .ka-wedge > *,
+  html.ka-motion .ka-up {
+    visibility: visible !important; opacity: 1 !important;
+    transform: none !important; clip-path: none !important; transition: none !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }

@@ -144,12 +144,16 @@ export function initMotion(root = document) {
     (entries) => {
       for (const e of entries) {
         if (!e.isIntersecting) continue;
+        // 15% of the element, or (for elements too tall to ever reach that)
+        // a band 15% of the viewport tall, whichever comes first.
+        const view = e.rootBounds ? e.rootBounds.height : innerHeight;
+        if (e.intersectionRatio < 0.15 && e.intersectionRect.height < view * 0.15) continue;
         e.target.classList.add('is-in');
         revealer.unobserve(e.target);
         watched.delete(e.target);
       }
     },
-    { threshold: 0.15 },
+    { threshold: [0, 0.01, 0.02, 0.05, 0.1, 0.15] },
   );
 
   const watch = (el) => {

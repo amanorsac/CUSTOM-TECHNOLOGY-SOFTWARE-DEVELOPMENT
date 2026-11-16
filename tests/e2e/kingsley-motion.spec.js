@@ -158,6 +158,32 @@ test.describe('Kingsley motion and hero carousel', () => {
     await expect(page.locator('#wedge')).toHaveClass(/is-in/);
   });
 
+  test('an element taller than seven viewports still reveals once scrolled into', async ({ page }) => {
+    await page.goto(FIXTURE);
+    await expect(page.locator('html.ka-motion')).toHaveCount(1);
+    const tall = page.locator('#tall');
+    const ratio = await tall.evaluate((el) => el.offsetHeight / innerHeight);
+    expect(ratio).toBeGreaterThan(7);
+    await expect(tall).not.toHaveClass(/is-in/);
+    await tall.evaluate((el) => window.scrollTo(0, el.getBoundingClientRect().top + scrollY + innerHeight * 2));
+    await expect(tall).toHaveClass(/is-in/);
+  });
+
+  test('printing shows reveal content that was never scrolled to', async ({ page }) => {
+    await page.goto(FIXTURE);
+    await expect(page.locator('html.ka-motion')).toHaveCount(1);
+    await expect(page.locator('#split.is-split')).toHaveCount(1);
+    await expect(page.locator('#up')).not.toHaveClass(/is-in/);
+    await page.emulateMedia({ media: 'print' });
+    const style = await page.evaluate(() => {
+      const up = getComputedStyle(document.getElementById('up'));
+      const wedge = getComputedStyle(document.querySelector('#wedge > *'));
+      const line = getComputedStyle(document.querySelector('#split .ka-line__inner'));
+      return { upOpacity: up.opacity, upTransform: up.transform, wedgeClip: wedge.clipPath, lineTransform: line.transform };
+    });
+    expect(style).toEqual({ upOpacity: '1', upTransform: 'none', wedgeClip: 'none', lineTransform: 'none' });
+  });
+
   test("the row's next button scrolls it and moves its dots", async ({ page }) => {
     await page.goto(FIXTURE);
     const row = page.locator('#row');
