@@ -47,7 +47,12 @@ function rows(lead) {
 }
 
 export function ownerEmail(lead) {
-  const subject = cleanSubject(`New lead: ${lead.kind} — ${lead.org_type} — ${lead.org_name || lead.name}`);
+  const kingsley = lead.design_slug === 'kingsley';
+  const subject = cleanSubject(
+    kingsley && lead.kind === 'booking' ? `New booking request (Kingsley Anyenor) — ${lead.org_name || lead.name}`
+      : kingsley && lead.kind === 'contact' ? `New message (Kingsley Anyenor) — ${lead.name}`
+        : `New lead: ${lead.kind} — ${lead.org_type} — ${lead.org_name || lead.name}`,
+  );
   const list = rows(lead);
 
   const html = '<div style="font-family:Arial,sans-serif;color:#1A1A1A;max-width:640px">'

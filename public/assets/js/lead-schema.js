@@ -6,7 +6,7 @@
 //          `needs` is always an array. Unknown fields never reach `value`.
 //   errors maps field name -> human-readable message.
 
-export const KINDS = ['project', 'mockup'];
+export const KINDS = ['project', 'mockup', 'booking', 'contact'];
 export const ORG_TYPES = ['business', 'church', 'school', 'nonprofit', 'other'];
 export const NEEDS = ['website', 'app', 'portal', 'crm', 'crm-integration', 'booking', 'payments', 'automation', 'not-sure'];
 export const TIMELINES = ['asap', '1-3m', '3-6m', 'exploring'];

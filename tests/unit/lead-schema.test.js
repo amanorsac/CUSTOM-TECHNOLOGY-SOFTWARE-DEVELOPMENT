@@ -206,4 +206,18 @@ describe('validateLead', () => {
       expect(validateLead({ ...project(), email }).ok).toBe(true);
     },
   );
+
+  it.each(['booking', 'contact'])('accepts %s without needs (Kingsley source)', (kind) => {
+    const r = validateLead({ kind, org_type: 'church', name: 'A', email: 'a@b.co', design_slug: 'kingsley', message: 'x' });
+    expect(r.ok).toBe(true);
+    expect(r.errors).toBeUndefined();
+    expect(r.value.kind).toBe(kind);
+    expect(r.value.design_slug).toBe('kingsley');
+  });
+
+  it('still requires needs for project and rejects unknown kinds', () => {
+    const p = project(); delete p.needs;
+    expect(validateLead(p).errors.needs).toBeTruthy();
+    expect(validateLead({ ...project(), kind: 'spam' }).errors.kind).toBeTruthy();
+  });
 });

@@ -9,7 +9,7 @@
 create table if not exists public.leads (
   id           uuid        primary key default gen_random_uuid(),
   created_at   timestamptz not null default now(),
-  kind         text        not null check (kind in ('project', 'mockup')),
+  kind         text        not null check (kind in ('project', 'mockup', 'booking', 'contact')),
   org_type     text,
   org_name     text,
   needs        text[]      not null default '{}',

@@ -128,6 +128,17 @@ describe('POST /api/lead', () => {
     }
   });
 
+  it.each([
+    ['booking', 'New booking request (Kingsley Anyenor) — Grace Chapel'],
+    ['contact', 'New message (Kingsley Anyenor) — Ada'],
+  ])('kingsley %s lead: inserted, owner subject is %s', async (kind, subject) => {
+    const res = await post('/api/lead', lead({ kind, needs: undefined, design_slug: 'kingsley' }));
+    expect(res.status).toBe(200);
+    expect(JSON.parse(supabaseCalls()[0].body).kind).toBe(kind);
+    const owner = resendCalls().map((c) => JSON.parse(c.body)).find((m) => [].concat(m.to).includes('amanorsac@gmail.com'));
+    expect(owner.subject).toBe(subject);
+  });
+
   it('streamed body over 32KB without content-length → 413', async () => {
     const big = new TextEncoder().encode(JSON.stringify(lead({ message: 'x'.repeat(40 * 1024) })));
     const stream = new ReadableStream({
