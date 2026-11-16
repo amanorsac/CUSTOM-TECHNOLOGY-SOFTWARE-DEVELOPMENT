@@ -1,6 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 const KA = '/preview/kingsley/';
+// Real home play buttons: the latest release (built from catalogue[0]) and a row card.
+const PLAY_6 = '#latest button[data-play="LqwYHMrrYK0"]';
+const PLAY_5 = '.ka-row button[data-play="JfxWXop_01c"]';
 
 // Fake YouTube IFrame API: tests never touch the network.
 const FAKE_YT = `
@@ -43,12 +46,22 @@ function collectErrors(page) {
 }
 
 test.describe('Kingsley persistent player', () => {
-  test('no YouTube request before the first play', async ({ page }) => {
+  // Keep the latest-release block as built, so PLAY_6 is stable.
+  test.beforeEach(async ({ page }) => {
+    await page.route('**/api/kingsley/latest', (route) => route.abort());
+  });
+
+  test('no YouTube script, iframe or video request before the first play', async ({ page }) => {
+    // Thumbnails (i.ytimg.com) are lazy <img>s on the home page and Chrome's
+    // lazy-load margin may fetch them early; the player itself must not load.
     const third = [];
-    page.on('request', (r) => { if (/youtube|ytimg|googlevideo/.test(r.url())) third.push(r.url()); });
+    page.on('request', (r) => { if (/youtube|googlevideo/.test(r.url())) third.push(r.url()); });
     await page.goto(KA);
-    await page.waitForTimeout(800);
+    await page.waitForTimeout(1500);
     expect(third).toEqual([]);
+    await expect(page.locator('iframe')).toHaveCount(0);
+    const eager = await page.locator('img[src*="ytimg.com"]').evaluateAll((imgs) => imgs.filter((i) => i.loading !== 'lazy').length);
+    expect(eager).toBe(0);
     await expect(page.locator('#ka-player')).toBeHidden();
   });
 
@@ -56,7 +69,7 @@ test.describe('Kingsley persistent player', () => {
     const errors = collectErrors(page);
     await stubYouTube(page);
     await page.goto(KA);
-    await page.locator('button[data-play="LqwYHMrrYK0"]').click();
+    await page.locator(PLAY_6).click();
     const bar = page.locator('#ka-player');
     await expect(bar).toBeVisible();
     await expect(bar).toContainText('Deeper Worship 6.0');
@@ -72,7 +85,7 @@ test.describe('Kingsley persistent player', () => {
   test('next moves through the queue and stops at the end', async ({ page }) => {
     await stubYouTube(page);
     await page.goto(KA);
-    await page.locator('button[data-play="JfxWXop_01c"]').click();
+    await page.locator(PLAY_5).click();
     const bar = page.locator('#ka-player');
     await expect(bar).toContainText('Deeper Worship 5.0');
     await page.waitForFunction(() => window.__ytPlayers.length === 1);
@@ -98,7 +111,7 @@ test.describe('Kingsley persistent player', () => {
   test('shows a fallback when the YouTube API cannot load', async ({ page }) => {
     await page.route('**/iframe_api', (route) => route.abort());
     await page.goto(KA);
-    await page.locator('button[data-play="LqwYHMrrYK0"]').click();
+    await page.locator(PLAY_6).click();
     const bar = page.locator('#ka-player');
     await expect(bar).toContainText("Couldn't load the player.", { timeout: 10000 });
     await expect(bar.getByRole('link', { name: 'Watch on YouTube' })).toHaveAttribute(
@@ -110,7 +123,7 @@ test.describe('Kingsley persistent player', () => {
     const errors = collectErrors(page);
     await stubYouTube(page);
     await page.goto(KA);
-    await page.locator('button[data-play="LqwYHMrrYK0"]').click();
+    await page.locator(PLAY_6).click();
     await expect(page.locator('#ka-player')).toBeVisible();
     await page.evaluate(() => { window.__kaMarker = 1; });
     await page.locator('.ka-nav').getByRole('link', { name: 'Music' }).click();
@@ -123,7 +136,7 @@ test.describe('Kingsley persistent player', () => {
     await expect(page.locator('.ka-nav a[aria-current="page"]')).toHaveText('Music');
     // Back button swaps the page back, still without a full load.
     await page.goBack();
-    await expect(page.locator('h1')).toHaveText('Kingsley Anyenor');
+    await expect(page.locator('h1')).toHaveText('Revived to revive.');
     expect(await page.evaluate(() => window.__kaMarker)).toBe(1);
     await expect(page.locator('#ka-player')).toBeVisible();
     expect(errors).toEqual([]);
@@ -155,7 +168,7 @@ test.describe('Kingsley persistent player', () => {
       await page.setViewportSize(size);
       await stubYouTube(page);
       await page.goto(KA);
-      await page.locator('button[data-play="LqwYHMrrYK0"]').click();
+      await page.locator(PLAY_6).click();
       const frame = page.locator('#ka-player iframe');
       await expect(frame).toBeVisible();
       const check = async () => {
@@ -189,7 +202,7 @@ test.describe('Kingsley persistent player', () => {
   test('close stops playback and hides the player and its video', async ({ page }) => {
     await stubYouTube(page);
     await page.goto(KA);
-    await page.locator('button[data-play="LqwYHMrrYK0"]').click();
+    await page.locator(PLAY_6).click();
     await expect(page.locator('#ka-player iframe')).toBeVisible();
     await page.waitForFunction(() => window.__ytPlayers[0]?.calls.includes('play'));
     await page.locator('#ka-player').getByRole('button', { name: 'Close player' }).click();
@@ -197,7 +210,7 @@ test.describe('Kingsley persistent player', () => {
     await expect(page.locator('#ka-player iframe')).toHaveCount(0);
     expect(await page.evaluate(() => window.__ytPlayers[0].calls.at(-1))).toBe('pause');
     // Playing again brings it back with a fresh player.
-    await page.locator('button[data-play="JfxWXop_01c"]').click();
+    await page.locator(PLAY_5).click();
     await expect(page.locator('#ka-player iframe')).toBeVisible();
     await expect(page.locator('#ka-player')).toContainText('Deeper Worship 5.0');
   });
@@ -206,9 +219,9 @@ test.describe('Kingsley persistent player', () => {
     const errors = collectErrors(page);
     await stubYouTube(page, { noReady: true });
     await page.goto(KA);
-    await page.locator('button[data-play="LqwYHMrrYK0"]').click();
+    await page.locator(PLAY_6).click();
     await page.waitForFunction(() => window.__ytPlayers.length === 1);
-    await page.locator('button[data-play="JfxWXop_01c"]').click();
+    await page.locator(PLAY_5).click();
     await expect(page.locator('#ka-player')).toContainText('Deeper Worship 5.0');
     // onReady arrives late: it loads the song asked for most recently.
     await page.evaluate(() => { const p = window.__ytPlayers[0]; p.opts.events.onReady({ target: p }); });
@@ -221,7 +234,7 @@ test.describe('Kingsley persistent player', () => {
     await page.clock.install();
     await stubYouTube(page, { noReady: true });
     await page.goto(KA);
-    await page.locator('button[data-play="LqwYHMrrYK0"]').click();
+    await page.locator(PLAY_6).click();
     await page.waitForFunction(() => window.__ytPlayers.length === 1);
     const bar = page.locator('#ka-player');
     await expect(bar.getByText("Couldn't load the player.")).toBeHidden();

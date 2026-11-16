@@ -38,6 +38,16 @@ export function esc(s) {
     .replace(/"/g, '&quot;');
 }
 
+/** esc() plus single quotes, for attribute values from data. */
+export function escAttr(s) {
+  return esc(s).replace(/'/g, '&#39;');
+}
+
+// Runs before first paint so reveal-hidden content never flashes visible
+// first. motion.js removes the class again if it cannot run the reveals.
+const MOTION_FLAG =
+  "<script>if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('ka-motion')</script>";
+
 export const icon = (name) =>
   `<svg class="ka-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false">${ICON[name]}</svg>`;
 
@@ -89,6 +99,7 @@ export function layout({ title, description, active, body, preload = '' }) {
 <html lang="en">
 <head>
 <meta charset="utf-8">
+${MOTION_FLAG}
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)} | Kingsley Anyenor</title>
 <meta name="robots" content="noindex, nofollow">

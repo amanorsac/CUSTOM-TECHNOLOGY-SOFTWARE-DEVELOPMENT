@@ -136,9 +136,13 @@ export function initMotion(root = document) {
     keep(el, initRow(el));
   }
 
-  if (still) return; // final state already: nothing hidden, nothing moves
+  if (still) {
+    // The inline <head> flag may have set it; take it back so nothing stays hidden.
+    document.documentElement.classList.remove('ka-motion');
+    return; // final state already: nothing hidden, nothing moves
+  }
 
-  document.documentElement.classList.add('ka-motion');
+  document.documentElement.classList.add('ka-motion'); // usually already set by the inline <head> flag
 
   revealer ??= new IntersectionObserver(
     (entries) => {

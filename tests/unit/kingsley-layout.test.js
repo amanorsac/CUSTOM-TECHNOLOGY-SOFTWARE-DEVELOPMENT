@@ -58,6 +58,22 @@ describe('kingsley layout', () => {
     expect(html).toContain('<script type="module" src="/assets/preview/kingsley/js/app.js"></script>');
   });
 
+  it('sets html.ka-motion before first paint unless reduced motion is asked for', () => {
+    const html = page();
+    const head = html.slice(html.indexOf('<head>'), html.indexOf('</head>'));
+    const script = head.match(/<script>([\s\S]*?)<\/script>/);
+    expect(script).not.toBeNull();
+    // First thing after the charset meta, before the stylesheet.
+    expect(head.indexOf('<script>')).toBeLessThan(head.indexOf('<link rel="stylesheet"'));
+    expect(script[1]).toContain("matchMedia('(prefers-reduced-motion: reduce)')");
+    expect(script[1]).toContain("classList.add('ka-motion')");
+  });
+
+  it('escAttr escapes quotes, angle brackets and ampersands', async () => {
+    const { escAttr } = await import('../../scripts/kingsley/layout.mjs');
+    expect(escAttr(`a"b'<c>&`)).toBe('a&quot;b&#39;&lt;c&gt;&amp;');
+  });
+
   it('escapes the title and description', () => {
     const html = layout({ title: 'A & B', description: '"x"', active: 'home', body: '' });
     expect(html).toContain('<title>A &amp; B | Kingsley Anyenor</title>');
