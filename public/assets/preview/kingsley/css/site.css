@@ -201,18 +201,26 @@ body.ka-has-player { padding-bottom: calc(var(--ka-player-h) + env(safe-area-ins
 .ka-player__btn:hover { background: var(--ka-ember); color: var(--ka-black); }
 .ka-player__btn[data-el="toggle"] { background: var(--ka-ember); color: var(--ka-black); }
 .ka-player__btn[data-el="toggle"]:hover { background: var(--ka-cream); }
-/* The video stays mounted (so audio keeps going) but is tucked away until expanded. */
-.ka-player__video {
-  position: absolute; right: var(--ka-gutter); bottom: 100%;
-  width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none;
+/* Mini-player: whenever a video is loaded it is VISIBLE, docked above the bar
+   (bottom-right on desktop, gutter to gutter on phones), never under 200px tall
+   (YouTube API terms). Enlarge makes it bigger; Close hides the whole player. */
+.ka-player__video { display: none; }
+#ka-player.has-video .ka-player__video {
+  display: block; box-sizing: content-box; position: absolute; right: var(--ka-gutter); bottom: calc(100% + .75rem);
+  width: min(356px, calc(100vw - 2 * var(--ka-gutter)));
+  aspect-ratio: 16 / 9; min-height: 200px;
+  border: 1px solid var(--ka-clay); background: var(--ka-black);
+  box-shadow: 0 12px 32px rgba(14, 15, 20, .5);
 }
-#ka-player.is-expanded .ka-player__video {
-  width: min(480px, calc(100vw - 2 * var(--ka-gutter))); height: auto; aspect-ratio: 16 / 9;
-  margin-bottom: .75rem; opacity: 1; pointer-events: auto;
-  border: 1px solid var(--ka-clay); background: var(--ka-black); box-shadow: 0 12px 32px rgba(14, 15, 20, .5);
-}
+#ka-player.has-video.is-expanded .ka-player__video { width: min(640px, calc(100vw - 2 * var(--ka-gutter))); }
+body.ka-has-player.ka-has-video { padding-bottom: calc(var(--ka-player-h) + 200px + 1.5rem + env(safe-area-inset-bottom)); }
 .ka-player__video iframe, .ka-player__video > div { width: 100%; height: 100%; border: 0; display: block; }
 @media (max-width: 480px) {
+  #ka-player.has-video .ka-player__video,
+  #ka-player.has-video.is-expanded .ka-player__video {
+    left: var(--ka-gutter); right: var(--ka-gutter); width: auto;
+    height: max(200px, calc((100vw - 2 * var(--ka-gutter)) * 9 / 16)); aspect-ratio: auto;
+  }
   .ka-player__thumb { width: 64px; height: 36px; }
   .ka-player__label { display: none; }
   .ka-player__bar { gap: .6rem; }

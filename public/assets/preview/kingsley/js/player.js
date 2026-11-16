@@ -1,17 +1,21 @@
 // Persistent YouTube player bar. Lives in #ka-player (outside #main), so the
 // page swapper in nav.js can change pages without stopping the music.
-// Nothing from YouTube loads until the first play().
-
+// Nothing from YouTube loads until the first play(). While a video is loaded
+// it is shown in a visible mini-player docked above the bar (never hidden or
+// shrunk below 200px tall), per the YouTube API terms.
 
 const API_URL = 'https://www.youtube.com/iframe_api';
 const HOST = 'https://www.youtube-nocookie.com';
 const CATALOGUE_URL = '/assets/preview/kingsley/data/catalogue.json';
 const API_TIMEOUT = 8000;
+const READY_TIMEOUT = 8000; // player constructed but onReady never fired
 
 const state = {
   root: null,
   els: {},
-  yt: null, // YT.Player instance once ready
+  yt: null, // YT.Player instance once ready; 'pending' between construction and onReady
+  gen: 0, // player generation, so a late onReady from an abandoned player is ignored
+  readyTimer: 0,
   ytReady: null, // Promise for the API
   current: null, // { id, title }
   queue: [], // catalogue entries in the current group, newest first
@@ -59,6 +63,7 @@ const ICONS = {
   next: '<path d="M6 6l8.5 6L6 18zM16 6h2v12h-2z"/>',
   expand: '<path d="M7 14l5-5 5 5z"/>',
   collapse: '<path d="M7 10l5 5 5-5z"/>',
+  close: '<path d="M6.4 5 12 10.6 17.6 5 19 6.4 13.4 12 19 17.6 17.6 19 12 13.4 6.4 19 5 17.6 10.6 12 5 6.4z"/>',
 };
 const svg = (name) =>
   `<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true" focusable="false">${ICONS[name]}</svg>`;
@@ -80,19 +85,41 @@ function build() {
       <div class="ka-player__controls">
         <button type="button" class="ka-player__btn" data-el="toggle" aria-label="Pause">${svg('pause')}</button>
         <button type="button" class="ka-player__btn" data-el="next" aria-label="Next song">${svg('next')}</button>
-        <button type="button" class="ka-player__btn" data-el="expand" aria-label="Show video" aria-expanded="false">${svg('expand')}</button>
+        <button type="button" class="ka-player__btn" data-el="expand" aria-label="Enlarge video" aria-pressed="false">${svg('expand')}</button>
+        <button type="button" class="ka-player__btn" data-el="close" aria-label="Close player">${svg('close')}</button>
       </div>
     </div>`;
   for (const el of root.querySelectorAll('[data-el]')) state.els[el.dataset.el] = el;
   state.els.toggle.addEventListener('click', toggle);
   state.els.next.addEventListener('click', next);
   state.els.expand.addEventListener('click', () => expand(!state.expanded));
+  state.els.close.addEventListener('click', close);
 }
 
 function show() {
   if (!state.root.hidden) return;
   state.root.hidden = false;
   document.body.classList.add('ka-has-player');
+}
+
+// The mini-player is shown whenever a video is (being) loaded.
+function setVideoShown(on) {
+  state.root.classList.toggle('has-video', on);
+  document.body.classList.toggle('ka-has-video', on);
+}
+
+// Throw away the current YT.Player (if any) and leave a fresh mount point.
+function resetPlayer() {
+  clearTimeout(state.readyTimer);
+  state.gen++;
+  if (state.yt && state.yt !== 'pending' && typeof state.yt.destroy === 'function') {
+    try { state.yt.destroy(); } catch { /* already gone */ }
+  }
+  state.yt = null;
+  const mount = document.createElement('div');
+  mount.dataset.el = 'mount';
+  state.els.video.replaceChildren(mount);
+  state.els.mount = mount;
 }
 
 function setPlaying(playing) {
@@ -116,6 +143,7 @@ function tick() {
 }
 
 function showError(id) {
+  setVideoShown(false);
   state.els.error.hidden = false;
   state.els.yt.href = `https://www.youtube.com/watch?v=${encodeURIComponent(id)}`;
   setPlaying(false);
@@ -160,6 +188,7 @@ export async function play(id, { title, queue } = {}) {
   els.progress.setAttribute('aria-valuenow', '0');
   els.fill.style.width = '0%';
   show();
+  setVideoShown(true);
   setPlaying(true);
 
   state.queueReady = queue
@@ -177,12 +206,21 @@ export async function play(id, { title, queue } = {}) {
   }
   if (!state.current || state.current.id !== id) return; // superseded by a later play()
 
+  if (state.yt === 'pending') return; // onReady loads state.current
   if (state.yt) {
     state.yt.loadVideoById(id);
     return;
   }
+  resetPlayer();
+  const gen = state.gen;
   state.yt = 'pending';
-  new YT.Player(els.mount, {
+  state.readyTimer = setTimeout(() => {
+    if (gen !== state.gen || state.yt !== 'pending') return;
+    const cur = state.current ? state.current.id : id;
+    resetPlayer();
+    showError(cur);
+  }, READY_TIMEOUT);
+  new YT.Player(state.els.mount, {
     host: HOST,
     videoId: id,
     width: '100%',
@@ -190,19 +228,25 @@ export async function play(id, { title, queue } = {}) {
     playerVars: { autoplay: 1, playsinline: 1, rel: 0, modestbranding: 1 },
     events: {
       onReady: (e) => {
+        if (gen !== state.gen) return; // abandoned after the ready timeout
+        clearTimeout(state.readyTimer);
         state.yt = e.target;
         const want = state.current && state.current.id;
         if (want && want !== id) state.yt.loadVideoById(want);
         else state.yt.playVideo();
       },
-      onStateChange,
-      onError: () => showError(state.current ? state.current.id : id),
+      onStateChange: (e) => { if (gen === state.gen) onStateChange(e); },
+      onError: () => { if (gen === state.gen) showError(state.current ? state.current.id : id); },
     },
   });
 }
 
 export function toggle() {
   const p = state.yt;
+  if (!p && state.current) {
+    play(state.current.id, { title: state.current.title }); // after a failed load: retry
+    return;
+  }
   if (!p || p === 'pending') return;
   if (state.playing) {
     p.pauseVideo();
@@ -229,13 +273,30 @@ export async function next() {
   play(entry.youtubeId, { title: entry.title, queue: entry.group });
 }
 
+// Enlarge or shrink the mini-player. Both sizes stay visible and >= 200px tall.
 export function expand(open) {
   if (!state.root) return;
   state.expanded = Boolean(open);
   state.root.classList.toggle('is-expanded', state.expanded);
   const b = state.els.expand;
-  b.setAttribute('aria-expanded', String(state.expanded));
-  b.setAttribute('aria-label', state.expanded ? 'Hide video' : 'Show video');
+  b.setAttribute('aria-pressed', String(state.expanded));
+  b.setAttribute('aria-label', state.expanded ? 'Shrink video' : 'Enlarge video');
   b.innerHTML = svg(state.expanded ? 'collapse' : 'expand');
 }
 
+// Stop playback and hide the whole player (bar, mini-player and its iframe).
+export function close() {
+  if (!state.root) return;
+  const p = state.yt;
+  if (p && p !== 'pending') {
+    try { (typeof p.stopVideo === 'function' ? p.stopVideo : p.pauseVideo).call(p); } catch { /* ignore */ }
+  }
+  resetPlayer();
+  setPlaying(false);
+  setVideoShown(false);
+  state.current = null;
+  state.queue = [];
+  state.root.hidden = true;
+  document.body.classList.remove('ka-has-player');
+  syncButtons();
+}
