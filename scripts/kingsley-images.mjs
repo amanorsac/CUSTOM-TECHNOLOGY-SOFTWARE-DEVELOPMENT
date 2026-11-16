@@ -7,6 +7,10 @@
 //
 // Names are lowercase kebab: _MG_9033.JPG -> mg-9033,
 // GREY7822-Recovered.png2.png -> grey7822-recovered-png2.
+//
+// It also publishes the hero video: copies the encoded hero-1920.mp4 and
+// hero-960.mp4 from assets-src/kingsley/video/ to video/, and makes
+// hero-poster.webp (1920 wide, q75) and hero-poster.jpg from hero-poster.jpg.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,6 +21,9 @@ export const OUT_DIR = 'public/assets/preview/kingsley/img';
 export const WIDTHS = [800, 1600];
 export const MAX_WIDTH = 2000;
 export const QUALITY = 78;
+export const VIDEO_SRC_DIR = 'assets-src/kingsley/video';
+export const VIDEO_OUT_DIR = 'public/assets/preview/kingsley/video';
+export const HERO_VIDEOS = ['hero-1920.mp4', 'hero-960.mp4'];
 
 /** '_MG_9033.JPG' -> 'mg-9033' */
 export function kebabName(file) {
@@ -51,6 +58,24 @@ async function convert(file, force) {
   return [name, large];
 }
 
+async function heroVideo(force) {
+  if (!fs.existsSync(VIDEO_SRC_DIR)) return;
+  fs.mkdirSync(VIDEO_OUT_DIR, { recursive: true });
+  for (const file of HERO_VIDEOS) {
+    const src = path.join(VIDEO_SRC_DIR, file);
+    const out = path.join(VIDEO_OUT_DIR, file);
+    if (!fs.existsSync(src)) throw new Error(`missing ${src}`);
+    if (force || !fs.existsSync(out)) fs.copyFileSync(src, out);
+  }
+  const poster = path.join(VIDEO_SRC_DIR, 'hero-poster.jpg');
+  const webp = path.join(VIDEO_OUT_DIR, 'hero-poster.webp');
+  const jpg = path.join(VIDEO_OUT_DIR, 'hero-poster.jpg');
+  const resized = () => sharp(poster).rotate().resize({ width: 1920, withoutEnlargement: true }).flatten({ background: '#0E0F14' });
+  if (force || !fs.existsSync(webp)) await resized().webp({ quality: 75 }).toFile(webp);
+  if (force || !fs.existsSync(jpg)) await resized().jpeg({ quality: 75, mozjpeg: true }).toFile(jpg);
+  console.log(`hero video -> ${VIDEO_OUT_DIR}`);
+}
+
 async function main() {
   const force = process.argv.includes('--force');
   fs.mkdirSync(OUT_DIR, { recursive: true });
@@ -63,6 +88,7 @@ async function main() {
   }
   fs.writeFileSync(path.join(OUT_DIR, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
   console.log(`${files.length} images -> ${OUT_DIR}`);
+  await heroVideo(force);
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
