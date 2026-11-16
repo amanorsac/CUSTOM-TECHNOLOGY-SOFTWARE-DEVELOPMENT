@@ -18,7 +18,7 @@ Kingsley Anyenor is a Ghanaian gospel minister, worship leader and songwriter ba
 
 **Success:** a visitor can play his newest release within one click of landing, and can reach any song in the catalogue in two. Kingsley sees it and wants it.
 
-**Starting points:** joemettlemusic.com for structure, dunsinoyekan.com for motion and the video row, both (simple menu, portrait hero, one big quote, a page per release, band page, events tabs, detailed booking form). Not a copy: our look, layout, copy and code are our own, and we add music to the home page, which that site lacks.
+**Starting points:** joemettlemusic.com for structure (simple menu, big hero, one big quote, a full-width live video band, a page per release, events tabs, detailed booking form) and dunsinoyekan.com for motion and the home video row. Neither is copied: our look, layout, copy and code are our own, and we put music on the home page first.
 
 ## Guardrails
 
