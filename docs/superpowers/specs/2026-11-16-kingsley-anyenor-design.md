@@ -108,7 +108,7 @@ The single source for every release. Each entry: `slug`, `title`, `group` (deepe
 - The queue is the group the visitor started from (for example, the Deeper Worship series).
 
 ### Forms
-- Book and Contact post to the existing `/api/lead` route with a `source` of `kingsley-book` or `kingsley-contact`, reusing its honeypot, Turnstile and email handling. The route's validation is extended only as far as needed to accept these two sources and their fields.
+- Book and Contact post to the existing `/api/lead` route as new lead kinds `booking` and `contact`, tagged `design_slug: "kingsley"`, reusing its honeypot, Turnstile and email handling. Booking details travel as labelled lines in `message`, so no new columns are needed; only the `kind` check constraint changes (a migration the owner runs).
 - On branch previews, where Supabase is switched off, the forms behave like the CTSD forms do there: the email fallback.
 - Success shows an inline confirmation. A failure shows a plain message and keeps what the visitor typed.
 
