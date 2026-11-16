@@ -4,11 +4,13 @@
 import { designPageRoute, designPageHeadRoute } from './routes/design-page.js';
 import { sitemapRoute, robotsRoute } from './routes/sitemap.js';
 import { absolutizeHtml } from './lib/seo.js';
+import { kingsleyLatestRoute } from './routes/kingsley-latest.js';
 import { leadRoute, uploadUrlRoute, leadMethodNotAllowedRoute } from './routes/lead.js';
 
 export const routes = [
   designPageRoute, designPageHeadRoute,
   sitemapRoute, robotsRoute,
+  kingsleyLatestRoute,
   leadRoute, uploadUrlRoute, leadMethodNotAllowedRoute,
 ];
 
