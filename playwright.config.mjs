@@ -14,7 +14,8 @@ export default defineConfig({
       : []),
   ],
   webServer: {
-    command: 'npx wrangler dev --port 8787',
+    // Seeds local R2 with the hero videos (scripts/kingsley-media.mjs) first.
+    command: 'node scripts/kingsley-media.mjs --local && npx wrangler dev --port 8787',
     url: 'http://localhost:8787',
     reuseExistingServer: true,
     timeout: 120000,

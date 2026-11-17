@@ -13,6 +13,9 @@
     "SUPABASE_URL": "https://bmqvkjgqicmatloztpcz.supabase.co",
     "MAIL_FROM": ""
   },
+  // Large media (the Kingsley hero videos) lives in R2: static assets are
+  // capped at 25 MiB per file. Upload with scripts/kingsley-media.mjs.
+  "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "ctsd-media" }],
   // Branch and pull-request previews (Cloudflare Worker Previews).
   // SUPABASE_URL stays empty so previews never write leads into the
   // production database; their forms show the email fallback instead.
@@ -21,6 +24,7 @@
       "LEAD_EMAIL": "amanorsac@gmail.com",
       "SUPABASE_URL": "",
       "MAIL_FROM": ""
-    }
+    },
+    "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "ctsd-media" }]
   }
 }

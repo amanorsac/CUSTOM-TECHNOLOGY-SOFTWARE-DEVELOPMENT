@@ -42,34 +42,41 @@
     "slug": "amen",
     "title": "Amen",
     "group": "unveiled",
+    "track": 8,
     "year": 2026,
     "youtubeId": "qjCvSLDNyrA",
+    "spotifyUrl": "https://open.spotify.com/track/4nDfaOrae6Fkq8Ww4EXRaT",
     "appleUrl": "https://music.apple.com/ng/album/the-unveiled/1895508929"
   },
   {
     "slug": "the-unveiled",
     "title": "The Unveiled",
     "group": "unveiled",
+    "track": 1,
     "year": 2026,
     "youtubeId": "B4bxsQ4jAfE",
     "featuring": [
       "Vivi Adjei"
     ],
+    "spotifyUrl": "https://open.spotify.com/track/2TN8hckYR0zS1EZsRyETrw",
     "appleUrl": "https://music.apple.com/ng/album/the-unveiled/1895508929"
   },
   {
     "slug": "isaiah-63",
     "title": "Isaiah 63",
     "group": "unveiled",
+    "track": 3,
     "year": 2026,
     "youtubeId": "9IyAHF_qBh8",
+    "spotifyUrl": "https://open.spotify.com/track/28fLPkDKftv5aNQg1Kq9Yy",
     "appleUrl": "https://music.apple.com/ng/album/the-unveiled/1895508929",
     "live": true
   },
   {
     "slug": "ghana-praise-medley",
     "title": "Ghana Praise Medley",
-    "group": "medley",
+    "group": "unveiled",
+    "track": 10,
     "year": 2026,
     "youtubeId": "BoM7-vgCCvI",
     "spotifyUrl": "https://open.spotify.com/track/3Pz11aTD0b9eWx4HeCkjw8",
@@ -79,12 +86,14 @@
   {
     "slug": "holy",
     "title": "Holy",
-    "group": "single",
+    "group": "unveiled",
+    "track": 9,
     "year": 2026,
     "youtubeId": "ZzWp4CQkNsk",
     "featuring": [
       "Philip Adzale"
     ],
+    "spotifyUrl": "https://open.spotify.com/track/05qI1w3kq15KO3BoNUCUtR",
     "appleUrl": "https://music.apple.com/ng/album/holy-live-feat-philip-adzale-ep/1879697219",
     "live": true
   },
@@ -111,16 +120,19 @@
   {
     "slug": "god-of-israel",
     "title": "God of Israel",
-    "group": "single",
+    "group": "unveiled",
+    "track": 2,
     "year": 2025,
     "youtubeId": "8UkWMnzuKZg",
+    "spotifyUrl": "https://open.spotify.com/track/5Ud6MTmSeDY70yhrrCPfWk",
     "appleUrl": "https://music.apple.com/ng/album/god-of-israel/1840869689",
     "live": true
   },
   {
     "slug": "ayeyi-ndwom",
     "title": "Ayeyi Ndwom",
-    "group": "single",
+    "group": "unveiled",
+    "track": 5,
     "year": 2025,
     "youtubeId": "vcFoau9rJFc",
     "spotifyUrl": "https://open.spotify.com/track/0pd3jTdfaIO9Di6E6yCEyp",
@@ -147,12 +159,15 @@
   {
     "slug": "maranatha",
     "title": "Maranatha (Come Lord Jesus)",
-    "group": "single",
+    "group": "unveiled",
+    "track": 7,
     "year": 2024,
     "youtubeId": "iQnyWiEOOWc",
     "featuring": [
       "Vivi Adjei"
-    ]
+    ],
+    "spotifyUrl": "https://open.spotify.com/track/1AKwYuHjIpHg8gJ1LzeXvP",
+    "appleUrl": "https://music.apple.com/ng/album/the-unveiled/1895508929"
   },
   {
     "slug": "spontaneous-moment-refined-experience",
@@ -165,26 +180,35 @@
   {
     "slug": "we-will-not-bow",
     "title": "We Will Not Bow",
-    "group": "single",
+    "group": "unveiled",
+    "track": 11,
     "year": 2024,
-    "youtubeId": "McabfBJFd1w"
+    "youtubeId": "McabfBJFd1w",
+    "spotifyUrl": "https://open.spotify.com/track/3WeZCBI3t3B8yRB7ShmhFC",
+    "appleUrl": "https://music.apple.com/ng/album/the-unveiled/1895508929"
   },
   {
     "slug": "pentecost",
     "title": "Pentecost",
-    "group": "single",
+    "group": "unveiled",
+    "track": 4,
     "year": 2024,
     "youtubeId": "heSSO-r5bSY",
     "featuring": [
       "Siisi Baidoo"
-    ]
+    ],
+    "spotifyUrl": "https://open.spotify.com/track/0G49EOoIdQOCmC0NcZthM1",
+    "appleUrl": "https://music.apple.com/ng/album/the-unveiled/1895508929"
   },
   {
     "slug": "be-lifted-high",
     "title": "Be Lifted High",
-    "group": "single",
+    "group": "unveiled",
+    "track": 6,
     "year": 2023,
     "youtubeId": "7DwxCe3eOG0",
+    "spotifyUrl": "https://open.spotify.com/track/1AtFFbKqLNufJiZjxvDw80",
+    "appleUrl": "https://music.apple.com/ng/album/the-unveiled/1895508929",
     "live": true
   },
   {

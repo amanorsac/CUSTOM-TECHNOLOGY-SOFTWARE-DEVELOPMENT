@@ -62,11 +62,12 @@ const philosophy = (img) =>
   `<div class="ka-rsplit__media ka-wedge">${img('grey78221', { alt: 'Kingsley Anyenor in a quiet moment', sizes: '(min-width: 861px) 40vw, 100vw' })}</div>` +
   `</div></section>`;
 
-const band = () =>
+const band = (img) =>
   `<section class="ka-section ka-section--raised ka-rband" aria-labelledby="band-title"><div class="ka-wrap">` +
   `<p class="ka-eyebrow">Band and choir</p>` +
   `<h2 id="band-title" class="ka-split">More than a banner</h2>` +
   `<p class="ka-up ka-rband__lead">Beyond being a ministry banner, The Refined serves as Anyenor's backing vocal team, band, and independent music imprint.</p>` +
+  `<figure class="ka-rband__photo ka-wedge">${img('refined-team', { alt: 'Members of The Refined posed together indoors in cream, brown and rust outfits, smiling', sizes: '(min-width: 1200px) 1152px, calc(100vw - 2.5rem)' })}</figure>` +
   `<ul class="ka-team">${TEAM.map(
     ([n, r]) => `<li class="ka-team__item ka-up"><h3>${esc(n)}</h3><p>${esc(r)}</p></li>`,
   ).join('')}</ul>` +
@@ -97,7 +98,7 @@ export function render({ layout, img }) {
         title: 'The Refined',
         description: 'The Refined: the ministry, band and choir led by Kingsley Anyenor in Accra. Revived to revive.',
         active: 'the-refined',
-        body: intro() + story(img) + pillars() + philosophy(img) + band() + gallery(img) + awards(),
+        body: intro() + story(img) + pillars() + philosophy(img) + band(img) + gallery(img) + awards(),
       }),
     },
   ];

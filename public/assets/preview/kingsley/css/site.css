@@ -635,6 +635,9 @@ html.ka-motion .ka-up:not(.is-in) { opacity: 0; transform: translateY(16px); }
 .ka-musicbody { padding-bottom: clamp(3rem, 7vw, 6rem); }
 .ka-musicgroup { padding-top: clamp(2rem, 5vw, 4rem); }
 .ka-musicgroup__title { font-size: clamp(1.75rem, 3.4vw, 2.5rem); margin: 0 0 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--ka-clay); }
+.ka-album { display: grid; gap: 1.5rem 3rem; align-items: start; margin: 0 0 2.5rem; }
+@media (min-width: 861px) { .ka-album { grid-template-columns: 1fr 1.3fr; } }
+.ka-album__meta { margin: 0 0 1rem; font: 500 .8125rem/1.3 var(--ka-sans); letter-spacing: .16em; text-transform: uppercase; color: var(--ka-rose); }
 .ka-mgrid { display: grid; gap: 2rem 1.5rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); }
 .ka-mcard { position: relative; }
 .ka-mcard .ka-vcard__title a { color: var(--ka-cream); text-decoration: none; }
@@ -685,6 +688,8 @@ html.ka-motion .ka-up:not(.is-in) { opacity: 0; transform: translateY(16px); }
 .ka-rquote p { font: 400 clamp(1.4rem, 2.6vw, 2rem)/1.25 var(--ka-serif); margin: 0; }
 .ka-rquote footer { margin-top: 1rem; font: 500 .8125rem/1.3 var(--ka-sans); letter-spacing: .16em; text-transform: uppercase; color: var(--ka-rose); }
 .ka-rband__lead { font-size: 1.1875rem; max-width: 52ch; }
+.ka-rband__photo { margin: 2rem 0 .5rem; }
+.ka-rband__photo img { display: block; width: 100%; height: auto; border-radius: var(--ka-radius); }
 .ka-team { list-style: none; margin: 2rem 0; padding: 0; display: grid; gap: 0 2rem; }
 @media (min-width: 640px) { .ka-team { grid-template-columns: 1fr 1fr; } }
 @media (min-width: 1000px) { .ka-team { grid-template-columns: repeat(4, 1fr); } }

@@ -1,10 +1,38 @@
 // Music archive (/music/) and one page per release (/music/<slug>/).
 import { BASE, esc, escAttr, icon } from '../layout.mjs';
-import { GROUPS } from '../../../public/assets/preview/kingsley/js/catalogue.js';
+import { GROUPS, ALBUMS } from '../../../public/assets/preview/kingsley/js/catalogue.js';
 import { ARROW, watchUrl, thumbUrl, playButton, watchLink } from '../parts.mjs';
 
 const TYPE = { 'deeper-worship': 'Live worship set', medley: 'Medley', unveiled: 'From THE UNVEILED', single: 'Single' };
-const typeLabel = (e) => (TYPE[e.group] ?? 'Release') + (e.live && e.group !== 'deeper-worship' ? ' · Live' : '');
+const typeLabel = (e) =>
+  (TYPE[e.group] ?? 'Release') + (e.track ? `, track ${e.track}` : '') + (e.live && e.group !== 'deeper-worship' ? ' · Live' : '');
+/** A group's entries, in track order for albums (catalogue order otherwise). */
+const inGroup = (catalogue, key) => {
+  const list = catalogue.filter((e) => e.group === key);
+  return ALBUMS[key] ? list.sort((a, b) => a.track - b.track) : list;
+};
+const longDate = (iso) =>
+  new Date(`${iso}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const extLink = (href, label, ic) =>
+  `<a class="ka-btn ka-btn--ghost" href="${escAttr(href)}" target="_blank" rel="noopener">${icon(ic)}${label}<span class="ka-visually-hidden"> (opens in a new tab)</span></a>`;
+const spotifyLoader = (src, title) =>
+  `<div class="ka-spotify__embed" data-embed-box>` +
+  `<button type="button" class="ka-btn" data-embed="${escAttr(src)}" data-embed-title="${escAttr(title)} on Spotify">${icon('spotify')}Load Spotify player</button>` +
+  `<p class="ka-spotify__note">Loads the player from open.spotify.com</p></div>`;
+
+function albumHead(key, count) {
+  const a = ALBUMS[key];
+  return (
+    `<div class="ka-album">` +
+    `<div class="ka-album__info">` +
+    `<p class="ka-album__meta">Album · ${count} songs · ${esc(longDate(a.released))}</p>` +
+    `<div class="ka-actions">` +
+    extLink(a.spotifyUrl, 'Spotify', 'spotify') + extLink(a.youtubeUrl, 'YouTube playlist', 'youtube') + extLink(a.appleUrl, 'Apple Music', 'apple') +
+    `</div></div>` +
+    spotifyLoader(spotifyEmbed(a.spotifyUrl), a.title) +
+    `</div>`
+  );
+}
 
 const releaseUrl = (e) => `${BASE}music/${e.slug}/`;
 /** open.spotify.com/track/<id> -> open.spotify.com/embed/track/<id> (null if not a Spotify URL). */
@@ -26,7 +54,7 @@ function card(e) {
     playButton(e, { cls: 'ka-playbtn' }) +
     `</div>` +
     `<h3 class="ka-vcard__title"><a href="${releaseUrl(e)}">${esc(e.title)}</a></h3>` +
-    `<p class="ka-vcard__meta">${esc(e.year)} · ${watchLink(e.youtubeId)}</p>` +
+    `<p class="ka-vcard__meta">${e.track ? `Track ${e.track}` : esc(e.year)} · ${watchLink(e.youtubeId)}</p>` +
     `</article>`
   );
 }
@@ -34,11 +62,12 @@ function card(e) {
 function musicPage(catalogue) {
   const sections = Object.entries(GROUPS)
     .map(([key, label]) => {
-      const list = catalogue.filter((e) => e.group === key);
+      const list = inGroup(catalogue, key);
       if (!list.length) return '';
       return (
         `<section class="ka-musicgroup" aria-labelledby="g-${key}">` +
         `<h2 id="g-${key}" class="ka-musicgroup__title">${esc(label)}</h2>` +
+        (ALBUMS[key] ? albumHead(key, list.length) : '') +
         `<div class="ka-mgrid">${list.map(card).join('')}</div></section>`
       );
     })
@@ -54,8 +83,7 @@ function musicPage(catalogue) {
 }
 
 function streamButtons(e) {
-  const ext = (href, label, ic) =>
-    `<a class="ka-btn ka-btn--ghost" href="${escAttr(href)}" target="_blank" rel="noopener">${icon(ic)}${label}<span class="ka-visually-hidden"> (opens in a new tab)</span></a>`;
+  const ext = extLink;
   return (
     ext(watchUrl(e.youtubeId), 'Watch on YouTube', 'youtube') +
     (e.spotifyUrl ? ext(e.spotifyUrl, 'Listen on Spotify', 'spotify') : '') +
@@ -67,7 +95,8 @@ function releasePage(e, catalogue) {
   const featuring = Array.isArray(e.featuring) && e.featuring.length ? e.featuring : null;
   const credits = e.credits ? (Array.isArray(e.credits) ? e.credits : [e.credits]) : null;
   const spEmbed = spotifyEmbed(e.spotifyUrl);
-  const more = catalogue.filter((x) => x.group === e.group && x !== e).slice(0, 3);
+  const group = inGroup(catalogue, e.group);
+  const more = (e.track ? [...group.slice(group.indexOf(e) + 1), ...group.slice(0, group.indexOf(e))] : group.filter((x) => x !== e)).slice(0, 3);
   return (
     `<section class="ka-section ka-release"><div class="ka-wrap">` +
     `<p class="ka-release__back"><a class="ka-textlink" href="${BASE}music/">All music</a></p>` +
@@ -89,9 +118,7 @@ function releasePage(e, catalogue) {
     `</div></div>` +
     (spEmbed
       ? `<div class="ka-release__spotify"><h2>Listen on Spotify</h2>` +
-        `<div class="ka-spotify__embed" data-embed-box>` +
-        `<button type="button" class="ka-btn" data-embed="${escAttr(spEmbed)}" data-embed-title="${escAttr(e.title)} on Spotify">${icon('spotify')}Load Spotify player</button>` +
-        `<p class="ka-spotify__note">Loads the player from open.spotify.com</p></div></div>`
+        spotifyLoader(spEmbed, e.title) + `</div>`
       : '') +
     `</div></section>` +
     (more.length

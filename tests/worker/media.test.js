@@ -1,5 +1,6 @@
-// Hero videos under /media/kingsley/ are served by the worker with HTTP byte
-// ranges (iOS Safari will not play a <video> without 206 responses).
+// Hero videos under /media/kingsley/ are served by the worker from R2 with
+// HTTP byte ranges (iOS Safari will not play a <video> without 206 responses).
+// The test seeds the local R2 binding with a stand-in file.
 import { describe, it, expect, beforeAll } from 'vitest';
 import { env, createExecutionContext, waitOnExecutionContext } from 'cloudflare:test';
 import worker from '../../src/worker.js';
@@ -15,10 +16,10 @@ async function get(url, { method = 'GET', range } = {}) {
   return res;
 }
 
-let full; // Uint8Array of the whole file, from the asset binding itself
+let full; // Uint8Array of the whole stand-in file put into R2
 beforeAll(async () => {
-  full = new Uint8Array(await (await env.ASSETS.fetch(new Request(VIDEO))).arrayBuffer());
-  expect(full.length).toBeGreaterThan(10000);
+  full = new Uint8Array(300000).map((_, i) => (i * 31 + (i >> 8)) & 255);
+  await env.MEDIA.put('kingsley/hero-1280.mp4', full, { httpMetadata: { contentType: 'video/mp4' } });
 });
 
 const bytes = async (res) => new Uint8Array(await res.arrayBuffer());

@@ -55,20 +55,27 @@ test.describe('Kingsley music archive', () => {
     await page.goto(`${KA}music/`);
     await expect(page.locator('h1')).toHaveText('Music');
     await expect(page.locator('main h2')).toHaveText([
+      'THE UNVEILED',
       'Deeper Worship',
       'Singles and live videos',
       'Medleys',
-      'THE UNVEILED',
     ]);
+    // The album leads, with its own links and a Spotify album player.
+    const album = page.locator('.ka-album');
+    await expect(album).toContainText('Album · 11 songs · 24 April 2026');
+    await expect(album.locator('a[href="https://open.spotify.com/album/4Y8MpzdDsxeBXPRMQiWQeW"]')).toHaveCount(1);
+    await expect(album.locator('a[href^="https://www.youtube.com/playlist?list="]')).toHaveCount(1);
+    await expect(album.locator('button[data-embed="https://open.spotify.com/embed/album/4Y8MpzdDsxeBXPRMQiWQeW"]')).toHaveCount(1);
+    await expect(page.locator('#g-unveiled ~ .ka-mgrid .ka-vcard__meta').first()).toContainText('Track 1');
     const cards = page.locator('.ka-mcard');
     await expect(cards).toHaveCount(catalogue.length);
     const first = cards.first();
-    await expect(first.locator('img')).toHaveAttribute('src', 'https://i.ytimg.com/vi/LqwYHMrrYK0/hqdefault.jpg');
+    await expect(first.locator('img')).toHaveAttribute('src', 'https://i.ytimg.com/vi/B4bxsQ4jAfE/hqdefault.jpg');
     await expect(first.locator('img')).toHaveAttribute('loading', 'lazy');
-    await expect(first.locator('img')).toHaveAttribute('alt', 'Deeper Worship 6.0');
-    await expect(first.locator('button[data-play="LqwYHMrrYK0"]')).toHaveAttribute('data-queue', 'deeper-worship');
-    await expect(first.locator('a[href="https://www.youtube.com/watch?v=LqwYHMrrYK0"]')).toHaveAttribute('rel', 'noopener');
-    await expect(first.locator(`a[href="${KA}music/deeper-worship-6-0/"]`).first()).toBeVisible();
+    await expect(first.locator('img')).toHaveAttribute('alt', 'The Unveiled');
+    await expect(first.locator('button[data-play="B4bxsQ4jAfE"]')).toHaveAttribute('data-queue', 'unveiled');
+    await expect(first.locator('a[href="https://www.youtube.com/watch?v=B4bxsQ4jAfE"]')).toHaveAttribute('rel', 'noopener');
+    await expect(first.locator(`a[href="${KA}music/the-unveiled/"]`).first()).toBeVisible();
     // Every play button has a paired watch link.
     expect(await page.locator('main button[data-play]').count()).toBe(catalogue.length);
     expect(await page.locator('main a[href^="https://www.youtube.com/watch?v="]').count()).toBe(catalogue.length);
@@ -143,13 +150,14 @@ test.describe('Kingsley music archive', () => {
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
   });
 
-  test('release page without spotifyUrl has no Spotify button; featuring shown', async ({ page }) => {
+  test('release page without spotifyUrl has no Spotify button; album tracks show featuring and track number', async ({ page }) => {
     await page.goto(`${KA}music/holy/`);
     await expect(page.locator('h1')).toHaveText('Holy');
     await expect(page.locator('main')).toContainText('Philip Adzale');
+    await expect(page.locator('main')).toContainText('From THE UNVEILED, track 9');
+    await page.goto(`${KA}music/your-spirit/`);
     await expect(page.getByRole('button', { name: /spotify/i })).toHaveCount(0);
     await expect(page.locator('main').getByRole('link', { name: /spotify/i })).toHaveCount(0);
-    await page.goto(`${KA}music/we-will-not-bow/`);
     await expect(page.locator('main').getByRole('link', { name: /apple music/i })).toHaveCount(0);
   });
 

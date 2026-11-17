@@ -13,15 +13,14 @@
 // Names are lowercase kebab: _MG_9033.JPG -> mg-9033,
 // GREY7822-Recovered.png2.png -> grey7822-recovered-png2.
 //
-// It also publishes the hero video: copies the encoded hero-1920.mp4 and
-// hero-1280.mp4 from assets-src/kingsley/video/ to public/media/kingsley/
-// (served by the worker with byte ranges, see src/routes/media.js), and makes
+// It also makes the hero video's poster in public/media/kingsley/:
 // hero-poster.webp and .jpg (2400 wide, q85) from hero-poster.png, a full-size
 // first frame of the source clip.
 // Encoding (ffmpeg, two-pass x264 from carousel-1-source.mp4, 4K, no audio):
 // hero-1920 at 4200k (max 6500k), hero-1280 at 2300k (max 3600k), preset
 // slower, tune film, aq-mode=3 (keeps dark stage gradients from banding).
-// hero-1920 must stay under Cloudflare's 25 MiB per-file asset limit.
+// The videos themselves (hero-1920.mp4, hero-1280.mp4 in assets-src/kingsley/video/)
+// are not published here: scripts/kingsley-media.mjs uploads them to R2.
 //
 // And the official logo: assets-src/kingsley/logo/ka-logo-source.jpg (white on
 // black) becomes img/brand/ka-monogram.{png,webp} and ka-name.{png,webp}:
@@ -47,6 +46,7 @@ export const USED = [
   'mg-8938', 'mg-8954', 'mg-8962', 'mg-8965', 'mg-8968', 'mg-8972',
   'mg-9007', 'mg-9012', 'mg-9014', 'mg-9025', 'mg-9026', 'mg-9027',
   'mg-9032', 'mg-9033', 'mg-9034', 'mg-9035',
+  'refined-team',
 ];
 export const VIDEO_SRC_DIR = 'assets-src/kingsley/video';
 export const VIDEO_OUT_DIR = 'public/media/kingsley';
@@ -90,19 +90,13 @@ async function convert(file, force) {
 async function heroVideo(force) {
   if (!fs.existsSync(VIDEO_SRC_DIR)) return;
   fs.mkdirSync(VIDEO_OUT_DIR, { recursive: true });
-  for (const file of HERO_VIDEOS) {
-    const src = path.join(VIDEO_SRC_DIR, file);
-    const out = path.join(VIDEO_OUT_DIR, file);
-    if (!fs.existsSync(src)) throw new Error(`missing ${src}`);
-    if (force || !fs.existsSync(out)) fs.copyFileSync(src, out);
-  }
   const poster = path.join(VIDEO_SRC_DIR, 'hero-poster.png');
   const webp = path.join(VIDEO_OUT_DIR, 'hero-poster.webp');
   const jpg = path.join(VIDEO_OUT_DIR, 'hero-poster.jpg');
   const resized = () => sharp(poster).rotate().resize({ width: WIDE_WIDTH, withoutEnlargement: true }).flatten({ background: '#0E0F14' });
   if (force || !fs.existsSync(webp)) await resized().webp({ quality: QUALITY }).toFile(webp);
   if (force || !fs.existsSync(jpg)) await resized().jpeg({ quality: QUALITY, mozjpeg: true }).toFile(jpg);
-  console.log(`hero video -> ${VIDEO_OUT_DIR}`);
+  console.log(`hero poster -> ${VIDEO_OUT_DIR}`);
 }
 
 export const LOGO_SRC = 'assets-src/kingsley/logo/ka-logo-source.jpg';
