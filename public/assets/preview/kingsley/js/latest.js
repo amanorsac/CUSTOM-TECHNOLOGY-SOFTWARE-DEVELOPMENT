@@ -1,7 +1,8 @@
 // Latest release block on the home page ([data-latest] = the YouTube id it
 // was built with). Asks /api/kingsley/latest for the newest upload and, only
 // if it is a different video, swaps in its title, date, thumbnail, play
-// button and streaming links. Any failure leaves the block as built.
+// button and streaming links; if it is the built video, only adds the full
+// release date. Any failure leaves the block as built.
 import { findByYoutubeId } from './catalogue.js';
 
 const API = '/api/kingsley/latest';
@@ -34,6 +35,15 @@ function setLink(a, href) {
   }
 }
 
+function setDate(block, date) {
+  const dateEl = block.querySelector('[data-latest-date]');
+  if (!dateEl) return;
+  dateEl.textContent = date;
+  dateEl.hidden = !date;
+  const sep = dateEl.nextElementSibling;
+  if (sep && sep.getAttribute('aria-hidden') === 'true') sep.hidden = !date;
+}
+
 /** Fills the [data-latest] block inside root, if there is one. */
 export async function initLatest(root) {
   const block = root && root.querySelector('[data-latest]');
@@ -49,7 +59,13 @@ export async function initLatest(root) {
   }
   if (!data || !data.ok || typeof data.youtubeId !== 'string' || !ID_RE.test(data.youtubeId)) return;
   const id = data.youtubeId;
-  if (id === built || !block.isConnected) return;
+  if (!block.isConnected) return;
+  if (id === built) {
+    // Same release as built: the page ships only its year, so add the day.
+    const day = formatDate(data.published);
+    if (day) setDate(block, day);
+    return;
+  }
 
   let entry;
   try {
@@ -65,13 +81,7 @@ export async function initLatest(root) {
 
   const titleEl = q('[data-latest-title]');
   if (titleEl) titleEl.textContent = title;
-  const dateEl = q('[data-latest-date]');
-  if (dateEl) {
-    dateEl.textContent = date;
-    dateEl.hidden = !date;
-    const sep = dateEl.nextElementSibling;
-    if (sep && sep.getAttribute('aria-hidden') === 'true') sep.hidden = !date;
-  }
+  setDate(block, date);
   const thumb = q('[data-latest-thumb]');
   if (thumb) thumb.src = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
 

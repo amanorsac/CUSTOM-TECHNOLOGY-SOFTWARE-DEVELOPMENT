@@ -37,6 +37,16 @@ test.describe('Kingsley home', () => {
     expect(errors).toEqual([]);
   });
 
+  test('hero photo alts describe the photo only (no event, place or date claims)', async ({ page }) => {
+    await page.goto(KA);
+    const alts = await page.locator('.ka-hero .ka-slide img').evaluateAll((imgs) => imgs.map((i) => i.alt));
+    expect(alts).toHaveLength(5);
+    for (const alt of alts) {
+      expect(alt.length).toBeGreaterThan(20);
+      expect(alt).not.toMatch(/Accra|Experience|worship night|20\d\d/i);
+    }
+  });
+
   test('latest release swaps in the feed result', async ({ page }) => {
     await page.route(LATEST, (r) =>
       r.fulfill({
@@ -54,6 +64,36 @@ test.describe('Kingsley home', () => {
     await expect(block.locator('a[href*="music.apple.com"]')).toHaveCount(0);
     await expect(block.locator('button[data-play="ZZZZZZZZZZZ"]')).toHaveCount(1);
     await expect(block.locator('img')).toHaveAttribute('src', 'https://i.ytimg.com/vi/ZZZZZZZZZZZ/hqdefault.jpg');
+  });
+
+  test('latest release shows the full date when the feed returns the built release', async ({ page }) => {
+    await page.route(LATEST, (r) =>
+      r.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ ok: true, youtubeId: 'LqwYHMrrYK0', title: 'DEEPER WORSHIP 6.0', published: '2026-11-13T08:00:10+00:00', source: 'feed' }),
+      }),
+    );
+    await page.goto(KA);
+    const date = latest(page).locator('[data-latest-date]');
+    await expect(date).toHaveText('13 Nov 2026');
+    await expect(date).toBeVisible();
+    // Everything else stays as built.
+    await expect(latest(page).locator('[data-latest-title]')).toHaveText('Deeper Worship 6.0');
+    await expect(latest(page).locator('a[href*="spotify.com"]')).toHaveCount(1);
+  });
+
+  test('built release with a null date keeps the year', async ({ page }) => {
+    await page.route(LATEST, (r) =>
+      r.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ ok: true, youtubeId: 'LqwYHMrrYK0', title: 'Deeper Worship 6.0', published: null, source: 'fallback' }),
+      }),
+    );
+    await page.goto(KA);
+    await expect(latest(page).locator('[data-latest-date]')).toHaveText('2026');
+    await expect(latest(page)).not.toContainText('null');
   });
 
   test('latest release stays as built when the request fails', async ({ page }) => {

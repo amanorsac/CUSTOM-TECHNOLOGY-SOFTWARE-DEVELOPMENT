@@ -49,11 +49,12 @@ function hero(img) {
     `<video class="ka-slide-video" muted loop playsinline preload="none" poster="${V}/hero-poster.webp" ` +
     `data-src="${V}/hero-1920.mp4" data-src-small="${V}/hero-960.mp4" aria-hidden="true"></video>` +
     `</div>` +
-    photo('mg-9033', 2, 'Kingsley Anyenor leading worship on the wooden stage under crimson light') +
-    photo('mg-9032', 3, 'The Refined on stage during a worship night') +
-    photo('mg-9034', 4, 'Kingsley Anyenor singing with The Refined') +
-    photo('amh-5849', 5, 'A Refined Experience worship night in Accra') +
-    photo('amh-5851', 6, 'The Refined band and choir ministering') +
+    // Alt text says only what the photo shows (no event names, places or dates).
+    photo('mg-9033', 2, 'Kingsley Anyenor singing centre stage under red light, singers and band behind him and the audience in silhouette in front') +
+    photo('mg-9032', 3, 'A wide view of the stage: Kingsley Anyenor at the microphone, singers in patterned shirts with hands raised behind him') +
+    photo('mg-9034', 4, 'Kingsley Anyenor singing at the top of the stage steps in a red haze, singers behind him and a raised hand in the crowd') +
+    photo('amh-5849', 5, 'Kingsley Anyenor holding a white handkerchief to his face on stage, singers in patterned shirts beside him') +
+    photo('amh-5851', 6, 'Kingsley Anyenor leaning forward as he sings into a microphone, singers on the steps behind him') +
     `</div></section>`
   );
 }
