@@ -1,6 +1,6 @@
 // Contact: a short message form plus the social and streaming links.
 import { SOCIAL, icon } from '../layout.mjs';
-import { field, honeypot, NOJS } from '../parts.mjs';
+import { field, honeypot, NOJS, formOpen } from '../parts.mjs';
 
 function body() {
   const links = SOCIAL.map(
@@ -17,7 +17,7 @@ function body() {
     `<section class="ka-section ka-formsec"><div class="ka-wrap ka-formwrap ka-formwrap--split">` +
     `<div>` +
     NOJS +
-    `<form class="ka-form" data-ka-form="contact" novalidate>` +
+    formOpen('contact') +
     `<p class="ka-form__key">Fields marked <span class="ka-field__req" aria-hidden="true">*</span> are required.</p>` +
     `<div class="ka-form__grid ka-form__grid--one">` +
     field({ name: 'name', max: 120, label: 'Your name', required: true, autocomplete: 'name' }) +

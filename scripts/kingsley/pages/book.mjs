@@ -1,9 +1,10 @@
 // Book Kingsley: an invitation form for churches and programmes.
-// Works as a reading page with JS off (a mailto link shows); js/forms.js
+// With JS off (or before js/forms.js runs) the form is hidden and a mailto
+// link shows instead; js/forms.js reveals the form,
 // validates and posts to /api/lead.
-import { field, honeypot, NOJS } from '../parts.mjs';
+import { field, honeypot, NOJS, formOpen } from '../parts.mjs';
 
-const ORGS = ['', 'Church', 'Campus or school', 'Ministry or nonprofit', 'Corporate', 'Other'];
+const ORGS = ['', 'Church', 'Conference', 'Campus or school', 'Ministry or nonprofit', 'Corporate', 'Other'];
 const LENGTHS = ['', '15 min', '30 min', '45 min', '1 hour', 'More than 1 hour'];
 
 function body() {
@@ -15,13 +16,13 @@ function body() {
     `</div></section>` +
     `<section class="ka-section ka-formsec"><div class="ka-wrap ka-formwrap">` +
     NOJS +
-    `<form class="ka-form" data-ka-form="book" novalidate>` +
+    formOpen('book') +
     `<p class="ka-form__key">Fields marked <span class="ka-field__req" aria-hidden="true">*</span> are required.</p>` +
     `<fieldset class="ka-form__group"><legend>About you</legend><div class="ka-form__grid">` +
     field({ name: 'orgType', label: 'Organiser type', required: true, control: 'select', options: ORGS }) +
     field({ name: 'orgName', max: 160, label: 'Organisation name', required: true, autocomplete: 'organization' }) +
     field({ name: 'name', max: 120, label: 'Contact name', required: true, autocomplete: 'name' }) +
-    field({ name: 'phone', max: 40, label: 'Phone', required: true, type: 'tel', autocomplete: 'tel', placeholder: '+233' }) +
+    field({ name: 'phone', max: 40, label: 'Phone', required: true, type: 'tel', autocomplete: 'tel', value: '+233 ' }) +
     field({ name: 'email', max: 254, label: 'Email', required: true, type: 'email', autocomplete: 'email' }) +
     field({ name: 'host', max: 160, label: 'Host pastor or minister' }) +
     `</div></fieldset>` +

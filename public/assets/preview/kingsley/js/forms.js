@@ -9,6 +9,7 @@ const SLUG = 'kingsley';
 
 const ORG = {
   Church: 'church',
+  Conference: 'other',
   'Campus or school': 'school',
   'Ministry or nonprofit': 'nonprofit',
   Corporate: 'business',
@@ -29,12 +30,18 @@ const LINES = [
 ];
 
 const s = (v) => String(v ?? '').trim();
+// The phone field starts as "+233 "; the code on its own counts as empty.
+export const phone = (v) => (/^\+?\s*233$/.test(s(v)) ? '' : s(v));
 
 export function bookingPayload(f) {
-  const message = LINES.map(([k, label]) => (s(f[k]) ? `${label}: ${s(f[k])}` : ''))
+  const org = s(f.orgType);
+  // Conference has no org_type of its own (it is sent as 'other'), so the
+  // message says so for the team.
+  const lead = org === 'Conference' ? ['Organiser type: Conference'] : [];
+  const message = lead
+    .concat(LINES.map(([k, label]) => (s(f[k]) ? `${label}: ${s(f[k])}` : '')))
     .filter(Boolean)
     .join('\n');
-  const org = s(f.orgType);
   return {
     kind: 'booking',
     design_slug: SLUG,
@@ -42,7 +49,7 @@ export function bookingPayload(f) {
     org_name: s(f.orgName),
     name: s(f.name),
     email: s(f.email),
-    phone: s(f.phone),
+    phone: phone(f.phone),
     message,
     website_hp: s(f.website_hp),
   };
@@ -104,7 +111,7 @@ export function validate(kind, fields) {
   const cfg = CONFIG[kind];
   const res = validateLead(cfg.payload(fields));
   const errors = res.ok ? {} : toControls(kind, res.errors);
-  for (const [k, msg] of EXTRA[kind]) if (!s(fields[k])) errors[k] = msg;
+  for (const [k, msg] of EXTRA[kind]) if (!(k === 'phone' ? phone(fields[k]) : s(fields[k]))) errors[k] = msg;
   if (kind === 'book') {
     if (!s(fields.name)) errors.name = 'Please enter the contact name.';
     if (!s(fields.orgName)) errors.orgName = 'Please enter the organisation name.';
@@ -224,7 +231,9 @@ export function initForms(root = document) {
   for (const form of root.querySelectorAll('form[data-ka-form]')) {
     if (done.has(form)) continue;
     done.add(form);
-    form.classList.add('is-ready');
     wire(form);
+    form.classList.add('is-ready');
+    const fallback = form.parentElement && form.parentElement.querySelector('[data-form-fallback]');
+    if (fallback) fallback.hidden = true;
   }
 }

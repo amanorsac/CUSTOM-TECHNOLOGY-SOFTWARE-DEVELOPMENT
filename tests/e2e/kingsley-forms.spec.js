@@ -49,7 +49,7 @@ test('Book failure shows the mailto fallback and keeps typed values', async ({ p
   await fillBook(page);
   await page.getByRole('button', { name: 'Send booking request' }).click();
   await expect(page.getByText("Couldn't send right now. Email us instead:")).toBeVisible();
-  const href = await page.locator('a[href^="mailto:amanorsac@gmail.com"]').first().getAttribute('href');
+  const href = await page.locator('[data-status] a[href^="mailto:amanorsac@gmail.com"]').getAttribute('href');
   expect(href).toContain('Grace%20Chapel');
   await expect(page.getByLabel('Contact name')).toHaveValue('Ama Mensah');
   await expect(page.getByRole('button', { name: 'Send booking request' })).toBeEnabled();
@@ -136,4 +136,55 @@ test('server 400 without errors falls back to the mailto message', async ({ page
   await page.getByLabel('Message').fill('Hi');
   await page.getByRole('button', { name: 'Send message' }).click();
   await expect(page.getByText("Couldn't send right now. Email us instead:")).toBeVisible();
+});
+
+test('with JavaScript off the forms stay hidden and the mailto shows', async ({ browser, baseURL }) => {
+  const ctx = await browser.newContext({ javaScriptEnabled: false, baseURL });
+  const page = await ctx.newPage();
+  for (const p of ['book/', 'contact/']) {
+    await page.goto(KA + p);
+    const form = page.locator('form[data-ka-form]');
+    await expect(form).toHaveCount(1);
+    await expect(form).toBeHidden();
+    await expect(form).toHaveAttribute('method', 'post');
+    const mail = page.getByRole('link', { name: 'Email the team' });
+    await expect(mail).toBeVisible();
+    await expect(mail).toHaveAttribute('href', 'mailto:amanorsac@gmail.com');
+  }
+  await ctx.close();
+});
+
+test('the form is hidden until forms.js has wired it', async ({ page }) => {
+  await page.route('**/js/app.js', (r) => r.abort());
+  await page.goto(KA + 'book/');
+  await expect(page.locator('form[data-ka-form]')).toBeHidden();
+  await expect(page.getByRole('link', { name: 'Email the team' })).toBeVisible();
+});
+
+test('with JavaScript on the form shows and the mailto line hides', async ({ page }) => {
+  await page.goto(KA + 'contact/');
+  await expect(page.locator('form[data-ka-form]')).toBeVisible();
+  await expect(page.locator('[data-form-fallback]')).toBeHidden();
+});
+
+test('Book: organiser type offers Conference; phone starts with +233 and a bare code is an error', async ({ page }) => {
+  let body;
+  await page.route('**/api/lead', (route) => {
+    body = route.request().postDataJSON();
+    route.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' });
+  });
+  await page.goto(KA + 'book/');
+  await expect(page.getByLabel('Phone')).toHaveValue('+233 ');
+  await fillBook(page);
+  await page.getByLabel('Phone').fill('+233 ');
+  await page.getByLabel('Organiser type').selectOption({ label: 'Conference' });
+  await page.getByRole('button', { name: 'Send booking request' }).click();
+  await expect(page.getByLabel('Phone')).toBeFocused();
+  await expect(page.locator('[data-error-for="phone"]')).toHaveText('Please enter a phone number.');
+  expect(body).toBeUndefined();
+  await page.getByLabel('Phone').fill('+233 20 123 4567');
+  await page.getByRole('button', { name: 'Send booking request' }).click();
+  await expect(page.getByText("Thank you. Kingsley's team will be in touch.")).toBeVisible();
+  expect(body.org_type).toBe('other');
+  expect(body.phone).toBe('+233 20 123 4567');
 });

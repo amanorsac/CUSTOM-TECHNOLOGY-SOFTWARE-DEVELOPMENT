@@ -667,6 +667,9 @@ h3.ka-evpast { margin-top: 2rem; }
 .ka-formwrap > .ka-form { max-width: 880px; }
 .ka-formwrap--split { max-width: var(--ka-max); display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: clamp(2rem, 6vw, 5rem); align-items: start; }
 .ka-form { display: grid; gap: 2rem; }
+/* Hidden until js/forms.js has wired it; the mailto line shows instead. */
+.ka-form:not(.is-ready) { display: none; }
+.ka-form__nojs[hidden] { display: none; }
 .ka-form__key { margin: 0; font-size: .875rem; color: var(--ka-rose); }
 .ka-form__nojs { padding: 1rem 1.25rem; border: 1px solid var(--ka-ember); border-radius: var(--ka-radius); background: var(--ka-mahogany); margin-bottom: 1.5rem; }
 .ka-form__nojs a { color: var(--ka-ember); }

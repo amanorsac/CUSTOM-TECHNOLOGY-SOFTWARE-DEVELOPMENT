@@ -23,7 +23,7 @@ const sample = {
 describe('bookingPayload', () => {
   it('maps the organiser select to org_type', () => {
     const map = {
-      Church: 'church', 'Campus or school': 'school', 'Ministry or nonprofit': 'nonprofit',
+      Church: 'church', Conference: 'other', 'Campus or school': 'school', 'Ministry or nonprofit': 'nonprofit',
       Corporate: 'business', Other: 'other',
     };
     for (const [label, value] of Object.entries(map)) {
@@ -61,6 +61,22 @@ describe('bookingPayload', () => {
 
   it('passes the shared lead validator', () => {
     expect(validateLead(bookingPayload(sample)).ok).toBe(true);
+  });
+
+  it('treats the pre-filled "+233" on its own as no phone', () => {
+    for (const v of ['+233 ', '+233', ' +233  ', '233']) {
+      expect(bookingPayload({ ...sample, phone: v }).phone).toBe('');
+      expect(validate('book', { ...sample, phone: v }).phone).toBe('Please enter a phone number.');
+    }
+    expect(bookingPayload({ ...sample, phone: '+233 20 123 4567' }).phone).toBe('+233 20 123 4567');
+  });
+
+  it('names a Conference organiser in the message (its org_type is other)', () => {
+    const p = bookingPayload({ ...sample, orgType: 'Conference' });
+    expect(p.org_type).toBe('other');
+    expect(p.message.split('\n')[0]).toBe('Organiser type: Conference');
+    expect(bookingPayload(sample).message).not.toContain('Organiser type');
+    expect(validate('book', { ...sample, phone: '+233 20 123 4567' }).phone).toBeUndefined();
   });
 });
 

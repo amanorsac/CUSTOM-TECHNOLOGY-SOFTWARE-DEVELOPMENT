@@ -60,6 +60,12 @@ export function field({ name, label, required = false, type = 'text', control = 
 export const honeypot =
   `<div class="ka-hp" aria-hidden="true"><label>Leave this empty<input type="text" name="website_hp" tabindex="-1" autocomplete="off"></label></div>`;
 
+// Shown until js/forms.js has wired the form (and for good with JS off or if
+// app.js fails): the form itself stays hidden until then (site.css), so it can
+// never be submitted natively.
 export const NOJS =
-  `<noscript><p class="ka-form__nojs">This form needs JavaScript. You can email the team instead: ` +
-  `<a href="mailto:amanorsac@gmail.com">Email the team</a>.</p></noscript>`;
+  `<p class="ka-form__nojs" data-form-fallback>If the form does not appear, email the team instead: ` +
+  `<a href="mailto:amanorsac@gmail.com">Email the team</a>.</p>`;
+
+/** Opening <form> tag. method=post so even a stray native submit never puts field values in a URL. */
+export const formOpen = (kind) => `<form class="ka-form" data-ka-form="${kind}" method="post" novalidate>`;
