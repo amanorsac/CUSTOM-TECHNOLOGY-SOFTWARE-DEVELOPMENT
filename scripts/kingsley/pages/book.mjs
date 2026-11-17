@@ -19,21 +19,21 @@ function body() {
     `<p class="ka-form__key">Fields marked <span class="ka-field__req" aria-hidden="true">*</span> are required.</p>` +
     `<fieldset class="ka-form__group"><legend>About you</legend><div class="ka-form__grid">` +
     field({ name: 'orgType', label: 'Organiser type', required: true, control: 'select', options: ORGS }) +
-    field({ name: 'orgName', label: 'Organisation name', required: true, autocomplete: 'organization' }) +
-    field({ name: 'name', label: 'Contact name', required: true, autocomplete: 'name' }) +
-    field({ name: 'phone', label: 'Phone', required: true, type: 'tel', autocomplete: 'tel', placeholder: '+233' }) +
-    field({ name: 'email', label: 'Email', required: true, type: 'email', autocomplete: 'email' }) +
-    field({ name: 'host', label: 'Host pastor or minister' }) +
+    field({ name: 'orgName', max: 160, label: 'Organisation name', required: true, autocomplete: 'organization' }) +
+    field({ name: 'name', max: 120, label: 'Contact name', required: true, autocomplete: 'name' }) +
+    field({ name: 'phone', max: 40, label: 'Phone', required: true, type: 'tel', autocomplete: 'tel', placeholder: '+233' }) +
+    field({ name: 'email', max: 254, label: 'Email', required: true, type: 'email', autocomplete: 'email' }) +
+    field({ name: 'host', max: 160, label: 'Host pastor or minister' }) +
     `</div></fieldset>` +
     `<fieldset class="ka-form__group"><legend>The event</legend><div class="ka-form__grid">` +
-    field({ name: 'event', label: 'Event name', required: true }) +
+    field({ name: 'event', max: 200, label: 'Event name', required: true }) +
     field({ name: 'date', label: 'Event date', required: true, type: 'date' }) +
     field({ name: 'time', label: 'Start time', type: 'time' }) +
     field({ name: 'length', label: 'Length of ministration', control: 'select', options: LENGTHS }) +
-    field({ name: 'others', label: 'Other ministers', wide: true, hint: 'Who else will be ministering?' }) +
-    field({ name: 'venue', label: 'Venue and city', required: true }) +
-    field({ name: 'country', label: 'Country', required: true, value: 'Ghana', autocomplete: 'country-name' }) +
-    field({ name: 'notes', label: 'Notes', control: 'textarea', wide: true, rows: 5 }) +
+    field({ name: 'others', max: 500, label: 'Other ministers', wide: true, hint: 'Who else will be ministering?' }) +
+    field({ name: 'venue', max: 200, label: 'Venue and city', required: true }) +
+    field({ name: 'country', max: 80, label: 'Country', required: true, value: 'Ghana', autocomplete: 'country-name' }) +
+    field({ name: 'notes', max: 2500, label: 'Notes', control: 'textarea', wide: true, rows: 5 }) +
     `</div></fieldset>` +
     honeypot +
     `<div class="ka-form__status" data-status aria-live="polite"></div>` +

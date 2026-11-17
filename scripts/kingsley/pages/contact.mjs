@@ -20,9 +20,9 @@ function body() {
     `<form class="ka-form" data-ka-form="contact" novalidate>` +
     `<p class="ka-form__key">Fields marked <span class="ka-field__req" aria-hidden="true">*</span> are required.</p>` +
     `<div class="ka-form__grid ka-form__grid--one">` +
-    field({ name: 'name', label: 'Your name', required: true, autocomplete: 'name' }) +
-    field({ name: 'email', label: 'Email', required: true, type: 'email', autocomplete: 'email' }) +
-    field({ name: 'message', label: 'Message', required: true, control: 'textarea', rows: 6 }) +
+    field({ name: 'name', max: 120, label: 'Your name', required: true, autocomplete: 'name' }) +
+    field({ name: 'email', max: 254, label: 'Email', required: true, type: 'email', autocomplete: 'email' }) +
+    field({ name: 'message', max: 4000, label: 'Message', required: true, control: 'textarea', rows: 6 }) +
     `</div>` +
     honeypot +
     `<div class="ka-form__status" data-status aria-live="polite"></div>` +

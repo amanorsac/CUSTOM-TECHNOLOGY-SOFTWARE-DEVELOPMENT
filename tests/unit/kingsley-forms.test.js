@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { validateLead } from '../../public/assets/js/lead-schema.js';
-import { bookingPayload, contactPayload } from '../../public/assets/preview/kingsley/js/forms.js';
+import { bookingPayload, contactPayload, validate } from '../../public/assets/preview/kingsley/js/forms.js';
 
 const sample = {
   orgType: 'Campus or school',
@@ -74,5 +74,19 @@ describe('contactPayload', () => {
   });
   it('passes the shared lead validator', () => {
     expect(validateLead(contactPayload(c)).ok).toBe(true);
+  });
+});
+
+describe('validate (book)', () => {
+  it('accepts the sample', () => {
+    expect(validate('book', sample)).toEqual({});
+  });
+  it('requires the organisation name', () => {
+    expect(validate('book', { ...sample, orgName: ' ' }).orgName).toBe('Please enter the organisation name.');
+  });
+  it('puts an over-long message error on Notes', () => {
+    const errors = validate('book', { ...sample, notes: 'x'.repeat(4100) });
+    expect(errors.notes).toBeTruthy();
+    expect(errors._other).toBeUndefined();
   });
 });

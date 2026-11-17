@@ -67,7 +67,7 @@ const CONTROL = { org_type: 'orgType', org_name: 'orgName' };
 const EXTRA = {
   book: [['phone', 'Please enter a phone number.'], ['event', 'Please enter the event name.'],
     ['date', 'Please choose the event date.'], ['venue', 'Please enter the venue and city.'],
-    ['country', 'Please enter the country.']],
+    ['country', 'Please enter the country.'], ['orgName', 'Please enter the organisation name.']],
   contact: [['message', 'Please write a message.']],
 };
 
@@ -86,18 +86,30 @@ const CONFIG = {
   },
 };
 
+// Re-key validator errors onto control names. Errors for fields with no control
+// of their own land on the closest one (book: message -> Notes).
+export function toControls(kind, raw) {
+  const cfg = CONFIG[kind];
+  const out = {};
+  for (const [k, v] of Object.entries(raw || {})) {
+    let n = CONTROL[k] || k;
+    if (kind === 'book' && n === 'message') n = 'notes';
+    if (!cfg.order.includes(n)) n = '_other';
+    if (!out[n]) out[n] = String(v);
+  }
+  return out;
+}
+
 export function validate(kind, fields) {
   const cfg = CONFIG[kind];
   const res = validateLead(cfg.payload(fields));
-  const errors = {};
-  if (!res.ok) {
-    for (const [k, v] of Object.entries(res.errors)) errors[CONTROL[k] || k] = v;
-  }
+  const errors = res.ok ? {} : toControls(kind, res.errors);
   for (const [k, msg] of EXTRA[kind]) if (!s(fields[k])) errors[k] = msg;
-  if (errors.name && kind === 'book') errors.name = 'Please enter the contact name.';
-  if (errors.org_name || errors.orgName) errors.orgName = 'Please enter the organisation name.';
-  if (errors.orgType) errors.orgType = 'Please choose the organiser type.';
-  // Phone is optional in the shared schema, so only the length error can come from it.
+  if (kind === 'book') {
+    if (!s(fields.name)) errors.name = 'Please enter the contact name.';
+    if (!s(fields.orgName)) errors.orgName = 'Please enter the organisation name.';
+    if (!s(fields.orgType)) errors.orgType = 'Please choose the organiser type.';
+  }
   return errors;
 }
 
@@ -134,6 +146,20 @@ function wire(form) {
     if (n && form.querySelector(`[data-error-for="${n}"]`)) setError(form, n, '');
   });
 
+  // Shows inline errors (and any that fit no control in the status area),
+  // focuses the first invalid control. Returns true if there was anything to show.
+  function showErrors(errors) {
+    for (const n of cfg.order) setError(form, n, errors[n]);
+    if (errors._other) {
+      const p = document.createElement('p');
+      p.textContent = errors._other;
+      status.replaceChildren(p);
+    }
+    const first = cfg.order.find((n) => errors[n]);
+    if (first) form.querySelector(`[name="${first}"]`).focus();
+    return Boolean(first || errors._other);
+  }
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (busy) return;
@@ -141,17 +167,14 @@ function wire(form) {
     const fields = read(form);
     const errors = validate(kind, fields);
     for (const n of cfg.order) setError(form, n, errors[n]);
-    const first = cfg.order.find((n) => errors[n]);
-    if (first) {
-      form.querySelector(`[name="${first}"]`).focus();
-      return;
-    }
+    if (showErrors(errors)) return;
 
     busy = true;
     button.disabled = true;
     button.textContent = 'Sending…';
     const payload = cfg.payload(fields);
     let ok = false;
+    let serverErrors = null;
     try {
       const res = await fetch('/api/lead', {
         method: 'POST',
@@ -160,6 +183,10 @@ function wire(form) {
         credentials: 'same-origin',
       });
       ok = res.ok;
+      if (res.status === 400) {
+        const data = await res.json().catch(() => null);
+        if (data && data.errors && typeof data.errors === 'object') serverErrors = data.errors;
+      }
     } catch {
       ok = false;
     }
@@ -180,6 +207,7 @@ function wire(form) {
 
     button.disabled = false;
     button.textContent = idle;
+    if (serverErrors && showErrors(toControls(kind, serverErrors))) return;
     const href = fallbackHref(MAIL, cfg.subject, payload);
     const p = document.createElement('p');
     p.append("Couldn't send right now. Email us instead: ");

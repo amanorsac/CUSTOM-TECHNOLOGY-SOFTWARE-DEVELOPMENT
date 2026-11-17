@@ -32,10 +32,10 @@ const attrs = (o) =>
     .map(([k, v]) => (v === true ? ` ${k}` : ` ${k}="${String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;')}"`))
     .join('');
 
-export function field({ name, label, required = false, type = 'text', control = 'input', options, hint, wide = false, ...rest }) {
+export function field({ name, label, required = false, type = 'text', control = 'input', options, hint, wide = false, max, ...rest }) {
   const id = `f-${name}`;
   const desc = `${hint ? `${id}-hint ` : ''}${id}-err`;
-  const common = { id, name, required: required || undefined, 'aria-describedby': desc.trim(), ...rest };
+  const common = { id, name, maxlength: max, required: required || undefined, 'aria-describedby': desc.trim(), ...rest };
   let ctl;
   if (control === 'select') {
     ctl =

@@ -82,3 +82,53 @@ test('forms work after a client-side page swap', async ({ page }) => {
   await page.getByRole('button', { name: 'Send booking request' }).click();
   await expect(page.getByLabel('Organiser type')).toBeFocused();
 });
+
+test('empty organisation name blocks submit', async ({ page }) => {
+  let posted = false;
+  await page.route('**/api/lead', (route) => { posted = true; route.fulfill({ status: 200, body: '{}' }); });
+  await page.goto(KA + 'book/');
+  await fillBook(page);
+  await page.getByLabel('Organisation name').fill('');
+  await page.getByRole('button', { name: 'Send booking request' }).click();
+  await expect(page.getByLabel('Organisation name')).toBeFocused();
+  await expect(page.getByText('Please enter the organisation name.')).toBeVisible();
+  expect(posted).toBe(false);
+});
+
+test('over-long Notes blocks submit with an inline error', async ({ page }) => {
+  let posted = false;
+  await page.route('**/api/lead', (route) => { posted = true; route.fulfill({ status: 200, body: '{}' }); });
+  await page.goto(KA + 'book/');
+  await fillBook(page);
+  const notes = page.getByLabel('Notes');
+  expect(await notes.getAttribute('maxlength')).toBe('2500');
+  await notes.evaluate((el) => { el.removeAttribute('maxlength'); el.value = 'x'.repeat(4100); });
+  await page.getByRole('button', { name: 'Send booking request' }).click();
+  await expect(notes).toBeFocused();
+  await expect(page.locator('[data-error-for="notes"]')).toBeVisible();
+  expect(posted).toBe(false);
+});
+
+test('server 400 with errors shows them inline and focuses the field', async ({ page }) => {
+  await page.route('**/api/lead', (route) => route.fulfill({
+    status: 400, contentType: 'application/json',
+    body: JSON.stringify({ ok: false, errors: { org_name: 'Organization name must be 160 characters or fewer.' } }),
+  }));
+  await page.goto(KA + 'book/');
+  await fillBook(page);
+  await page.getByRole('button', { name: 'Send booking request' }).click();
+  await expect(page.getByLabel('Organisation name')).toBeFocused();
+  await expect(page.locator('[data-error-for="orgName"]')).toContainText('160 characters');
+  await expect(page.getByText("Couldn't send right now.")).toHaveCount(0);
+  await expect(page.getByLabel('Contact name')).toHaveValue('Ama Mensah');
+});
+
+test('server 400 without errors falls back to the mailto message', async ({ page }) => {
+  await page.route('**/api/lead', (route) => route.fulfill({ status: 400, body: 'bad' }));
+  await page.goto(KA + 'contact/');
+  await page.getByLabel('Your name').fill('Ama');
+  await page.getByLabel('Email').fill('ama@example.com');
+  await page.getByLabel('Message').fill('Hi');
+  await page.getByRole('button', { name: 'Send message' }).click();
+  await expect(page.getByText("Couldn't send right now. Email us instead:")).toBeVisible();
+});
