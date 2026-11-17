@@ -131,11 +131,53 @@ a.ka-logo:hover .ka-logo__mono, a.ka-logo:hover .ka-logo__name { background: var
 }
 .ka-social__link:hover { color: var(--ka-black); background: var(--ka-ember); }
 
+/* Nav and social icons share a wrapper so phones can fold them behind the
+   Menu button; on wide screens the wrapper is invisible to layout. */
+.ka-header__menu { display: contents; }
+.ka-menu-btn { display: none; }
+
+/* No JS (html.ka-js missing): the links wrap onto a second header row. */
 @media (max-width: 860px) {
   .ka-header { gap: .5rem 1rem; }
   .ka-nav { order: 3; width: 100%; margin-left: 0; gap: .1rem 1.1rem; }
   .ka-nav a { white-space: nowrap; }
   .ka-header .ka-social { margin-left: auto; gap: 0; }
+}
+
+/* With JS (js/menu.js), <= 1179px: one slim sticky row (logo + Menu button,
+   under 64px) so the page keeps its room while the player is open. */
+@media (max-width: 1179px) {
+  html.ka-js .ka-header { flex-wrap: nowrap; gap: .75rem; padding-block: .5rem; }
+  html.ka-js .ka-menu-btn {
+    display: inline-flex; align-items: center; gap: .45rem; flex: none; margin-left: auto;
+    min-height: 44px; min-width: 44px; padding: 0 .8rem;
+    font: 500 .9375rem/1 var(--ka-sans); letter-spacing: .02em;
+    color: var(--ka-cream); background: transparent;
+    border: 1px solid rgba(244, 235, 221, .35); border-radius: var(--ka-radius); cursor: pointer;
+    transition: background-color .2s, color .2s, border-color .2s;
+  }
+  html.ka-js .ka-menu-btn:hover, html.ka-js .ka-menu-btn[aria-expanded="true"] { background: var(--ka-cream); color: var(--ka-black); border-color: var(--ka-cream); }
+  html.ka-js .ka-header__menu {
+    display: none; position: absolute; top: 100%; left: 0; right: 0;
+    max-height: calc(100svh - 5rem); overflow-y: auto; overscroll-behavior: contain;
+    padding: .25rem var(--ka-gutter) 1.25rem;
+    background: var(--ka-black); border-bottom: 1px solid var(--ka-clay);
+    box-shadow: 0 16px 32px rgba(14, 15, 20, .5);
+  }
+  html.ka-js .ka-header.is-open .ka-header__menu { display: block; }
+  html.ka-js .ka-header__menu .ka-nav { display: grid; width: auto; margin: 0; gap: 0; }
+  html.ka-js .ka-header__menu .ka-nav a {
+    display: flex; align-items: center; min-height: 48px; padding: .5rem 0;
+    font-size: 1.0625rem; border-bottom: 1px solid rgba(139, 71, 64, .45);
+  }
+  html.ka-js .ka-header__menu .ka-nav a[aria-current="page"] { color: var(--ka-ember); border-bottom-color: rgba(139, 71, 64, .45); }
+  html.ka-js .ka-header__menu .ka-social { margin: 1rem 0 0; gap: .5rem; }
+  html.ka-js .ka-header__menu .ka-social__link { width: 44px; height: 44px; }
+}
+@media (max-width: 374px) {
+  /* Very narrow phones: icon-only button (the text stays as its name). */
+  html.ka-js .ka-menu-btn span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  html.ka-js .ka-menu-btn { padding: 0; justify-content: center; }
 }
 
 /* Main */
@@ -190,7 +232,12 @@ main { display: block; min-height: 50vh; }
   box-shadow: 0 -8px 24px rgba(14, 15, 20, .35);
 }
 body.ka-has-player { padding-bottom: calc(var(--ka-player-h) + env(safe-area-inset-bottom)); }
-.ka-player__progress { height: 3px; background: rgba(212, 172, 162, .25); }
+.ka-player__progress { height: 3px; background: rgba(212, 172, 162, .25); overflow: hidden; }
+/* Loading: a short ember segment sweeps the progress line (still under reduced motion). */
+#ka-player.is-loading .ka-player__progress span { width: 30% !important; transition: none; animation: ka-loading 1.1s var(--ka-ease) infinite; }
+@keyframes ka-loading { from { transform: translateX(-100%); } to { transform: translateX(340%); } }
+@media (prefers-reduced-motion: reduce) { #ka-player.is-loading .ka-player__progress span { animation: none; transform: none; opacity: .6; } }
+#ka-player.needs-tap .ka-player__label { color: var(--ka-ember); }
 .ka-player__progress span { display: block; height: 100%; width: 0; background: var(--ka-ember); transition: width .5s linear; }
 .ka-player__bar {
   display: flex; align-items: center; gap: .85rem;
@@ -235,6 +282,7 @@ body.ka-has-player.ka-has-video { padding-bottom: calc(var(--ka-player-h) + 200p
   }
   .ka-player__thumb { width: 64px; height: 36px; }
   .ka-player__label { display: none; }
+  #ka-player.is-loading .ka-player__label, #ka-player.needs-tap .ka-player__label { display: block; }
   .ka-player__bar { gap: .6rem; }
   .ka-player__btn { width: 40px; height: 40px; }
 }
@@ -246,8 +294,8 @@ body.ka-has-player.ka-has-video { padding-bottom: calc(var(--ka-player-h) + 200p
   /* Phones: monogram and name only, so the header row stays one line. */
   .ka-logo { gap: .45rem; }
   .ka-logo__mono { width: 31px; height: 24px; }
-  .ka-logo__name { width: 155px; height: 8px; }
-  .ka-header { column-gap: .5rem; } /* 343px row: lockup 193px + icons 136px */
+  .ka-logo__name { width: 194px; height: 10px; } /* name stays >= 10px tall */
+  .ka-header { column-gap: .5rem; } /* 343px row: lockup ~232px + Menu button ~90px */
   .ka-logo__bar, .ka-logo__refined { display: none; }
   .ka-header .ka-social__link { width: 34px; height: 34px; }
   .ka-actions .ka-btn { flex: 1 1 auto; }
@@ -257,6 +305,9 @@ body.ka-has-player.ka-has-video { padding-bottom: calc(var(--ka-player-h) + 200p
 :root { --ka-chrome-h: 6rem; }
 @media (max-width: 860px) { :root { --ka-chrome-h: 9.5rem; } }
 @media (max-width: 480px) { :root { --ka-chrome-h: 12rem; } }
+/* With JS the phone header is one ~61px row: concept bar + header. */
+@media (max-width: 1179px) { html.ka-js { --ka-chrome-h: 5.75rem; } }
+@media (max-width: 480px) { html.ka-js { --ka-chrome-h: 6.875rem; } }
 .ka-carousel { position: relative; background: var(--ka-black); color: var(--ka-cream); }
 .ka-carousel__slides { position: relative; touch-action: pan-y; }
 .ka-slide {

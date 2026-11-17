@@ -9,6 +9,9 @@ const HOST = 'https://www.youtube-nocookie.com';
 const CATALOGUE_URL = '/assets/preview/kingsley/data/catalogue.json';
 const API_TIMEOUT = 8000;
 const READY_TIMEOUT = 8000; // player constructed but onReady never fired
+// After onReady (or a new video), if YouTube still has not started playing,
+// the browser blocked autoplay (iPhone): ask for a tap on the video itself.
+const START_GRACE = 1500;
 
 const state = {
   root: null,
@@ -17,10 +20,12 @@ const state = {
   gen: 0, // player generation, so a late onReady from an abandoned player is ignored
   readyTimer: 0,
   ytReady: null, // Promise for the API
-  current: null, // { id, title }
+  current: null, // { id, title, queue }
   queue: [], // catalogue entries in the current group, newest first
   queueReady: Promise.resolve(),
   playing: false,
+  status: 'idle', // 'idle' | 'loading' | 'playing' | 'paused' | 'tap'
+  startTimer: 0,
   expanded: false,
   timer: 0,
 };
@@ -33,7 +38,7 @@ function loadCatalogue() {
   return cataloguePromise;
 }
 
-function loadApi() {
+export function loadApi() {
   if (state.ytReady) return state.ytReady;
   state.ytReady = new Promise((resolve, reject) => {
     if (window.YT && window.YT.Player) return resolve(window.YT);
@@ -57,6 +62,11 @@ function loadApi() {
   return state.ytReady;
 }
 
+/** Start fetching the IFrame API early (on hover/focus of a play button). Never throws. */
+export function preloadApi() {
+  loadApi().catch(() => {});
+}
+
 const ICONS = {
   play: '<path d="M8 5v14l11-7z"/>',
   pause: '<path d="M6 5h4v14H6zM14 5h4v14h-4z"/>',
@@ -78,7 +88,7 @@ function build() {
     <div class="ka-player__bar">
       <img class="ka-player__thumb" data-el="thumb" alt="" width="96" height="54">
       <div class="ka-player__meta">
-        <p class="ka-player__label">Now playing</p>
+        <p class="ka-player__label" data-el="label">Now playing</p>
         <p class="ka-player__title" data-el="title" aria-live="polite"></p>
         <p class="ka-player__error" data-el="error" hidden>Couldn't load the player. <a data-el="yt" href="#" target="_blank" rel="noopener">Watch on YouTube</a></p>
       </div>
@@ -122,15 +132,49 @@ function resetPlayer() {
   state.els.mount = mount;
 }
 
-function setPlaying(playing) {
-  state.playing = playing;
-  const t = state.els.toggle;
-  t.setAttribute('aria-label', playing ? 'Pause' : 'Play');
-  t.innerHTML = svg(playing ? 'pause' : 'play');
-  state.root.classList.toggle('is-playing', playing);
+const LABELS = {
+  idle: '', // stopped, or the load failed (the error line says why)
+  loading: 'Loading…',
+  playing: 'Now playing',
+  paused: 'Paused',
+  tap: 'Tap the video to start',
+};
+
+// One place for what the bar says and shows. Only 'playing' counts as playing:
+// it is set from YouTube's PLAYING event, never on the click itself.
+function setStatus(status) {
+  const was = state.playing;
+  state.status = status;
+  state.playing = status === 'playing';
+  const { root, els } = state;
+  els.label.textContent = LABELS[status] || LABELS.idle;
+  root.classList.toggle('is-loading', status === 'loading');
+  root.classList.toggle('needs-tap', status === 'tap');
+  root.classList.toggle('is-playing', state.playing);
+  const t = els.toggle;
+  t.setAttribute('aria-label', state.playing ? 'Pause' : 'Play');
+  t.innerHTML = svg(state.playing ? 'pause' : 'play');
   syncButtons();
   clearInterval(state.timer);
-  if (playing) state.timer = setInterval(tick, 500);
+  if (state.playing) state.timer = setInterval(tick, 500);
+  if (status !== 'loading') clearTimeout(state.startTimer);
+  if (state.playing && !was) document.dispatchEvent(new CustomEvent('ka:playing'));
+}
+
+// Called once YouTube has been asked to play: if it has not started within
+// START_GRACE, autoplay was blocked, so ask for a tap on the (visible) video.
+function watchStart() {
+  clearTimeout(state.startTimer);
+  const gen = state.gen;
+  state.startTimer = setTimeout(() => {
+    if (gen !== state.gen || state.status !== 'loading') return;
+    const p = state.yt;
+    const S = (window.YT && window.YT.PlayerState) || {};
+    const ps = p && p !== 'pending' && typeof p.getPlayerState === 'function' ? p.getPlayerState() : undefined;
+    if (ps === (S.PLAYING ?? 1)) setStatus('playing');
+    else if (ps === (S.BUFFERING ?? 3)) watchStart(); // still on its way: keep waiting
+    else setStatus('tap'); // UNSTARTED (-1), CUED (5) or unknown
+  }, START_GRACE);
 }
 
 function tick() {
@@ -146,7 +190,7 @@ function showError(id) {
   setVideoShown(false);
   state.els.error.hidden = false;
   state.els.yt.href = `https://www.youtube.com/watch?v=${encodeURIComponent(id)}`;
-  setPlaying(false);
+  setStatus('idle');
 }
 
 // Mark the page's play buttons for the song that is playing.
@@ -158,13 +202,14 @@ export function syncButtons() {
 }
 
 function onStateChange(e) {
-  const S = window.YT.PlayerState;
-  if (e.data === S.PLAYING) setPlaying(true);
-  else if (e.data === S.PAUSED) setPlaying(false);
-  else if (e.data === S.ENDED) {
-    setPlaying(false);
+  const S = window.YT.PlayerState || {};
+  if (e.data === (S.PLAYING ?? 1)) setStatus('playing');
+  else if (e.data === (S.PAUSED ?? 2)) setStatus('paused');
+  else if (e.data === (S.ENDED ?? 0)) {
+    setStatus('paused');
     next();
   }
+  // UNSTARTED / CUED / BUFFERING: no change; watchStart() decides if a tap is needed.
 }
 
 export function initPlayer() {
@@ -180,7 +225,7 @@ export function initPlayer() {
  */
 export async function play(id, { title, queue } = {}) {
   if (!state.root || !id) return;
-  state.current = { id, title: title || '' };
+  state.current = { id, title: title || '', queue: queue || '' };
   const { els } = state;
   els.title.textContent = title || '';
   els.thumb.src = `https://i.ytimg.com/vi/${encodeURIComponent(id)}/mqdefault.jpg`;
@@ -189,7 +234,7 @@ export async function play(id, { title, queue } = {}) {
   els.fill.style.width = '0%';
   show();
   setVideoShown(true);
-  setPlaying(true);
+  setStatus('loading');
 
   state.queueReady = queue
     ? loadCatalogue().then((entries) => {
@@ -209,6 +254,7 @@ export async function play(id, { title, queue } = {}) {
   if (state.yt === 'pending') return; // onReady loads state.current
   if (state.yt) {
     state.yt.loadVideoById(id);
+    watchStart();
     return;
   }
   resetPlayer();
@@ -234,6 +280,7 @@ export async function play(id, { title, queue } = {}) {
         const want = state.current && state.current.id;
         if (want && want !== id) state.yt.loadVideoById(want);
         else state.yt.playVideo();
+        if (state.status === 'loading') watchStart();
       },
       onStateChange: (e) => { if (gen === state.gen) onStateChange(e); },
       onError: () => { if (gen === state.gen) showError(state.current ? state.current.id : id); },
@@ -244,25 +291,29 @@ export async function play(id, { title, queue } = {}) {
 export function toggle() {
   const p = state.yt;
   if (!p && state.current) {
-    play(state.current.id, { title: state.current.title }); // after a failed load: retry
+    // After a failed load: retry, keeping the queue so Next still works.
+    const { id, title, queue } = state.current;
+    play(id, { title, queue: queue || undefined });
     return;
   }
   if (!p || p === 'pending') return;
   if (state.playing) {
     p.pauseVideo();
-    setPlaying(false);
+    setStatus('paused');
   } else {
     p.playVideo();
-    setPlaying(true);
+    setStatus('loading'); // 'playing' arrives with YouTube's PLAYING event
+    watchStart();
   }
 }
 
 /** Pause playback if it is playing. Idempotent; safe before the player exists. */
 export function pause() {
   const p = state.yt;
-  if (!p || p === 'pending' || !state.playing) return;
+  if (!p || p === 'pending') return;
+  if (!state.playing && state.status !== 'loading') return; // also stop a start in progress
   p.pauseVideo();
-  setPlaying(false);
+  setStatus('paused');
 }
 
 // Next song in the current queue; stops at the end (no wrap).
@@ -275,7 +326,7 @@ export async function next() {
   const entry = i >= 0 ? state.queue[i + 1] : undefined;
   if (!entry) {
     if (state.yt && state.yt !== 'pending' && state.playing) state.yt.pauseVideo();
-    setPlaying(false);
+    setStatus('paused');
     return;
   }
   play(entry.youtubeId, { title: entry.title, queue: entry.group });
@@ -300,7 +351,7 @@ export function close() {
     try { (typeof p.stopVideo === 'function' ? p.stopVideo : p.pauseVideo).call(p); } catch { /* ignore */ }
   }
   resetPlayer();
-  setPlaying(false);
+  setStatus('idle');
   setVideoShown(false);
   state.current = null;
   state.queue = [];

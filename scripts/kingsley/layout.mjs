@@ -47,9 +47,13 @@ export function escAttr(s) {
 // first. Failsafe: unless motion.js has started (window.__kaMotion) within
 // 2.5 s, the class comes off again so nothing can stay hidden. app.js's
 // onerror and a nomodule script remove it too.
+// html.ka-js (set here too) lets site.css fold the phone menu behind its
+// button; if app.js cannot run, it comes off again so the menu shows in full.
 const UNHIDE = "document.documentElement.classList.remove('ka-motion')";
+const NO_APP = `${UNHIDE};document.documentElement.classList.remove('ka-js')`;
 const MOTION_FLAG =
-  "<script>if(!matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.classList.add('ka-motion');" +
+  "<script>document.documentElement.classList.add('ka-js');" +
+  "if(!matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.classList.add('ka-motion');" +
   `setTimeout(function(){if(!window.__kaMotion){window.__kaMotionOff=true;${UNHIDE}}},2500)}</script>`;
 
 // The official logo: monogram and name are masks filled with cream (site.css).
@@ -58,6 +62,10 @@ const LOGO_PIECES =
   '<span class="ka-logo__name" aria-hidden="true"></span>' +
   '<span class="ka-logo__bar" aria-hidden="true"></span>' +
   '<span class="ka-logo__refined" aria-hidden="true">The Refined</span>';
+
+// Phone menu button icon (three lines; the button's text says "Menu").
+const MENU_ICON =
+  '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
 
 export const icon = (name) =>
   `<svg class="ka-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false">${ICON[name]}</svg>`;
@@ -127,8 +135,11 @@ ${preload}
 <p class="ka-concept" role="note">${CONCEPT}</p>
 <header class="ka-header">
   <a class="ka-logo" href="${BASE}" aria-label="Kingsley Anyenor — The Refined, home">${LOGO_PIECES}</a>
-  <nav aria-label="Main" class="ka-nav">${nav(active)}</nav>
-  <div class="ka-social">${socialLinks('ka-social__link')}</div>
+  <button type="button" class="ka-menu-btn" aria-expanded="false" aria-controls="ka-menu">${MENU_ICON}<span>Menu</span></button>
+  <div class="ka-header__menu" id="ka-menu">
+    <nav aria-label="Main" class="ka-nav">${nav(active)}</nav>
+    <div class="ka-social">${socialLinks('ka-social__link')}</div>
+  </div>
 </header>
 <main id="main">${body}</main>
 <footer class="ka-footer">
@@ -141,8 +152,8 @@ ${preload}
   </div>
 </footer>
 <div id="ka-player" hidden></div>
-<script type="module" src="${ASSETS}/js/app.js" onerror="${UNHIDE}"></script>
-<script nomodule>${UNHIDE}</script>
+<script type="module" src="${ASSETS}/js/app.js" onerror="${NO_APP}"></script>
+<script nomodule>${NO_APP}</script>
 </body>
 </html>
 `;

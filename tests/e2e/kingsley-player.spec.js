@@ -5,14 +5,17 @@ const KA = '/preview/kingsley/';
 const PLAY_6 = '#latest button[data-play="LqwYHMrrYK0"]';
 const PLAY_5 = '.ka-row button[data-play="JfxWXop_01c"]';
 
-// Fake YouTube IFrame API: tests never touch the network.
+// Fake YouTube IFrame API: tests never touch the network. Like the real one,
+// playVideo / loadVideoById report PLAYING a moment later, unless the test
+// blocks autoplay (__ytBlocked: stays UNSTARTED, as on an iPhone) or drives
+// the states by hand (__ytManual).
 const FAKE_YT = `
   window.__ytPlayers ??= [];
   window.YT = {
-    PlayerState: { PLAYING: 1, PAUSED: 2, ENDED: 0 },
+    PlayerState: { UNSTARTED: -1, ENDED: 0, PLAYING: 1, PAUSED: 2, BUFFERING: 3, CUED: 5 },
     Player: class {
       constructor(el, opts) {
-        this.opts = opts; this.calls = [];
+        this.opts = opts; this.calls = []; this.state = -1;
         window.__ytPlayers.push(this);
         // Like the real API: replace the mount element with an iframe.
         const f = document.createElement('iframe');
@@ -21,10 +24,15 @@ const FAKE_YT = `
         el.replaceWith(f);
         if (!window.__ytNoReady) setTimeout(() => opts.events.onReady({ target: this }));
       }
-      playVideo() { this.calls.push('play'); }
-      pauseVideo() { this.calls.push('pause'); }
-      loadVideoById(id) { this.calls.push('load:' + id); }
-      getPlayerState() { return 1; }
+      emit(s) { this.state = s; this.opts.events.onStateChange({ data: s, target: this }); }
+      start() {
+        if (window.__ytManual || window.__ytBlocked) return;
+        setTimeout(() => this.emit(1), 50);
+      }
+      playVideo() { this.calls.push('play'); this.start(); }
+      pauseVideo() { this.calls.push('pause'); this.state = 2; }
+      loadVideoById(id) { this.calls.push('load:' + id); this.start(); }
+      getPlayerState() { return this.state; }
       getCurrentTime() { return 0; }
       getDuration() { return 100; }
     },
@@ -32,17 +40,26 @@ const FAKE_YT = `
   window.onYouTubeIframeAPIReady();
 `;
 
-async function stubYouTube(page, { noReady = false } = {}) {
+async function stubYouTube(page, { noReady = false, blocked = false, manual = false } = {}) {
   // Defined before any page script runs, so waits on __ytPlayers never throw
   // while the (delayed) API script is still on its way.
   await page.addInitScript(() => { window.__ytPlayers = []; });
   if (noReady) await page.addInitScript(() => { window.__ytNoReady = true; });
+  if (blocked) await page.addInitScript(() => { window.__ytBlocked = true; });
+  if (manual) await page.addInitScript(() => { window.__ytManual = true; });
   // The API arrives after a short delay, as over a real network, so tests cannot
   // depend on it having loaded by the time the click returns.
   await page.route('**/iframe_api', async (route) => {
     await new Promise((r) => setTimeout(r, 300));
     await route.fulfill({ status: 200, contentType: 'text/javascript', body: FAKE_YT });
   });
+}
+
+// Main menu link: on phones the links sit behind the Menu button.
+async function navTo(page, name) {
+  const btn = page.locator('.ka-menu-btn');
+  if (await btn.isVisible()) await btn.click();
+  await page.locator('.ka-nav').getByRole('link', { name, exact: true }).click();
 }
 
 function collectErrors(page) {
@@ -90,7 +107,7 @@ test.describe('Kingsley persistent player', () => {
   });
 
   test('next moves through the queue and stops at the end', async ({ page }) => {
-    await stubYouTube(page);
+    await stubYouTube(page, { manual: true }); // the test sends ENDED itself
     await page.goto(KA);
     await page.locator(PLAY_5).click();
     const bar = page.locator('#ka-player');
@@ -198,7 +215,7 @@ test.describe('Kingsley persistent player', () => {
       };
       await check();
       // Still visible after moving page, and after enlarging.
-      await page.locator('.ka-nav').getByRole('link', { name: 'Music' }).click();
+      await navTo(page, 'Music');
       await expect(page.locator('h1')).toHaveText('Music');
       await check();
       await page.locator('#ka-player').getByRole('button', { name: 'Enlarge video' }).click();
@@ -235,6 +252,178 @@ test.describe('Kingsley persistent player', () => {
     expect(await page.evaluate(() => window.__ytPlayers[0].calls)).toContain('load:JfxWXop_01c');
     expect(await page.evaluate(() => window.__ytPlayers.length)).toBe(1);
     expect(errors).toEqual([]);
+  });
+
+  test('says Loading until YouTube reports PLAYING, then Now playing', async ({ page }) => {
+    await stubYouTube(page, { manual: true });
+    await page.goto(KA);
+    await page.locator(PLAY_6).click();
+    const bar = page.locator('#ka-player');
+    await expect(bar.locator('.ka-player__label')).toHaveText('Loading…');
+    await expect(bar).toHaveClass(/is-loading/);
+    await page.waitForFunction(() => window.__ytPlayers[0]?.calls.includes('play'));
+    // Not "playing" yet: the toggle offers Play and the page button is not pressed.
+    await expect(bar.getByRole('button', { name: 'Play', exact: true })).toBeVisible();
+    await expect(page.locator(PLAY_6)).toHaveAttribute('aria-pressed', 'false');
+    await page.evaluate(() => window.__ytPlayers[0].emit(1));
+    await expect(bar.locator('.ka-player__label')).toHaveText('Now playing');
+    await expect(bar.getByRole('button', { name: 'Pause', exact: true })).toBeVisible();
+    await expect(page.locator(PLAY_6)).toHaveAttribute('aria-pressed', 'true');
+    await expect(bar).not.toHaveClass(/is-loading/);
+  });
+
+  test('when autoplay is blocked (iPhone) it asks for a tap on the video', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await stubYouTube(page, { blocked: true });
+    await page.goto(KA);
+    await page.locator(PLAY_6).click();
+    const bar = page.locator('#ka-player');
+    await page.waitForFunction(() => window.__ytPlayers[0]?.calls.includes('play'));
+    // Still UNSTARTED ~1.5 s after onReady: not playing, and the bar says so (visible on phones).
+    const label = bar.locator('.ka-player__label');
+    await expect(label).toHaveText('Tap the video to start', { timeout: 5000 });
+    await expect(label).toBeVisible();
+    await expect(bar).toHaveClass(/needs-tap/);
+    await expect(bar.getByRole('button', { name: 'Play', exact: true })).toBeVisible();
+    await expect(page.locator(PLAY_6)).toHaveAttribute('aria-pressed', 'false');
+    // The video stays visible and uncovered, so the tap reaches YouTube's own player.
+    const box = await bar.locator('iframe').boundingBox();
+    expect(box.height).toBeGreaterThanOrEqual(200);
+    const hit = await page.evaluate(({ x, y }) => document.elementFromPoint(x, y)?.tagName, { x: box.x + box.width / 2, y: box.y + box.height / 2 });
+    expect(hit).toBe('IFRAME');
+    // The tap on the video starts it: YouTube reports PLAYING.
+    await page.evaluate(() => window.__ytPlayers[0].emit(1));
+    await expect(label).toHaveText('Now playing');
+    await expect(bar).not.toHaveClass(/needs-tap/);
+  });
+
+  test('the IFrame API is fetched on hover over a play button, not before', async ({ page }) => {
+    const api = [];
+    page.on('request', (r) => { if (r.url().includes('iframe_api')) api.push(r.url()); });
+    await stubYouTube(page);
+    await page.goto(KA);
+    await page.waitForTimeout(800);
+    expect(api).toEqual([]);
+    await page.locator(PLAY_6).scrollIntoViewIfNeeded();
+    await page.waitForTimeout(300);
+    expect(api).toEqual([]);
+    await page.locator(PLAY_6).hover();
+    await expect.poll(() => api.length).toBe(1);
+    await expect(page.locator('#ka-player')).toBeHidden(); // hover alone plays nothing
+    await expect(page.locator('iframe')).toHaveCount(0);
+    await page.locator(PLAY_6).click();
+    await expect(page.locator('#ka-player iframe')).toBeVisible();
+    expect(api).toHaveLength(1); // the click reuses the preloaded API
+  });
+
+  test('starting the player unloads a loaded Spotify embed and restores its button', async ({ page }) => {
+    await page.route('**/open.spotify.com/**', (r) => r.fulfill({ status: 200, contentType: 'text/html', body: '<p>stub</p>' }));
+    await stubYouTube(page);
+    await page.goto(KA);
+    await page.getByRole('button', { name: 'Load Spotify player' }).click();
+    await expect(page.locator('iframe[src*="open.spotify.com"]')).toHaveCount(1);
+    await page.locator(PLAY_6).click();
+    await expect(page.locator('#ka-player .ka-player__label')).toHaveText('Now playing');
+    await expect(page.locator('iframe[src*="open.spotify.com"]')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Load Spotify player' })).toBeVisible();
+    await expect(page.locator('[data-embed-box]')).not.toHaveClass(/is-loaded/);
+    // And it can be loaded again (which pauses the player).
+    await page.getByRole('button', { name: 'Load Spotify player' }).click();
+    await expect(page.locator('iframe[src*="open.spotify.com"]')).toHaveCount(1);
+    await expect.poll(() => page.evaluate(() => window.__ytPlayers[0].calls.at(-1))).toBe('pause');
+  });
+
+  test('retrying after a failed load keeps the queue', async ({ page }) => {
+    await page.addInitScript(() => { window.__ytPlayers = []; });
+    let calls = 0;
+    await page.route('**/iframe_api', async (route) => {
+      calls += 1;
+      // The first load fails (slowly, so the click's play() sees it too).
+      if (calls === 1) { await new Promise((r) => setTimeout(r, 300)); return route.abort(); }
+      return route.fulfill({ status: 200, contentType: 'text/javascript', body: FAKE_YT });
+    });
+    await page.goto(KA);
+    await page.locator(PLAY_6).click();
+    const bar = page.locator('#ka-player');
+    await expect(bar.getByText("Couldn't load the player.")).toBeVisible({ timeout: 10000 });
+    await bar.getByRole('button', { name: 'Play', exact: true }).click();
+    await expect(bar.locator('.ka-player__label')).toHaveText('Now playing');
+    await expect(bar.getByText("Couldn't load the player.")).toBeHidden();
+    // Next still follows the Deeper Worship queue: 6.0 -> 5.0.
+    await bar.getByRole('button', { name: 'Next song' }).click();
+    await expect(bar).toContainText('Deeper Worship 5.0');
+    expect(await page.evaluate(() => window.__ytPlayers[0].calls)).toContain('load:JfxWXop_01c');
+  });
+
+  test('phone with the player open: one slim header row and room to read', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await stubYouTube(page);
+    await page.goto(KA);
+    await page.locator(PLAY_6).click();
+    await expect(page.locator('#ka-player iframe')).toBeVisible();
+    // Scroll into the page so the sticky header is at the top.
+    await page.evaluate(() => window.scrollTo(0, 1200));
+    await page.waitForTimeout(200);
+    const m = await page.evaluate(() => {
+      const h = document.querySelector('.ka-header').getBoundingClientRect();
+      const video = document.querySelector('#ka-player .ka-player__video').getBoundingClientRect();
+      const bar = document.querySelector('#ka-player').getBoundingClientRect();
+      return {
+        header: h.height,
+        headerBottom: Math.max(0, h.bottom),
+        playerTop: Math.min(video.top, bar.top),
+        over: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      };
+    });
+    expect(m.header).toBeLessThanOrEqual(64);
+    expect(m.playerTop - m.headerBottom).toBeGreaterThanOrEqual(300);
+    expect(m.over).toBeLessThanOrEqual(0);
+    // The logo name stays legible.
+    const nameH = await page.locator('.ka-header .ka-logo__name').evaluate((n) => n.getBoundingClientRect().height);
+    expect(nameH).toBeGreaterThanOrEqual(10);
+    // The menu opens over the page, works, and closes after the swap.
+    const btn = page.locator('.ka-menu-btn');
+    await expect(btn).toHaveAttribute('aria-expanded', 'false');
+    await expect(page.locator('.ka-nav')).toBeHidden();
+    await btn.click();
+    await expect(btn).toHaveAttribute('aria-expanded', 'true');
+    await expect(page.locator('.ka-nav').getByRole('link', { name: 'Music' })).toBeVisible();
+    await expect(page.locator('#ka-menu').getByRole('link', { name: /Instagram/ })).toBeVisible();
+    await page.locator('.ka-nav').getByRole('link', { name: 'Music' }).click();
+    await expect(page.locator('h1')).toHaveText('Music');
+    await expect(btn).toHaveAttribute('aria-expanded', 'false');
+    await expect(page.locator('.ka-nav')).toBeHidden();
+    // Escape closes it too.
+    await btn.click();
+    await page.keyboard.press('Escape');
+    await expect(btn).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  test('desktop header is unchanged: no Menu button, links in the row', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto(KA);
+    await expect(page.locator('.ka-menu-btn')).toBeHidden();
+    await expect(page.locator('.ka-nav').getByRole('link', { name: 'Contact' })).toBeVisible();
+    await expect(page.locator('.ka-header .ka-social__link').first()).toBeVisible();
+  });
+
+  for (const width of [768, 1024]) {
+    test(`tablet / small laptop (${width}px): the header stays one row behind the Menu button`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 800 });
+      await page.goto(KA);
+      await expect(page.locator('.ka-menu-btn')).toBeVisible();
+      const h = await page.locator('.ka-header').evaluate((n) => n.getBoundingClientRect().height);
+      expect(h).toBeLessThanOrEqual(64);
+    });
+  }
+
+  test('phone menu with JavaScript off: links show in the header', async ({ browser, baseURL }) => {
+    const ctx = await browser.newContext({ javaScriptEnabled: false, baseURL, viewport: { width: 375, height: 667 } });
+    const page = await ctx.newPage();
+    await page.goto(KA);
+    await expect(page.locator('.ka-menu-btn')).toBeHidden();
+    await expect(page.locator('.ka-nav').getByRole('link', { name: 'Contact' })).toBeVisible();
+    await ctx.close();
   });
 
   test('shows the fallback when the player never becomes ready', async ({ page }) => {
