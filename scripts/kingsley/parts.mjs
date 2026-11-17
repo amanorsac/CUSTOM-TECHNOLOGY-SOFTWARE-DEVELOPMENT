@@ -22,3 +22,44 @@ export function watchLink(id, { cls = 'ka-textlink', label = 'Watch on YouTube',
   return `<a class="${cls}" href="${escAttr(watchUrl(id))}" target="_blank" rel="noopener"${attrs}>${label}<span class="ka-visually-hidden"> (opens in a new tab)</span></a>`;
 }
 
+
+// ---- Form fields (Book and Contact) --------------------------------------
+// Visible label above every control, an error slot wired by aria-describedby,
+// controls at least 44px tall (site.css).
+const attrs = (o) =>
+  Object.entries(o)
+    .filter(([, v]) => v !== undefined && v !== false)
+    .map(([k, v]) => (v === true ? ` ${k}` : ` ${k}="${String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;')}"`))
+    .join('');
+
+export function field({ name, label, required = false, type = 'text', control = 'input', options, hint, wide = false, ...rest }) {
+  const id = `f-${name}`;
+  const desc = `${hint ? `${id}-hint ` : ''}${id}-err`;
+  const common = { id, name, required: required || undefined, 'aria-describedby': desc.trim(), ...rest };
+  let ctl;
+  if (control === 'select') {
+    ctl =
+      `<select${attrs(common)}>` +
+      options.map((o) => `<option value="${o.replace(/"/g, '&quot;')}">${o || 'Choose…'}</option>`).join('') +
+      `</select>`;
+  } else if (control === 'textarea') {
+    ctl = `<textarea${attrs({ ...common, rows: rest.rows || 5 })}></textarea>`;
+  } else {
+    ctl = `<input${attrs({ ...common, type })}>`;
+  }
+  return (
+    `<div class="ka-field${wide ? ' ka-field--wide' : ''}">` +
+    `<label for="${id}">${label}${required ? ' <span class="ka-field__req" aria-hidden="true">*</span>' : ''}</label>` +
+    ctl +
+    (hint ? `<p class="ka-field__hint" id="${id}-hint">${hint}</p>` : '') +
+    `<p class="ka-field__error" id="${id}-err" data-error-for="${name}" hidden></p>` +
+    `</div>`
+  );
+}
+
+export const honeypot =
+  `<div class="ka-hp" aria-hidden="true"><label>Leave this empty<input type="text" name="website_hp" tabindex="-1" autocomplete="off"></label></div>`;
+
+export const NOJS =
+  `<noscript><p class="ka-form__nojs">This form needs JavaScript. You can email the team instead: ` +
+  `<a href="mailto:amanorsac@gmail.com">Email the team</a>.</p></noscript>`;

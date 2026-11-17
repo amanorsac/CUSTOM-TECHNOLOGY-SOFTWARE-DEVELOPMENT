@@ -3,6 +3,7 @@ import { initPlayer, play, pause, expand, syncButtons } from './player.js';
 import { initLatest } from './latest.js';
 import { initNav } from './nav.js';
 import { initTabs } from './tabs.js';
+import { initForms } from './forms.js';
 
 initPlayer();
 initNav();
@@ -48,6 +49,7 @@ function onPage() {
   const main = document.getElementById('main');
   initLatest(main);
   initTabs(main);
+  initForms(main);
   // If motion.js cannot load, drop the inline head flag so nothing stays hidden.
   import('./motion.js')
     .then((m) => m.initMotion(main))
