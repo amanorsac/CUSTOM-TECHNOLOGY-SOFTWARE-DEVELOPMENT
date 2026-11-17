@@ -30,6 +30,7 @@ test.describe('Kingsley motion and hero carousel', () => {
   // Claim motion has started so these tests always exercise motion.js itself.
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => { window.__kaMotion = true; });
+    await page.route('**/api/kingsley/latest', (r) => r.abort()); // never the live feed
   });
 
   test('carousel never advances on its own', async ({ page }) => {

@@ -26,6 +26,17 @@ describe('parseFeed', () => {
     expect(pickLatest([])).toBeNull();
   });
 
+  it('pickLatest skips entries published in the future (scheduled premieres)', () => {
+    const now = Date.parse('2026-11-13T12:00:00Z');
+    const PREMIERE = entry('abcdefghijk', 'Premiere', 'https://www.youtube.com/watch?v=abcdefghijk', '2026-11-20T18:00:00+00:00');
+    const list = parseFeed(`${head}${PREMIERE}${SHORT}${VIDEO}</feed>`);
+    expect(pickLatest(list, now).youtubeId).toBe('LqwYHMrrYK0');
+    // Once the premiere time has passed it is the latest.
+    expect(pickLatest(list, Date.parse('2026-11-21T00:00:00Z')).youtubeId).toBe('abcdefghijk');
+    // Only future entries: nothing to show.
+    expect(pickLatest(parseFeed(`${head}${PREMIERE}</feed>`), now)).toBeNull();
+  });
+
   it('returns [] for empty or malformed input', () => {
     expect(parseFeed('')).toEqual([]);
     expect(parseFeed('<feed><entry>')).toEqual([]);

@@ -2,6 +2,11 @@ import { test, expect } from '@playwright/test';
 
 const KA = '/preview/kingsley/';
 
+// Never hit the live YouTube feed when a test passes through the home page.
+test.beforeEach(async ({ page }) => {
+  await page.route('**/api/kingsley/latest', (r) => r.abort());
+});
+
 async function fillBook(page) {
   await page.getByLabel('Organiser type').selectOption({ label: 'Church' });
   await page.getByLabel('Organisation name').fill('Grace Chapel');

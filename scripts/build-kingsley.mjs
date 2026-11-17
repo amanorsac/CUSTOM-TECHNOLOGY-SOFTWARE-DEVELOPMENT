@@ -6,12 +6,15 @@ import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { layout, img } from './kingsley/layout.mjs';
+import { validateCatalogue } from '../public/assets/preview/kingsley/js/catalogue.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const pagesDir = path.join(root, 'scripts/kingsley/pages');
 const outDir = path.join(root, 'public/preview/kingsley');
 
 const catalogue = JSON.parse(readFileSync(path.join(root, 'public/assets/preview/kingsley/data/catalogue.json'), 'utf8'));
+const problems = validateCatalogue(catalogue);
+if (problems.length) throw new Error(`catalogue.json has problems:\n  ${problems.join('\n  ')}`);
 const ctx = { catalogue, layout, img };
 
 let count = 0;

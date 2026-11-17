@@ -25,6 +25,15 @@ const serious = (axe) =>
     .map((v) => `${v.id}: ${v.nodes.map((n) => n.target).join(' | ')}`);
 
 test.describe('Kingsley whole site', () => {
+  // Never hit the live YouTube feed from the home page. Answered (not aborted)
+  // so the console-error check below stays meaningful; ok:false keeps the
+  // block as built.
+  test.beforeEach(async ({ page }) => {
+    await page.route('**/api/kingsley/latest', (r) =>
+      r.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":false}' }),
+    );
+  });
+
   test('the build has every page', () => {
     for (const p of ['/preview/kingsley/', '/preview/kingsley/music/', '/preview/kingsley/the-refined/',
       '/preview/kingsley/events/', '/preview/kingsley/book/', '/preview/kingsley/contact/']) {

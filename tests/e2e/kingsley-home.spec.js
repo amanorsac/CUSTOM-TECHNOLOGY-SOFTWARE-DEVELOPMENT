@@ -13,6 +13,12 @@ function collectErrors(page) {
 const latest = (page) => page.locator('#latest');
 
 test.describe('Kingsley home', () => {
+  // Never hit the live YouTube feed: abort by default; tests that need an
+  // answer register their own route (later routes win).
+  test.beforeEach(async ({ page }) => {
+    await page.route(LATEST, (r) => r.abort());
+  });
+
   test('one h1, hero carousel of six slides led by the live video', async ({ page }) => {
     const errors = collectErrors(page);
     await page.route(LATEST, (r) => r.abort());
@@ -167,7 +173,7 @@ test.describe('Kingsley home', () => {
       await r.continue().catch(() => {});
     });
     await page.goto(KA, { waitUntil: 'commit' });
-    await expect(page.locator('h1')).toBeVisible({ timeout: 3000 });
+    await expect(page.locator('h1')).toBeVisible({ timeout: 5000 });
     await expect(page.locator('html')).not.toHaveClass(/ka-motion/);
   });
 

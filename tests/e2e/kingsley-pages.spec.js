@@ -4,6 +4,11 @@ import AxeBuilder from '@axe-core/playwright';
 const KA = '/preview/kingsley/';
 const PAGES = ['the-refined/', 'events/'];
 
+// Never hit the live YouTube feed if a test reaches the home page.
+test.beforeEach(async ({ page }) => {
+  await page.route('**/api/kingsley/latest', (r) => r.abort());
+});
+
 async function axeSerious(page) {
   const axe = await new AxeBuilder({ page }).analyze();
   return axe.violations

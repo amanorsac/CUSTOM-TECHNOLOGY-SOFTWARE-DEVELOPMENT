@@ -38,6 +38,12 @@ export function parseFeed(xml) {
   }
 }
 
-export function pickLatest(entries) {
-  return (Array.isArray(entries) ? entries : []).find((e) => e && e.isShort === false) || null;
+// Newest non-Short entry that is already out. Scheduled premieres appear in
+// the feed with a future `published` date; those are skipped.
+export function pickLatest(entries, now = Date.now()) {
+  const due = (e) => {
+    const t = Date.parse(e.published);
+    return Number.isNaN(t) || t <= now;
+  };
+  return (Array.isArray(entries) ? entries : []).find((e) => e && e.isShort === false && due(e)) || null;
 }

@@ -55,6 +55,20 @@ describe('GET /api/kingsley/latest', () => {
     expect(body.youtubeId).toBe(catalogue[0].youtubeId);
   });
 
+  it('marks fallback responses no-store', async () => {
+    fetchImpl = () => new Response('nope', { status: 500 });
+    const res = await get();
+    expect(res.headers.get('cache-control')).toBe('no-store');
+    expect((await res.json()).source).toBe('fallback');
+  });
+
+  it('skips a scheduled premiere with a future date', async () => {
+    const FUTURE = entry('ZZZZZZZZZZZ', 'Premiere', 'https://www.youtube.com/watch?v=ZZZZZZZZZZZ', '2099-01-01T00:00:00+00:00');
+    fetchImpl = () => new Response(feed(FUTURE, VIDEO), { status: 200 });
+    const body = await (await get()).json();
+    expect(body.youtubeId).toBe('LqwYHMrrYK0');
+  });
+
   it('falls back when fetch throws', async () => {
     fetchImpl = () => { throw new Error('boom'); };
     const body = await (await get()).json();

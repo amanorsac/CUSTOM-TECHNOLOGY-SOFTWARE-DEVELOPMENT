@@ -7,10 +7,12 @@ import { parseFeed, pickLatest } from '../lib/youtube-feed.js';
 const PATH = '/api/kingsley/latest';
 const FEED_URL = 'https://www.youtube.com/feeds/videos.xml?channel_id=UCkjUIJjNjY6sa2VYT1ZumGw';
 
-function json(body) {
+// Feed answers are cached for 30 minutes; fallbacks are not cached anywhere,
+// so the next visit tries the feed again.
+function json(body, cacheControl = 'public, max-age=1800') {
   return new Response(JSON.stringify(body), {
     status: 200,
-    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'public, max-age=1800' },
+    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': cacheControl },
   });
 }
 
@@ -41,7 +43,7 @@ async function handle(request, env, ctx, url) {
   }
 
   const first = catalogue[0];
-  return json({ ok: true, youtubeId: first.youtubeId, title: first.title, published: first.published ?? null, source: 'fallback' });
+  return json({ ok: true, youtubeId: first.youtubeId, title: first.title, published: first.published ?? null, source: 'fallback' }, 'no-store');
 }
 
 export const kingsleyLatestRoute = {
