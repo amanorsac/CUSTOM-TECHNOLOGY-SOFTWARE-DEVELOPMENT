@@ -3,20 +3,20 @@
 import { esc } from '../layout.mjs';
 
 const NEW = [
-  ['mg-9007', 'The Refined on stage at The Refined Experience'],
-  ['mg-9012', 'Kingsley Anyenor leading worship'],
-  ['mg-9014', 'The Refined band and vocalists'],
-  ['mg-9025', 'The congregation in worship'],
-  ['mg-9026', 'Kingsley Anyenor ministering on stage'],
-  ['mg-9027', 'The Refined vocal collective'],
+  ['mg-9007', 'A standing crowd in a hall with rows of chairs, in pink-toned light'],
+  ['mg-9012', 'Vocalists in patterned black and white outfits singing on an orange-lit stage beside a conga drum'],
+  ['mg-9014', 'A bass guitarist and a percussionist on stage with conga drums and singers behind them'],
+  ['mg-9025', 'Hands raised in a packed crowd under a soft haze of light'],
+  ['mg-9026', 'People standing among rows of red chairs, many with arms lifted'],
+  ['mg-9027', 'A dense crowd in a hall, some with hands raised, seen from the side'],
 ];
 const OLD = [
-  ['mg-8938', 'An earlier Refined gathering in Accra'],
-  ['mg-8954', 'Worship at an earlier Refined gathering'],
-  ['mg-8962', 'The Refined band at an earlier gathering'],
-  ['mg-8965', 'Kingsley Anyenor at an earlier gathering'],
-  ['mg-8968', 'Prayer and worship at an earlier gathering'],
-  ['mg-8972', 'The Refined ministering at an earlier gathering'],
+  ['mg-8938', 'A dark hall with a lit stage in the distance, a screen above and a crowd in silhouette'],
+  ['mg-8954', 'A man in dark clothes holding a microphone and a white cloth against a black background'],
+  ['mg-8962', 'A band and singers on a stage lit by white beams, with large lettering on the screen behind and a crowd below'],
+  ['mg-8965', 'A wide stage in orange light with a large screen above and the audience in dark silhouette'],
+  ['mg-8968', 'Singers standing in a row on stage in front of a screen of large orange words'],
+  ['mg-8972', 'A stage with a band and singers under white spotlights, a stepped glowing backdrop and an audience in front'],
 ];
 
 const gal = (img, list, label) =>
@@ -38,8 +38,7 @@ function body(img) {
     `</ul>` +
     `<div class="ka-tabs__panel" id="panel-upcoming" aria-labelledby="tab-upcoming">` +
     `<article class="ka-evcard"><p class="ka-eyebrow">Coming soon · Accra</p>` +
-    `<h2>The Refined Experience 2027</h2>` +
-    `<p>Coming soon · Accra. Details will be announced here.</p></article>` +
+    `<h2>The Refined Experience 2027</h2></article>` +
     `</div>` +
     `<div class="ka-tabs__panel" id="panel-past" aria-labelledby="tab-past">` +
     `<h2 class="ka-evpast">The Refined Experience</h2>` +

@@ -656,7 +656,7 @@ html.ka-motion .ka-up:not(.is-in) { opacity: 0; transform: translateY(16px); }
 .ka-tabs__panel[hidden] { display: none; }
 .ka-tabs:not(.is-ready) .ka-tabs__panel + .ka-tabs__panel { margin-top: 3rem; }
 .ka-evcard { background: var(--ka-mahogany); border: 1px solid var(--ka-clay); border-radius: var(--ka-radius); padding: clamp(1.5rem, 4vw, 3rem); max-width: 720px; }
-.ka-evcard h2 { margin-bottom: .6rem; }
+.ka-evcard h2 { margin-bottom: 0; }
 .ka-evcard p:last-child { margin-bottom: 0; color: var(--ka-rose); }
 .ka-evpast { margin-top: 1rem; }
 h3.ka-evpast { margin-top: 2rem; }

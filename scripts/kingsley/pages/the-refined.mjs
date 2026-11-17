@@ -16,12 +16,12 @@ const TEAM = [
   ['Stephen Amanor Sackey', 'Mixing and mastering'],
 ];
 const GALLERY = [
-  ['amh-5789', 'Kingsley Anyenor and The Refined on stage'],
-  ['amh-5791', 'The Refined band and vocal collective in worship'],
-  ['amh-5821', 'A Refined Experience worship night in Accra'],
-  ['amh-5953', 'Kingsley Anyenor leading the congregation'],
-  ['amh-5954', 'The Refined backing vocalists on stage'],
-  ['mg-9035', 'The Refined during a live recording'],
+  ['amh-5789', 'A man in a beige jacket playing acoustic guitar and singing at a microphone beside a glowing orange panel'],
+  ['amh-5791', 'A guitarist at the microphone on a wooden stage with four vocalists in patterned shirts standing behind him'],
+  ['amh-5821', 'Black and white close-up of a man in a suit jacket and tie singing into a microphone with one arm stretched out'],
+  ['amh-5953', 'A man singing at a microphone on stage with a drum kit, guitar and two women in long robes behind him'],
+  ['amh-5954', 'A man in a light shirt and trousers holding a microphone in front of a large lit letter on stage'],
+  ['mg-9035', 'A wide view of a stage in red light with musicians in the background and an audience in silhouette, some with raised hands'],
 ];
 
 const intro = () =>
@@ -57,7 +57,7 @@ const philosophy = (img) =>
   `<p class="ka-eyebrow">Worship philosophy</p>` +
   `<h2 id="phil-title" class="ka-split">Worship is a natural response</h2>` +
   `<blockquote class="ka-rquote ka-up"><p>Worship is a “natural response to the greatness of God”.</p></blockquote>` +
-  `<p class="ka-up">Anyenor defines worship as a “natural response to the greatness of God” rather than mere words or musical tempo. His approach emphasizes a genuine heart posture, reconciliation, and leading believers into extended moments of prayer and spiritual reflection.</p>` +
+  `<p class="ka-up">He defines worship as more than words or musical tempo. His approach emphasizes a genuine heart posture, reconciliation, and leading believers into extended moments of prayer and spiritual reflection.</p>` +
   `</div>` +
   `<div class="ka-rsplit__media ka-wedge">${img('grey78221', { alt: 'Kingsley Anyenor in a quiet moment', sizes: '(min-width: 861px) 40vw, 100vw' })}</div>` +
   `</div></section>`;
