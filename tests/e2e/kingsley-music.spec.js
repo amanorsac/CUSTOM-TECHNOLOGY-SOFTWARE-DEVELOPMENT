@@ -117,6 +117,32 @@ test.describe('Kingsley music archive', () => {
     await expect(page.locator('h1')).toBeFocused();
   });
 
+  test('Back from a release page returns to where the visitor was on Music', async ({ page }) => {
+    await page.goto(`${KA}music/`);
+    await expect(page.locator('h1')).toHaveText('Music');
+    // A card well down the page (the last one).
+    const card = page.locator('.ka-mcard').last();
+    const link = card.locator(`a[href^="${KA}music/"]`).first();
+    const slug = (await link.getAttribute('href')).split('/').at(-2);
+    // Scroll so the link sits 200px from the top (an exact, settled position).
+    await link.evaluate((a) => window.scrollTo(0, Math.round(a.getBoundingClientRect().top + window.scrollY - 200)));
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(600);
+    const before = await page.evaluate(() => window.scrollY);
+    await page.evaluate(() => { window.__kaMarker = 1; });
+    await link.click();
+    await expect(page).toHaveURL(new RegExp(`/music/${slug}/$`));
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+    await page.goBack();
+    await expect(page.locator('h1')).toHaveText('Music');
+    expect(await page.evaluate(() => window.__kaMarker)).toBe(1); // swapped, not reloaded
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(before - 5);
+    expect(Math.abs((await page.evaluate(() => window.scrollY)) - before)).toBeLessThanOrEqual(5);
+    // Forward again lands at the top of the release page.
+    await page.goForward();
+    await expect(page).toHaveURL(new RegExp(`/music/${slug}/$`));
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+  });
+
   test('release page without spotifyUrl has no Spotify button; featuring shown', async ({ page }) => {
     await page.goto(`${KA}music/holy/`);
     await expect(page.locator('h1')).toHaveText('Holy');

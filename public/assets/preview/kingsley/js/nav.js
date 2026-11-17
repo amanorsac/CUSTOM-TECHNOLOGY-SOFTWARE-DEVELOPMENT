@@ -20,7 +20,13 @@ let token = 0;
 let shown = ''; // pathname + search of the page in #main
 const key = (u) => u.pathname + u.search;
 
-async function swap(url, { push }) {
+// Remember where the visitor was on the current entry, so Back can return there.
+function rememberScroll() {
+  const st = history.state && typeof history.state === 'object' ? history.state : {};
+  history.replaceState({ ...st, ka: true, y: Math.round(window.scrollY) }, '');
+}
+
+async function swap(url, { push, y }) {
   const mine = ++token;
   let doc;
   try {
@@ -52,7 +58,9 @@ async function swap(url, { push }) {
   shown = key(url);
   if (push) history.pushState({ ka: true }, '', url.href);
 
-  if (url.hash) {
+  if (typeof y === 'number') {
+    window.scrollTo(0, y); // Back/Forward: where the visitor left this page
+  } else if (url.hash) {
     const target = document.getElementById(decodeURIComponent(url.hash.slice(1)));
     if (target) target.scrollIntoView();
     else window.scrollTo(0, 0);
@@ -69,12 +77,24 @@ async function swap(url, { push }) {
 
 export function initNav() {
   if (!document.getElementById('main') || !window.fetch || !window.DOMParser) return;
-  history.replaceState({ ka: true }, '', location.href);
+  // We restore scroll ourselves after each swap; the browser's own restore
+  // would jump the old page before the new one arrives.
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  history.replaceState({ ...(history.state || {}), ka: true }, '', location.href);
   shown = key(location);
+  // Keep the saved position fresh for full reloads and for leaving the draft.
+  window.addEventListener('pagehide', rememberScroll);
+  const entry = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+  const saved = history.state && history.state.y;
+  if (entry && (entry.type === 'back_forward' || entry.type === 'reload') && typeof saved === 'number') {
+    window.scrollTo(0, saved);
+  }
 
   document.addEventListener('click', (e) => {
     const a = e.target instanceof Element ? e.target.closest('a[href]') : null;
     if (!a) return;
+    // In-page anchors (e.g. "Listen now"): save the spot so Back returns to it.
+    if ((a.getAttribute('href') || '').startsWith('#') && !e.defaultPrevented) rememberScroll();
     const url = eligible(e, a);
     if (!url) return;
     e.preventDefault();
@@ -82,12 +102,18 @@ export function initNav() {
       window.scrollTo(0, 0);
       return;
     }
+    rememberScroll();
     swap(url, { push: true });
   });
 
-  window.addEventListener('popstate', () => {
+  window.addEventListener('popstate', (e) => {
     const url = new URL(location.href);
-    if (key(url) === shown) return; // hash-only change on the same page
-    swap(url, { push: false });
+    const y = e.state && typeof e.state.y === 'number' ? e.state.y : undefined;
+    if (key(url) === shown) {
+      // Hash-only change on the same page.
+      if (typeof y === 'number') window.scrollTo(0, y);
+      return;
+    }
+    swap(url, { push: false, y });
   });
 }
