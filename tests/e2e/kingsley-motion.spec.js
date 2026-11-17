@@ -99,11 +99,11 @@ test.describe('Kingsley motion and hero carousel', () => {
     await expect.poll(() => videoPaused(page), { timeout: 10000 }).toBe(false);
   });
 
-  test('narrow screens load the 960 video', async ({ page }) => {
+  test('narrow screens load the 1280 video', async ({ page }) => {
     await page.setViewportSize({ width: 400, height: 800 });
     await page.goto(HOME);
     await ready(page);
-    await expect.poll(() => page.evaluate(() => document.querySelector('.ka-slide-video').currentSrc)).toMatch(/hero-960\.mp4$/);
+    await expect.poll(() => page.evaluate(() => document.querySelector('.ka-slide-video').currentSrc)).toMatch(/hero-1280\.mp4$/);
   });
 
   test('changing page pauses the old slide video', async ({ page }) => {

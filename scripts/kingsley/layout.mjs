@@ -87,7 +87,7 @@ function manifest() {
 }
 
 /**
- * <picture> with WebP and JPEG at 800 and 1600 wide.
+ * <picture> with WebP and JPEG at 800 and 1600 wide, plus 2400 for WIDE photos.
  * @param {string} name kebab image name from img/manifest.json, e.g. 'mg-9033'
  * @param {{ alt: string, sizes: string, eager?: boolean, className?: string }} opts
  */
@@ -96,7 +96,8 @@ export function img(name, { alt, sizes, eager = false, className } = {}) {
   if (!size) throw new Error(`kingsley img: unknown image "${name}"`);
   const small = Math.min(800, size.w);
   const set = (ext) =>
-    `${ASSETS}/img/${name}-800.${ext} ${small}w, ${ASSETS}/img/${name}-1600.${ext} ${size.w}w`;
+    `${ASSETS}/img/${name}-800.${ext} ${small}w, ${ASSETS}/img/${name}-1600.${ext} ${size.w}w` +
+    (size.wide ? `, ${ASSETS}/img/${name}-2400.${ext} ${size.wide}w` : '');
   const load = eager ? ' fetchpriority="high"' : ' loading="lazy"';
   const cls = className ? ` class="${esc(className)}"` : '';
   return (

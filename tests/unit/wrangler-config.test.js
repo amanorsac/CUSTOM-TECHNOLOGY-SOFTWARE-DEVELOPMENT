@@ -17,7 +17,7 @@ const workerFirst = (path) =>
 describe('wrangler run_worker_first', () => {
   it('runs the worker for the hero videos', () => {
     expect(workerFirst('/media/kingsley/hero-1920.mp4')).toBe(true);
-    expect(workerFirst('/media/kingsley/hero-960.mp4')).toBe(true);
+    expect(workerFirst('/media/kingsley/hero-1280.mp4')).toBe(true);
   });
   it('still serves /assets/* straight from the asset layer', () => {
     expect(workerFirst('/assets/preview/kingsley/css/site.css')).toBe(false);

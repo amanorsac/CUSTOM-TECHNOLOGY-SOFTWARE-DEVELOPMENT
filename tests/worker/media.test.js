@@ -5,7 +5,7 @@ import { env, createExecutionContext, waitOnExecutionContext } from 'cloudflare:
 import worker from '../../src/worker.js';
 import { parseRange } from '../../src/routes/media.js';
 
-const VIDEO = 'https://example.com/media/kingsley/hero-960.mp4';
+const VIDEO = 'https://example.com/media/kingsley/hero-1280.mp4';
 
 async function get(url, { method = 'GET', range } = {}) {
   const ctx = createExecutionContext();

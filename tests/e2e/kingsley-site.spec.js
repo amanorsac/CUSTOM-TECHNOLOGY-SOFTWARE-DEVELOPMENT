@@ -79,7 +79,7 @@ test.describe('Kingsley whole site', () => {
   });
 
   test('hero videos answer byte ranges through the full stack (iOS needs 206)', async ({ request }) => {
-    for (const name of ['hero-1920.mp4', 'hero-960.mp4']) {
+    for (const name of ['hero-1920.mp4', 'hero-1280.mp4']) {
       const res = await request.get(`/media/kingsley/${name}`, { headers: { range: 'bytes=0-1' } });
       expect(res.status()).toBe(206);
       expect(res.headers()['content-range']).toMatch(/^bytes 0-1\/\d+$/);

@@ -3,7 +3,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
-import { USED, WIDTHS } from '../../scripts/kingsley-images.mjs';
+import { USED, WIDTHS, WIDE, WIDE_WIDTH } from '../../scripts/kingsley-images.mjs';
 
 const root = path.resolve(import.meta.dirname, '../..');
 const IMG = path.join(root, 'public/assets/preview/kingsley/img');
@@ -27,7 +27,8 @@ describe('kingsley images', () => {
   });
 
   it('img/ holds only the USED photos (plus brand/ and the manifest)', () => {
-    const expected = USED.flatMap((n) => WIDTHS.flatMap((w) => [`${n}-${w}.jpg`, `${n}-${w}.webp`]));
+    const widths = (n) => (WIDE.includes(n) ? [...WIDTHS, WIDE_WIDTH] : WIDTHS);
+    const expected = USED.flatMap((n) => widths(n).flatMap((w) => [`${n}-${w}.jpg`, `${n}-${w}.webp`]));
     const files = readdirSync(IMG).filter((f) => f !== 'manifest.json' && f !== 'brand');
     expect(files.sort()).toEqual(expected.sort());
   });

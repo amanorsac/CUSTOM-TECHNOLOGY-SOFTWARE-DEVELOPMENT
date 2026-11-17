@@ -1,6 +1,8 @@
 // Turns Kingsley's Drive photos (assets-src/kingsley/, gitignored) into the
 // files the draft serves: <name>-800 and <name>-1600 in WebP and JPEG, plus
-// img/manifest.json { name: { w, h } } giving the 1600 file's size.
+// <name>-2400 for the full-screen photos in WIDE (hero slides, parallax band),
+// and img/manifest.json { name: { w, h, wide? } }: w/h are the 1600 file's
+// size, wide is the 2400 file's width when there is one.
 // Only the photos named in USED are published; to use another photo on a page,
 // add its kebab name to USED and re-run. tests/unit/kingsley-images.test.js
 // checks USED, the manifest and the built pages agree.
@@ -12,9 +14,14 @@
 // GREY7822-Recovered.png2.png -> grey7822-recovered-png2.
 //
 // It also publishes the hero video: copies the encoded hero-1920.mp4 and
-// hero-960.mp4 from assets-src/kingsley/video/ to public/media/kingsley/
+// hero-1280.mp4 from assets-src/kingsley/video/ to public/media/kingsley/
 // (served by the worker with byte ranges, see src/routes/media.js), and makes
-// hero-poster.webp (1920 wide, q75) and hero-poster.jpg from hero-poster.jpg.
+// hero-poster.webp and .jpg (2400 wide, q85) from hero-poster.png, a full-size
+// first frame of the source clip.
+// Encoding (ffmpeg, two-pass x264 from carousel-1-source.mp4, 4K, no audio):
+// hero-1920 at 4200k (max 6500k), hero-1280 at 2300k (max 3600k), preset
+// slower, tune film, aq-mode=3 (keeps dark stage gradients from banding).
+// hero-1920 must stay under Cloudflare's 25 MiB per-file asset limit.
 //
 // And the official logo: assets-src/kingsley/logo/ka-logo-source.jpg (white on
 // black) becomes img/brand/ka-monogram.{png,webp} and ka-name.{png,webp}:
@@ -28,8 +35,11 @@ import sharp from 'sharp';
 export const SRC_DIR = 'assets-src/kingsley';
 export const OUT_DIR = 'public/assets/preview/kingsley/img';
 export const WIDTHS = [800, 1600];
-export const MAX_WIDTH = 2000;
-export const QUALITY = 78;
+export const WIDE_WIDTH = 2400;
+export const QUALITY = 85;
+// Full-screen photos: also published at WIDE_WIDTH so large and high-density
+// screens get a sharp file.
+export const WIDE = ['mg-9033', 'mg-9032', 'mg-9034', 'amh-5849', 'amh-5851', 'amh-5845'];
 // Photos the pages use (kebab names). Everything else in SRC_DIR is skipped.
 export const USED = [
   'amh-5789', 'amh-5791', 'amh-5821', 'amh-5845', 'amh-5849', 'amh-5851', 'amh-5953', 'amh-5954',
@@ -40,7 +50,7 @@ export const USED = [
 ];
 export const VIDEO_SRC_DIR = 'assets-src/kingsley/video';
 export const VIDEO_OUT_DIR = 'public/media/kingsley';
-export const HERO_VIDEOS = ['hero-1920.mp4', 'hero-960.mp4'];
+export const HERO_VIDEOS = ['hero-1920.mp4', 'hero-1280.mp4'];
 
 /** '_MG_9033.JPG' -> 'mg-9033' */
 export function kebabName(file) {
@@ -60,10 +70,12 @@ async function convert(file, force) {
   const srcW = swap ? meta.height : meta.width;
   const srcH = swap ? meta.width : meta.height;
   let large;
-  for (const target of WIDTHS) {
-    const w = Math.min(target, srcW, MAX_WIDTH);
+  const targets = WIDE.includes(name) ? [...WIDTHS, WIDE_WIDTH] : WIDTHS;
+  for (const target of targets) {
+    const w = Math.min(target, srcW);
     const h = Math.round((srcH * w) / srcW);
-    if (target === WIDTHS[WIDTHS.length - 1]) large = { w, h };
+    if (target === 1600) large = { w, h };
+    if (target === WIDE_WIDTH) large.wide = w;
     for (const ext of ['webp', 'jpg']) {
       const out = path.join(OUT_DIR, `${name}-${target}.${ext}`);
       if (!force && fs.existsSync(out)) continue;
@@ -84,12 +96,12 @@ async function heroVideo(force) {
     if (!fs.existsSync(src)) throw new Error(`missing ${src}`);
     if (force || !fs.existsSync(out)) fs.copyFileSync(src, out);
   }
-  const poster = path.join(VIDEO_SRC_DIR, 'hero-poster.jpg');
+  const poster = path.join(VIDEO_SRC_DIR, 'hero-poster.png');
   const webp = path.join(VIDEO_OUT_DIR, 'hero-poster.webp');
   const jpg = path.join(VIDEO_OUT_DIR, 'hero-poster.jpg');
-  const resized = () => sharp(poster).rotate().resize({ width: 1920, withoutEnlargement: true }).flatten({ background: '#0E0F14' });
-  if (force || !fs.existsSync(webp)) await resized().webp({ quality: 75 }).toFile(webp);
-  if (force || !fs.existsSync(jpg)) await resized().jpeg({ quality: 75, mozjpeg: true }).toFile(jpg);
+  const resized = () => sharp(poster).rotate().resize({ width: WIDE_WIDTH, withoutEnlargement: true }).flatten({ background: '#0E0F14' });
+  if (force || !fs.existsSync(webp)) await resized().webp({ quality: QUALITY }).toFile(webp);
+  if (force || !fs.existsSync(jpg)) await resized().jpeg({ quality: QUALITY, mozjpeg: true }).toFile(jpg);
   console.log(`hero video -> ${VIDEO_OUT_DIR}`);
 }
 

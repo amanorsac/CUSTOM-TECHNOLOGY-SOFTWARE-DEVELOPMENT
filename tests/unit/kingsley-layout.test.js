@@ -117,6 +117,7 @@ describe('kingsley img()', () => {
     expect(html).toContain('type="image/webp"');
     expect(html).toContain('/assets/preview/kingsley/img/mg-9033-800.webp 800w');
     expect(html).toContain('/assets/preview/kingsley/img/mg-9033-1600.jpg 1600w');
+    expect(html).toContain('/assets/preview/kingsley/img/mg-9033-2400.jpg 2400w');
     expect(html).toMatch(/width="\d+" height="\d+"/);
     expect(html).toContain('alt="Choir on stage"');
     expect(html).toContain('loading="lazy"');

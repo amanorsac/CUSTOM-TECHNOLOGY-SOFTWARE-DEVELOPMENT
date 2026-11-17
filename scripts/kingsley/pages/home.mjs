@@ -47,7 +47,7 @@ function hero(img) {
     `<div class="ka-carousel__slides">` +
     `<div class="ka-slide is-active" role="group" aria-roledescription="slide" aria-label="1 of 6">` +
     `<video class="ka-slide-video" muted loop playsinline preload="none" poster="${V}/hero-poster.webp" ` +
-    `data-src="${V}/hero-1920.mp4" data-src-small="${V}/hero-960.mp4" aria-hidden="true"></video>` +
+    `data-src="${V}/hero-1920.mp4" data-src-small="${V}/hero-1280.mp4" aria-hidden="true"></video>` +
     `</div>` +
     // Alt text says only what the photo shows (no event names, places or dates).
     photo('mg-9033', 2, 'Kingsley Anyenor singing centre stage under red light, singers and band behind him and the audience in silhouette in front') +
