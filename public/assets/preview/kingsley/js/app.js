@@ -6,8 +6,8 @@ import { initNav } from './nav.js';
 initPlayer();
 initNav();
 
-// Third-party embeds that load only on a click (e.g. the Spotify artist player).
-const EMBED_HOSTS = ['https://open.spotify.com/embed/'];
+// Third-party embeds that load only on a click (Spotify players, the release-page YouTube embed).
+const EMBED_HOSTS = ['https://open.spotify.com/embed/', 'https://www.youtube-nocookie.com/embed/'];
 
 function loadEmbed(btn) {
   const src = btn.dataset.embed || '';
@@ -16,12 +16,14 @@ function loadEmbed(btn) {
   const frame = document.createElement('iframe');
   frame.src = src;
   frame.title = btn.dataset.embedTitle || 'Embedded player';
-  frame.loading = 'lazy';
+  if (src.startsWith('https://open.spotify.com/')) frame.loading = 'lazy';
   frame.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
   frame.setAttribute('width', '100%');
-  frame.setAttribute('height', '352');
+  if (src.startsWith('https://open.spotify.com/')) frame.setAttribute('height', '352');
+  else frame.setAttribute('allowfullscreen', '');
   box.replaceChildren(frame);
   box.classList.add('is-loaded');
+  frame.focus(); // the button is gone; keep keyboard focus on the player
 }
 
 // One document-level listener covers play buttons on every swapped-in page.

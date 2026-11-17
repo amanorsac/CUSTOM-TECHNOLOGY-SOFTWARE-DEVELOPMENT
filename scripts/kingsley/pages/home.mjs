@@ -2,6 +2,7 @@
 // hero carousel, latest release, live video row, quote panel, live band,
 // pillars, Spotify artist player, events strip.
 import { BASE, esc, escAttr, icon } from '../layout.mjs';
+import { PLAY_ICON, ARROW, watchUrl, thumbUrl, playButton, watchLink } from '../parts.mjs';
 
 const V = '/assets/preview/kingsley/video';
 const SPOTIFY_EMBED = 'https://open.spotify.com/embed/artist/1TlaDAmkhwEJv7qz6WfsqE';
@@ -16,27 +17,6 @@ const PILLARS = [
 // Popular picks lead the row until he chooses his own (spec, Home 3).
 const ROW_LEAD = ['deeper-worship-3-0', 'ghana-worship-medley', 'ghana-praise-medley'];
 const ROW_SIZE = 6;
-
-const PLAY_ICON =
-  '<svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 5.5v13l10.5-6.5z"/></svg>';
-const ARROW =
-  '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
-
-const watchUrl = (id) => `https://www.youtube.com/watch?v=${encodeURIComponent(id)}`;
-const thumbUrl = (id) => `https://i.ytimg.com/vi/${encodeURIComponent(id)}/hqdefault.jpg`;
-
-/** A [data-play] button for the persistent player. */
-function playButton(e, { cls, extra = '', inner = PLAY_ICON } = {}) {
-  return (
-    `<button type="button" class="${cls}" data-play="${escAttr(e.youtubeId)}" data-title="${escAttr(e.title)}" ` +
-    `data-queue="${escAttr(e.group)}"${extra} aria-label="Play ${escAttr(e.title)}">${inner}</button>`
-  );
-}
-
-/** The real link that pairs every play button, so the page works with JS off. */
-function watchLink(id, { cls = 'ka-textlink', label = 'Watch on YouTube', attrs = '' } = {}) {
-  return `<a class="${cls}" href="${escAttr(watchUrl(id))}" target="_blank" rel="noopener"${attrs}>${label}<span class="ka-visually-hidden"> (opens in a new tab)</span></a>`;
-}
 
 /** Ordered row entries: the three popular picks, then the newest live videos not already shown. */
 export function rowEntries(catalogue) {
