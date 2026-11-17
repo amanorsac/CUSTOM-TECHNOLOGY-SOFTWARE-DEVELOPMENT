@@ -11,6 +11,11 @@
 // It also publishes the hero video: copies the encoded hero-1920.mp4 and
 // hero-960.mp4 from assets-src/kingsley/video/ to video/, and makes
 // hero-poster.webp (1920 wide, q75) and hero-poster.jpg from hero-poster.jpg.
+//
+// And the official logo: assets-src/kingsley/logo/ka-logo-source.jpg (white on
+// black) becomes img/brand/ka-monogram.{png,webp} and ka-name.{png,webp}:
+// white with luminance as alpha, cropped to content, at 2x display size, plus
+// a favicon (cream monogram on stage black). brand.json gives their sizes.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -76,6 +81,72 @@ async function heroVideo(force) {
   console.log(`hero video -> ${VIDEO_OUT_DIR}`);
 }
 
+export const LOGO_SRC = 'assets-src/kingsley/logo/ka-logo-source.jpg';
+export const BRAND_DIR = 'public/assets/preview/kingsley/img/brand';
+// Display heights in CSS px; files are made at 2x.
+export const BRAND_HEIGHTS = { 'ka-monogram': 32, 'ka-name': 11 };
+
+/** Row bands [start, end] (inclusive) whose max luminance passes the threshold. */
+export function contentBands(rowMax, threshold = 64) {
+  const bands = [];
+  let start = -1;
+  rowMax.forEach((v, y) => {
+    if (v >= threshold && start < 0) start = y;
+    if (v < threshold && start >= 0) { bands.push([start, y - 1]); start = -1; }
+  });
+  if (start >= 0) bands.push([start, rowMax.length - 1]);
+  return bands;
+}
+
+async function brand(force) {
+  if (!fs.existsSync(LOGO_SRC)) return;
+  const marker = path.join(BRAND_DIR, 'brand.json');
+  if (!force && fs.existsSync(marker)) return;
+  fs.mkdirSync(BRAND_DIR, { recursive: true });
+  const { data, info } = await sharp(LOGO_SRC).grayscale().raw().toBuffer({ resolveWithObject: true });
+  const { width: W, height: H } = info;
+  const at = (x, y) => data[y * W + x];
+  const rowMax = Array.from({ length: H }, (_, y) => { let m = 0; for (let x = 0; x < W; x++) m = Math.max(m, at(x, y)); return m; });
+  const bands = contentBands(rowMax);
+  if (bands.length !== 2) throw new Error(`logo: expected monogram and name bands, found ${bands.length}`);
+  const sizes = {};
+  const names = ['ka-monogram', 'ka-name'];
+  for (let i = 0; i < 2; i++) {
+    const [top, bottom] = bands[i];
+    let left = W, right = 0;
+    for (let y = top; y <= bottom; y++) for (let x = 0; x < W; x++) if (at(x, y) >= 64) { left = Math.min(left, x); right = Math.max(right, x); }
+    const w = right - left + 1;
+    const h = bottom - top + 1;
+    // White pixels with luminance as alpha; levels 24..232 -> 0..255 for clean edges.
+    const rgba = Buffer.alloc(w * h * 4);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const l = at(left + x, top + y);
+      const a = Math.max(0, Math.min(255, Math.round(((l - 24) * 255) / (232 - 24))));
+      rgba.set([255, 255, 255, a], (y * w + x) * 4);
+    }
+    const outH = BRAND_HEIGHTS[names[i]] * 2;
+    const outW = Math.round((w * outH) / h);
+    const piece = () => sharp(rgba, { raw: { width: w, height: h, channels: 4 } }).resize({ height: outH, kernel: 'lanczos3' });
+    await piece().png({ compressionLevel: 9 }).toFile(path.join(BRAND_DIR, `${names[i]}.png`));
+    await piece().webp({ quality: 90, alphaQuality: 100 }).toFile(path.join(BRAND_DIR, `${names[i]}.webp`));
+    sizes[names[i]] = { w: outW, h: outH };
+    if (i === 0) {
+      // Favicon: cream monogram centred on stage black, 64x64.
+      const mono = await sharp(rgba, { raw: { width: w, height: h, channels: 4 } })
+        .resize({ width: 44, height: 44, fit: 'inside' })
+        .tint('#F4EBDD')
+        .png()
+        .toBuffer();
+      await sharp({ create: { width: 64, height: 64, channels: 4, background: '#0E0F14' } })
+        .composite([{ input: mono, gravity: 'centre' }])
+        .png({ compressionLevel: 9 })
+        .toFile(path.join(BRAND_DIR, 'favicon-64.png'));
+    }
+  }
+  fs.writeFileSync(marker, `${JSON.stringify(sizes, null, 2)}\n`);
+  console.log(`logo -> ${BRAND_DIR}`, sizes);
+}
+
 async function main() {
   const force = process.argv.includes('--force');
   fs.mkdirSync(OUT_DIR, { recursive: true });
@@ -89,6 +160,7 @@ async function main() {
   fs.writeFileSync(path.join(OUT_DIR, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
   console.log(`${files.length} images -> ${OUT_DIR}`);
   await heroVideo(force);
+  await brand(force);
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

@@ -40,7 +40,7 @@ Kingsley Anyenor is a Ghanaian gospel minister, worship leader and songwriter ba
   - **Settle.** An incoming hero slide eases from 1.04 to 1 as it fades in.
   - **Parallax band.** The live video band and the events band move at a slower rate than the page behind an ember-to-mahogany tint.
   - **Video row.** On the home page, recent live videos sit in a horizontal row that drags and swipes, with dots and a "More videos" link to Music.
-- **Logo:** a text lockup "KA | THE REFINED" set in type until he supplies the real file.
+- **Logo:** his official logo (supplied by the owner 2026-11-17: the "ka" monogram and "KINGSLEY ANYENOR"), cut from the supplied art into transparent pieces and filled cream. The header lockup matches the watermark on his photos and video: monogram, "KINGSLEY ANYENOR", a thin ember divider and "THE REFINED" in type. On phones it is the monogram and name only. The monogram is also the favicon.
 
 ## Pages
 
@@ -130,10 +130,9 @@ Drive photos are downloaded once, resized to at most 2000 px wide, and saved as 
 
 ## To confirm with Kingsley
 
-1. The logo file (the draft uses a typed lockup).
-2. Who receives booking and contact emails (the draft sends to the CTSD `LEAD_EMAIL`).
-3. Refined Experience 2027: date, venue, and whether New Wineskin has a date.
-4. Dates and names for the past gatherings in the two photo folders.
-5. Contact details he wants public, if any.
-6. Any release missing from Spotify or Apple Music, and his preferred "popular" three.
-7. A 10–15 second live clip for the home video band, and which photos he wants in the hero carousel.
+1. Who receives booking and contact emails (the draft sends to the CTSD `LEAD_EMAIL`).
+2. Refined Experience 2027: date, venue, and whether New Wineskin has a date.
+3. Dates and names for the past gatherings in the two photo folders.
+4. Contact details he wants public, if any.
+5. Any release missing from Spotify or Apple Music, and his preferred "popular" three.
+6. A 10–15 second live clip for the home video band, and which photos he wants in the hero carousel.

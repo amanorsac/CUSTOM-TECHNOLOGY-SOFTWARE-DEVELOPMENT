@@ -6,6 +6,9 @@
 // hides nothing because html.ka-motion is never set.
 import { initCarousel, initRow } from './carousel.js';
 
+// Tell the inline <head> failsafe (layout.mjs) that motion is running.
+window.__kaMotion = true;
+
 const REVEAL = '.ka-split, .ka-wedge, .ka-up';
 const done = new WeakSet(); // elements already wired
 const live = new Set(); // { el, destroy } for things bound outside their element
@@ -123,7 +126,9 @@ function keep(el, destroy) {
 export function initMotion(root = document) {
   if (!root) return;
   sweep();
-  const still = reduced() || !('IntersectionObserver' in window);
+  // __kaMotionOff: the head failsafe already un-hid the page (motion.js was
+  // slow); do not hide content the visitor can already see.
+  const still = reduced() || !('IntersectionObserver' in window) || window.__kaMotionOff === true;
 
   for (const el of root.querySelectorAll('.ka-carousel')) {
     if (done.has(el)) continue;

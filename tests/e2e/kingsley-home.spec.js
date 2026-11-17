@@ -153,6 +153,24 @@ test.describe('Kingsley home', () => {
     expect(over).toBeLessThanOrEqual(0);
   });
 
+  test('content is not left hidden when app.js fails to load', async ({ page }) => {
+    await page.route('**/js/app.js', (r) => r.abort());
+    await page.goto(KA);
+    await expect(page.locator('h1')).toBeVisible({ timeout: 3000 });
+    await expect(page.locator('html')).not.toHaveClass(/ka-motion/);
+    await expect(page.locator('#latest .ka-latest__links')).toBeVisible();
+  });
+
+  test('the head failsafe un-hides content when app.js is very slow', async ({ page }) => {
+    await page.route('**/js/app.js', async (r) => {
+      await new Promise((res) => setTimeout(res, 6000));
+      await r.continue().catch(() => {});
+    });
+    await page.goto(KA, { waitUntil: 'commit' });
+    await expect(page.locator('h1')).toBeVisible({ timeout: 3000 });
+    await expect(page.locator('html')).not.toHaveClass(/ka-motion/);
+  });
+
   test('readable with JavaScript off', async ({ browser, baseURL }) => {
     const ctx = await browser.newContext({ javaScriptEnabled: false, baseURL });
     const page = await ctx.newPage();

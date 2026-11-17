@@ -55,7 +55,7 @@ describe('kingsley layout', () => {
     for (const label of ['YouTube', 'Spotify', 'Apple Music', 'Instagram']) {
       expect(html).toContain(`aria-label="${label}`);
     }
-    expect(html).toContain('<script type="module" src="/assets/preview/kingsley/js/app.js"></script>');
+    expect(html).toContain('<script type="module" src="/assets/preview/kingsley/js/app.js" onerror=');
   });
 
   it('sets html.ka-motion before first paint unless reduced motion is asked for', () => {
@@ -67,6 +67,35 @@ describe('kingsley layout', () => {
     expect(head.indexOf('<script>')).toBeLessThan(head.indexOf('<link rel="stylesheet"'));
     expect(script[1]).toContain("matchMedia('(prefers-reduced-motion: reduce)')");
     expect(script[1]).toContain("classList.add('ka-motion')");
+  });
+
+  it('never leaves the motion flag stuck: failsafe timer, app.js onerror and nomodule all remove it', () => {
+    const html = page();
+    const head = html.slice(html.indexOf('<head>'), html.indexOf('</head>'));
+    const flag = head.match(/<script>([\s\S]*?)<\/script>/)[1];
+    expect(flag).toContain('setTimeout');
+    expect(flag).toContain('__kaMotion');
+    expect(flag).toContain("classList.remove('ka-motion')");
+    expect(html).toMatch(/<script type="module" src="\/assets\/preview\/kingsley\/js\/app\.js" onerror="[^"]*classList\.remove\('ka-motion'\)[^"]*"><\/script>/);
+    expect(html).toMatch(/<script nomodule>[^<]*classList\.remove\('ka-motion'\)[^<]*<\/script>/);
+  });
+
+  it('uses the official logo lockup in the header and footer, with one accessible name', () => {
+    const html = page();
+    const header = html.match(/<header[\s\S]*?<\/header>/)[0];
+    expect(header).toContain('aria-label="Kingsley Anyenor — The Refined, home"');
+    expect(header).toMatch(/<span class="ka-logo__mono" aria-hidden="true"><\/span>/);
+    expect(header).toMatch(/<span class="ka-logo__name" aria-hidden="true"><\/span>/);
+    expect(header).toMatch(/<span class="ka-logo__refined" aria-hidden="true">The Refined<\/span>/);
+    expect(header).not.toContain('<span>KA</span>');
+    const footer = html.match(/<footer[\s\S]*?<\/footer>/)[0];
+    expect(footer).toContain('ka-logo__mono');
+  });
+
+  it('uses the monogram as the favicon', () => {
+    const html = page();
+    expect(html).toContain('<link rel="icon" type="image/png" href="/assets/preview/kingsley/img/brand/favicon-64.png">');
+    expect(html).not.toContain('data:image/svg+xml');
   });
 
   it('escAttr escapes quotes, angle brackets and ampersands', async () => {

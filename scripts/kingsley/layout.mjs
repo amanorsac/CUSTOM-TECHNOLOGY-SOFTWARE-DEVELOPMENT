@@ -44,9 +44,20 @@ export function escAttr(s) {
 }
 
 // Runs before first paint so reveal-hidden content never flashes visible
-// first. motion.js removes the class again if it cannot run the reveals.
+// first. Failsafe: unless motion.js has started (window.__kaMotion) within
+// 2.5 s, the class comes off again so nothing can stay hidden. app.js's
+// onerror and a nomodule script remove it too.
+const UNHIDE = "document.documentElement.classList.remove('ka-motion')";
 const MOTION_FLAG =
-  "<script>if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('ka-motion')</script>";
+  "<script>if(!matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.classList.add('ka-motion');" +
+  `setTimeout(function(){if(!window.__kaMotion){window.__kaMotionOff=true;${UNHIDE}}},2500)}</script>`;
+
+// The official logo: monogram and name are masks filled with cream (site.css).
+const LOGO_PIECES =
+  '<span class="ka-logo__mono" aria-hidden="true"></span>' +
+  '<span class="ka-logo__name" aria-hidden="true"></span>' +
+  '<span class="ka-logo__bar" aria-hidden="true"></span>' +
+  '<span class="ka-logo__refined" aria-hidden="true">The Refined</span>';
 
 export const icon = (name) =>
   `<svg class="ka-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false">${ICON[name]}</svg>`;
@@ -105,7 +116,7 @@ ${MOTION_FLAG}
 <meta name="robots" content="noindex, nofollow">
 <meta name="description" content="${esc(description)}">
 <meta name="theme-color" content="#0E0F14">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230E0F14'/%3E%3Ctext x='16' y='22' font-family='Georgia' font-size='14' text-anchor='middle' fill='%23EC8746'%3EKA%3C/text%3E%3C/svg%3E">
+<link rel="icon" type="image/png" href="${ASSETS}/img/brand/favicon-64.png">
 <link rel="preload" href="${ASSETS}/fonts/fraunces-500.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="${ASSETS}/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="${ASSETS}/css/site.css">
@@ -115,14 +126,14 @@ ${preload}
 <a class="ka-skip" href="#main">Skip to content</a>
 <p class="ka-concept" role="note">${CONCEPT}</p>
 <header class="ka-header">
-  <a class="ka-wordmark" href="${BASE}" aria-label="Kingsley Anyenor, The Refined: home"><span>KA</span><span class="ka-wordmark__bar" aria-hidden="true">|</span><span>The Refined</span></a>
+  <a class="ka-logo" href="${BASE}" aria-label="Kingsley Anyenor — The Refined, home">${LOGO_PIECES}</a>
   <nav aria-label="Main" class="ka-nav">${nav(active)}</nav>
   <div class="ka-social">${socialLinks('ka-social__link')}</div>
 </header>
 <main id="main">${body}</main>
 <footer class="ka-footer">
   <div class="ka-footer__inner">
-    <p class="ka-wordmark ka-wordmark--footer"><span>KA</span><span class="ka-wordmark__bar" aria-hidden="true">|</span><span>The Refined</span></p>
+    <p class="ka-logo ka-logo--footer" role="img" aria-label="Kingsley Anyenor — The Refined">${LOGO_PIECES}</p>
     <p class="ka-footer__motto">Revived to revive.</p>
     <nav aria-label="Footer" class="ka-footer__nav">${MENU.map((m) => `<a href="${m.href}">${m.label}</a>`).join('')}</nav>
     <div class="ka-social">${socialLinks('ka-social__link')}</div>
@@ -130,7 +141,8 @@ ${preload}
   </div>
 </footer>
 <div id="ka-player" hidden></div>
-<script type="module" src="${ASSETS}/js/app.js"></script>
+<script type="module" src="${ASSETS}/js/app.js" onerror="${UNHIDE}"></script>
+<script nomodule>${UNHIDE}</script>
 </body>
 </html>
 `;

@@ -94,14 +94,26 @@ a:hover { color: var(--ka-ember); }
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(139, 71, 64, .45);
 }
-.ka-wordmark {
-  display: inline-flex; align-items: baseline; gap: .55em;
-  font: 500 1.05rem/1 var(--ka-serif);
-  letter-spacing: .16em; text-transform: uppercase;
-  text-decoration: none; color: var(--ka-cream);
-  white-space: nowrap; margin: 0;
+.ka-logo {
+  display: inline-flex; align-items: center; gap: .7rem;
+  text-decoration: none; color: var(--ka-cream); white-space: nowrap; margin: 0;
 }
-.ka-wordmark__bar { color: var(--ka-ember); font-weight: 400; }
+/* Official logo pieces (img/brand, white + alpha) used as masks, filled cream. */
+.ka-logo__mono, .ka-logo__name {
+  display: block; flex: none; background: var(--ka-cream);
+  -webkit-mask: var(--ka-logo-src) center / contain no-repeat;
+  mask: var(--ka-logo-src) center / contain no-repeat;
+  transition: background-color .2s;
+}
+.ka-logo__mono { --ka-logo-src: url('../img/brand/ka-monogram.png'); width: 41px; height: 32px; }
+.ka-logo__name { --ka-logo-src: url('../img/brand/ka-name.png'); width: 213px; height: 11px; }
+.ka-logo__bar { display: block; flex: none; width: 1px; height: 22px; background: var(--ka-ember); margin-inline: .15rem; }
+.ka-logo__refined { font: 500 1.05rem/1 var(--ka-serif); letter-spacing: .16em; text-transform: uppercase; }
+a.ka-logo:hover { color: var(--ka-cream); }
+a.ka-logo:hover .ka-logo__mono, a.ka-logo:hover .ka-logo__name { background: var(--ka-ember); }
+@media (forced-colors: active) {
+  .ka-logo__mono, .ka-logo__name { forced-color-adjust: none; background: CanvasText; }
+}
 .ka-nav { display: flex; flex-wrap: wrap; gap: .25rem 1.4rem; margin-left: auto; }
 .ka-nav a {
   font-size: .9375rem; font-weight: 500; text-decoration: none;
@@ -231,7 +243,12 @@ body.ka-has-player.ka-has-video { padding-bottom: calc(var(--ka-player-h) + 200p
 @media (max-width: 480px) {
   :root { --ka-gutter: 16px; }
   body { font-size: 1rem; }
-  .ka-wordmark { font-size: .9rem; letter-spacing: .1em; gap: .4em; }
+  /* Phones: monogram and name only, so the header row stays one line. */
+  .ka-logo { gap: .45rem; }
+  .ka-logo__mono { width: 31px; height: 24px; }
+  .ka-logo__name { width: 155px; height: 8px; }
+  .ka-header { column-gap: .5rem; } /* 343px row: lockup 193px + icons 136px */
+  .ka-logo__bar, .ka-logo__refined { display: none; }
   .ka-header .ka-social__link { width: 34px; height: 34px; }
   .ka-actions .ka-btn { flex: 1 1 auto; }
 }
@@ -410,18 +427,36 @@ html.ka-motion .ka-up:not(.is-in) { opacity: 0; transform: translateY(16px); }
 .ka-hero__caption { padding: clamp(2rem, 6vw, 4rem) var(--ka-gutter); max-width: var(--ka-max); margin-inline: auto; text-shadow: 0 1px 14px rgba(14, 15, 20, .55); }
 .ka-hero__line {
   font: 500 .8125rem/1.3 var(--ka-sans); letter-spacing: .18em; text-transform: uppercase;
-  color: var(--ka-rose); margin: 0 0 1rem;
+  color: var(--ka-cream); margin: 0 0 1rem;
+  text-shadow: 0 1px 2px rgba(14, 15, 20, .9), 0 0 18px rgba(14, 15, 20, .8);
 }
 .ka-hero__title { font-size: clamp(3rem, 9vw, 7.5rem); line-height: .98; letter-spacing: -.025em; font-weight: 400; margin: 0 0 1.75rem; max-width: 11ch; }
 .ka-hero__actions .ka-btn { min-width: 10.5rem; }
 .ka-hero__actions .ka-btn--ghost { background: rgba(14, 15, 20, .45); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
 .ka-hero__actions .ka-btn--ghost:hover { background: var(--ka-cream); }
 .ka-carousel.is-ready .ka-hero__caption {
-  position: absolute; z-index: 2; left: 0; right: 0; bottom: 0;
+  position: absolute; z-index: 3; left: 0; right: 0; bottom: 0;
   padding-bottom: clamp(5.5rem, 10vh, 7.5rem);
   pointer-events: none;
 }
 .ka-carousel.is-ready .ka-hero__caption a { pointer-events: auto; }
+/* Scrim behind the caption block: full bleed, ~.75 alpha from the top of the
+   caption line down, fading out 5rem above it, so the small line and the
+   title hold contrast over the brightest frames. On wide screens it fades
+   out towards the right so the photo stays open there. */
+.ka-hero.is-ready { overflow: clip; }
+.ka-hero .ka-carousel__controls { z-index: 4; } /* above the caption and its scrim */
+.ka-carousel.is-ready .ka-hero__caption::before {
+  content: ''; position: absolute; z-index: -1; pointer-events: none;
+  left: calc(50% - 50vw); width: 100vw; bottom: 0; top: -4rem;
+  background: linear-gradient(to top, rgba(14, 15, 20, .86) 0%, rgba(14, 15, 20, .76) calc(100% - 5rem), rgba(14, 15, 20, 0) 100%);
+}
+@media (min-width: 861px) {
+  .ka-carousel.is-ready .ka-hero__caption::before {
+    -webkit-mask-image: linear-gradient(to right, #000 0%, #000 50%, transparent 82%);
+    mask-image: linear-gradient(to right, #000 0%, #000 50%, transparent 82%);
+  }
+}
 .ka-hero .ka-slide::after {
   background:
     linear-gradient(to top, rgba(14, 15, 20, .92) 0%, rgba(14, 15, 20, .55) 32%, rgba(14, 15, 20, 0) 62%),
