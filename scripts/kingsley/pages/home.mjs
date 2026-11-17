@@ -4,7 +4,7 @@
 import { BASE, esc, escAttr, icon } from '../layout.mjs';
 import { PLAY_ICON, ARROW, watchUrl, thumbUrl, playButton, watchLink } from '../parts.mjs';
 
-const V = '/assets/preview/kingsley/video';
+const V = '/media/kingsley';
 const SPOTIFY_EMBED = 'https://open.spotify.com/embed/artist/1TlaDAmkhwEJv7qz6WfsqE';
 const SPOTIFY_ARTIST = 'https://open.spotify.com/artist/1TlaDAmkhwEJv7qz6WfsqE';
 

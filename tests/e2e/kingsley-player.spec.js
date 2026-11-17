@@ -7,7 +7,7 @@ const PLAY_5 = '.ka-row button[data-play="JfxWXop_01c"]';
 
 // Fake YouTube IFrame API: tests never touch the network.
 const FAKE_YT = `
-  window.__ytPlayers = [];
+  window.__ytPlayers ??= [];
   window.YT = {
     PlayerState: { PLAYING: 1, PAUSED: 2, ENDED: 0 },
     Player: class {
@@ -33,10 +33,16 @@ const FAKE_YT = `
 `;
 
 async function stubYouTube(page, { noReady = false } = {}) {
+  // Defined before any page script runs, so waits on __ytPlayers never throw
+  // while the (delayed) API script is still on its way.
+  await page.addInitScript(() => { window.__ytPlayers = []; });
   if (noReady) await page.addInitScript(() => { window.__ytNoReady = true; });
-  await page.route('**/iframe_api', (route) =>
-    route.fulfill({ status: 200, contentType: 'text/javascript', body: FAKE_YT }),
-  );
+  // The API arrives after a short delay, as over a real network, so tests cannot
+  // depend on it having loaded by the time the click returns.
+  await page.route('**/iframe_api', async (route) => {
+    await new Promise((r) => setTimeout(r, 300));
+    await route.fulfill({ status: 200, contentType: 'text/javascript', body: FAKE_YT });
+  });
 }
 
 function collectErrors(page) {
@@ -76,6 +82,7 @@ test.describe('Kingsley persistent player', () => {
     await expect(bar.locator('img')).toHaveAttribute('src', 'https://i.ytimg.com/vi/LqwYHMrrYK0/mqdefault.jpg');
     await expect(bar.locator('[role="progressbar"]')).toHaveCount(1);
     for (const b of await bar.locator('button').all()) await expect(b).toHaveAttribute('aria-label', /.+/);
+    await page.waitForFunction(() => window.__ytPlayers.length === 1);
     const opts = await page.evaluate(() => window.__ytPlayers[0].opts);
     expect(opts.host).toBe('https://www.youtube-nocookie.com');
     expect(opts.videoId).toBe('LqwYHMrrYK0');

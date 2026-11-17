@@ -5,12 +5,14 @@ import { designPageRoute, designPageHeadRoute } from './routes/design-page.js';
 import { sitemapRoute, robotsRoute } from './routes/sitemap.js';
 import { absolutizeHtml } from './lib/seo.js';
 import { kingsleyLatestRoute } from './routes/kingsley-latest.js';
+import { mediaRoute, mediaHeadRoute } from './routes/media.js';
 import { leadRoute, uploadUrlRoute, leadMethodNotAllowedRoute } from './routes/lead.js';
 
 export const routes = [
   designPageRoute, designPageHeadRoute,
   sitemapRoute, robotsRoute,
   kingsleyLatestRoute,
+  mediaRoute, mediaHeadRoute,
   leadRoute, uploadUrlRoute, leadMethodNotAllowedRoute,
 ];
 
@@ -36,8 +38,8 @@ export default {
     }
 
     const res = await env.ASSETS.fetch(request);
-    // Client drafts are unlisted: no search engine may index or follow them.
-    const draft = url.pathname.startsWith('/preview/');
+    // Client drafts (and their media) are unlisted: no search engine may index or follow them.
+    const draft = /^\/(preview|media\/kingsley)\//.test(url.pathname);
     const noindex = (r) => { if (!draft) return r; const h = new Headers(r.headers); h.set('x-robots-tag', 'noindex, nofollow'); return new Response(r.body, { status: r.status, statusText: r.statusText, headers: h }); };
     // Redirects and non-HTML (images, fonts, JSON) pass straight through.
     if (!(res.headers.get('content-type') || '').includes('text/html')) return noindex(res);

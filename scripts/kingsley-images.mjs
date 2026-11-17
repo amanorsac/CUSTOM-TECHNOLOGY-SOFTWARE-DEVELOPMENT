@@ -1,6 +1,9 @@
 // Turns Kingsley's Drive photos (assets-src/kingsley/, gitignored) into the
 // files the draft serves: <name>-800 and <name>-1600 in WebP and JPEG, plus
 // img/manifest.json { name: { w, h } } giving the 1600 file's size.
+// Only the photos named in USED are published; to use another photo on a page,
+// add its kebab name to USED and re-run. tests/unit/kingsley-images.test.js
+// checks USED, the manifest and the built pages agree.
 //
 //   node scripts/kingsley-images.mjs           convert anything new
 //   node scripts/kingsley-images.mjs --force   rebuild everything
@@ -9,7 +12,8 @@
 // GREY7822-Recovered.png2.png -> grey7822-recovered-png2.
 //
 // It also publishes the hero video: copies the encoded hero-1920.mp4 and
-// hero-960.mp4 from assets-src/kingsley/video/ to video/, and makes
+// hero-960.mp4 from assets-src/kingsley/video/ to public/media/kingsley/
+// (served by the worker with byte ranges, see src/routes/media.js), and makes
 // hero-poster.webp (1920 wide, q75) and hero-poster.jpg from hero-poster.jpg.
 //
 // And the official logo: assets-src/kingsley/logo/ka-logo-source.jpg (white on
@@ -26,8 +30,16 @@ export const OUT_DIR = 'public/assets/preview/kingsley/img';
 export const WIDTHS = [800, 1600];
 export const MAX_WIDTH = 2000;
 export const QUALITY = 78;
+// Photos the pages use (kebab names). Everything else in SRC_DIR is skipped.
+export const USED = [
+  'amh-5789', 'amh-5791', 'amh-5821', 'amh-5845', 'amh-5849', 'amh-5851', 'amh-5953', 'amh-5954',
+  'grey7822', 'grey78221',
+  'mg-8938', 'mg-8954', 'mg-8962', 'mg-8965', 'mg-8968', 'mg-8972',
+  'mg-9007', 'mg-9012', 'mg-9014', 'mg-9025', 'mg-9026', 'mg-9027',
+  'mg-9032', 'mg-9033', 'mg-9034', 'mg-9035',
+];
 export const VIDEO_SRC_DIR = 'assets-src/kingsley/video';
-export const VIDEO_OUT_DIR = 'public/assets/preview/kingsley/video';
+export const VIDEO_OUT_DIR = 'public/media/kingsley';
 export const HERO_VIDEOS = ['hero-1920.mp4', 'hero-960.mp4'];
 
 /** '_MG_9033.JPG' -> 'mg-9033' */
@@ -150,7 +162,9 @@ async function brand(force) {
 async function main() {
   const force = process.argv.includes('--force');
   fs.mkdirSync(OUT_DIR, { recursive: true });
-  const files = fs.readdirSync(SRC_DIR).filter((f) => /\.(jpe?g|png|webp)$/i.test(f)).sort();
+  const files = fs.readdirSync(SRC_DIR).filter((f) => /\.(jpe?g|png|webp)$/i.test(f) && USED.includes(kebabName(f))).sort();
+  const missing = USED.filter((n) => !files.some((f) => kebabName(f) === n));
+  if (missing.length) throw new Error(`USED names with no source photo: ${missing.join(', ')}`);
   const manifest = {};
   for (const file of files) {
     const [name, size] = await convert(file, force);
