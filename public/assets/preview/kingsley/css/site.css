@@ -356,7 +356,8 @@ html.ka-motion .ka-parallax__bg { will-change: transform; }
    (it never does under prefers-reduced-motion). */
 .ka-line { display: block; overflow: hidden; padding-bottom: .12em; margin-bottom: -.12em; }
 .ka-line__inner { display: block; }
-html.ka-motion .ka-split:not(.is-split) { visibility: hidden; }
+/* opacity (not visibility) so a swapped-in h1 can take focus before it is split */
+html.ka-motion .ka-split:not(.is-split) { opacity: 0; }
 html.ka-motion .ka-split .ka-line__inner {
   transition: transform .5s var(--ka-ease);
   transition-delay: calc(var(--i, 0) * 80ms);

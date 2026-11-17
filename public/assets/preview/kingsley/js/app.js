@@ -1,26 +1,26 @@
 // Entry point for every Kingsley Anyenor page.
-import { initPlayer, play, expand, syncButtons } from './player.js';
+import { initPlayer, play, pause, expand, syncButtons } from './player.js';
 import { initLatest } from './latest.js';
 import { initNav } from './nav.js';
 
 initPlayer();
 initNav();
 
-// Third-party embeds that load only on a click (Spotify players, the release-page YouTube embed).
-const EMBED_HOSTS = ['https://open.spotify.com/embed/', 'https://www.youtube-nocookie.com/embed/'];
+// Third-party embeds that load only on a click (Spotify players).
+const EMBED_HOSTS = ['https://open.spotify.com/embed/'];
 
 function loadEmbed(btn) {
   const src = btn.dataset.embed || '';
   if (!EMBED_HOSTS.some((h) => src.startsWith(h))) return;
+  pause(); // one source at a time
   const box = btn.closest('[data-embed-box]') || btn.parentElement;
   const frame = document.createElement('iframe');
   frame.src = src;
   frame.title = btn.dataset.embedTitle || 'Embedded player';
-  if (src.startsWith('https://open.spotify.com/')) frame.loading = 'lazy';
+  frame.loading = 'lazy';
   frame.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
   frame.setAttribute('width', '100%');
-  if (src.startsWith('https://open.spotify.com/')) frame.setAttribute('height', '352');
-  else frame.setAttribute('allowfullscreen', '');
+  frame.setAttribute('height', '352');
   box.replaceChildren(frame);
   box.classList.add('is-loaded');
   frame.focus(); // the button is gone; keep keyboard focus on the player

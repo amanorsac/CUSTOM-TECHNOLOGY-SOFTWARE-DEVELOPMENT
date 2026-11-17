@@ -1,7 +1,7 @@
 // Music archive (/music/) and one page per release (/music/<slug>/).
 import { BASE, esc, escAttr, icon } from '../layout.mjs';
 import { GROUPS } from '../../../public/assets/preview/kingsley/js/catalogue.js';
-import { PLAY_ICON, ARROW, watchUrl, thumbUrl, playButton, watchLink } from '../parts.mjs';
+import { ARROW, watchUrl, thumbUrl, playButton, watchLink } from '../parts.mjs';
 
 const TYPE = { 'deeper-worship': 'Live worship set', medley: 'Medley', unveiled: 'From THE UNVEILED', single: 'Single' };
 const typeLabel = (e) => (TYPE[e.group] ?? 'Release') + (e.live && e.group !== 'deeper-worship' ? ' · Live' : '');
@@ -12,7 +12,6 @@ export function spotifyEmbed(url) {
   const m = /^https:\/\/open\.spotify\.com\/(track|album|playlist|episode)\/([A-Za-z0-9]+)/.exec(url || '');
   return m ? `https://open.spotify.com/embed/${m[1]}/${m[2]}` : null;
 }
-const ytEmbed = (id) => `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?autoplay=1&rel=0`;
 
 /** "Deeper Worship 6.0" -> "6.0"; "Deeper Worship Vol 2" -> "2". */
 const numeral = (e) => (e.group === 'deeper-worship' ? /(\d+(?:\.\d+)?)\s*$/.exec(e.title)?.[1] : undefined);
@@ -47,7 +46,7 @@ function musicPage(catalogue) {
   return (
     `<section class="ka-section ka-musichead"><div class="ka-wrap">` +
     `<p class="ka-eyebrow">Kingsley Anyenor &amp; The Refined</p>` +
-    `<h1>Music</h1>` +
+    `<h1 class="ka-split">Music</h1>` +
     `<p class="ka-musichead__lead ka-up">Every song and live session, one tap from play. Pick a release to watch it here, or open its page to stream it.</p>` +
     `</div></section>` +
     `<div class="ka-wrap ka-musicbody">${sections}</div>`
@@ -74,11 +73,11 @@ function releasePage(e, catalogue) {
     `<p class="ka-release__back"><a class="ka-textlink" href="${BASE}music/">All music</a></p>` +
     `<div class="ka-release__grid">` +
     `<div class="ka-release__media">` +
-    `<div class="ka-embed ka-wedge" data-embed-box><div class="ka-embed__poster">` +
-    `<img src="${escAttr(thumbUrl(e.youtubeId))}" width="480" height="360" alt="" loading="lazy" decoding="async">` +
-    `<button type="button" class="ka-playbtn ka-playbtn--lg" data-embed="${escAttr(ytEmbed(e.youtubeId))}" data-embed-title="${escAttr(e.title)} (YouTube)" aria-label="Play ${escAttr(e.title)} here">${PLAY_ICON}</button>` +
+    `<div class="ka-embed ka-wedge"><div class="ka-embed__poster">` +
+    `<img src="${escAttr(thumbUrl(e.youtubeId))}" width="480" height="360" alt="" decoding="async">` +
+    playButton(e, { cls: 'ka-playbtn ka-playbtn--lg', extra: ' data-expand' }) +
     `</div></div>` +
-    `<p class="ka-release__note">Loads the video from youtube-nocookie.com when you press play. ${watchLink(e.youtubeId)}</p>` +
+    `<p class="ka-release__note">Plays in the site player. ${watchLink(e.youtubeId)}</p>` +
     `</div>` +
     `<div class="ka-release__body">` +
     `<p class="ka-eyebrow">${esc(typeLabel(e))} · ${esc(e.year)}</p>` +

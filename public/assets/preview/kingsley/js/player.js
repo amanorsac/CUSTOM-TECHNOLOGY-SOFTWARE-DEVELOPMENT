@@ -257,6 +257,14 @@ export function toggle() {
   }
 }
 
+/** Pause playback if it is playing. Idempotent; safe before the player exists. */
+export function pause() {
+  const p = state.yt;
+  if (!p || p === 'pending' || !state.playing) return;
+  p.pauseVideo();
+  setPlaying(false);
+}
+
 // Next song in the current queue; stops at the end (no wrap).
 export async function next() {
   if (!state.current) return;
